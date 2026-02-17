@@ -1,4 +1,3 @@
-OptaLinker 1.0.0 - 2026.02.xx
+OptaLinker 1.0.0 - 2026.02.17
 =============================
-
 * First public release

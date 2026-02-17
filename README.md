@@ -31,6 +31,7 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 * Password protected Web server for visualization and configuration
 * Persistent configuration storage in flash memory
 * Watchdog
+* Multithreading loop
 * Lots of simple methods to deal with inputs/outputs/storage...
 * Lite and fast loop to keep MQTT publishing of input change state under 50ms
 * ...
@@ -40,6 +41,9 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 
 * Support for OTA update
 * Support for analog expansions boards
+* Modbus addresses documentation
+* Code documentation
+* More examples
 
 
 ## USAGE
@@ -227,7 +231,7 @@ From Arduino IDE menu: _Tools > Manage libraries_, you must install:
 * In menu go to: _file > Examples > Examples from Custom Libraries > Opta Industrial IoT_ and select an example.
 * Upload sketch to your Opta board. Enjoy.
 
-To use OptaAio in your sketch, see example `OptaLinkerAuto.ino`
+To use OptaLinker in your sketch, see example `OptaLinkerAuto.ino`
 
 
 ## CONTRIBUTORS

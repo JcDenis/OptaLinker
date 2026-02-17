@@ -41,6 +41,9 @@ void loop() {
 
   } else {
 
+    /**
+     * Read board and expansion input and report their states to the outputs
+     */
     ExpansionStruct *expansion = linker.io->getExpansions();
     for (uint8_t e = 0; e < linker.io->getExpansionsNum(); e++) {
       if (expansion[e].exists) {
@@ -50,12 +53,7 @@ void loop() {
           }
         }
       }
-
-      delay(1000);
     }
-
-    //delay(60000);
-    //Serial.println("60s");
   }
 
   // As OpaLinker use thread, main loop must use yield()
