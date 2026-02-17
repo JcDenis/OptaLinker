@@ -21,7 +21,7 @@ void setup() {
   if (linker.setup()) {
 
     /**
-     * Start library loop in a dedicated thread.c:\Users\Jean-Christain Denis\Documents\Arduino\libraries\OptaLinker\src\board.h
+     * Start library loop in a dedicated thread.
      */
     linker.thread();
   }
