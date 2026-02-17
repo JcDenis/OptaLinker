@@ -15,7 +15,7 @@
 #include <FATFileSystem.h>
 #include <MBRBlockDevice.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 #include "fwWifiCertificates.h"
 
 namespace optalinker {
@@ -29,7 +29,7 @@ class OptaLinkerBoard;
  * This class formats flash memory in four partitions 
  * and install Wifi firmware and cetificate.
  */
-class OptaLinkerFlash : public OptaLinkerBase {
+class OptaLinkerFlash : public OptaLinkerModule {
 
 private:
   OptaLinkerMonitor &monitor;

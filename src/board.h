@@ -15,7 +15,7 @@
 #include <drivers/Watchdog.h> //?
 #include <opta_info.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 // Board info
 OptaBoardInfo *boardInfo();
@@ -25,7 +25,7 @@ namespace optalinker {
 class OptaLinkerState;
 class OptaLinkerMonitor;
 
-class OptaLinkerBoard : public OptaLinkerBase {
+class OptaLinkerBoard : public OptaLinkerModule {
 
 private:
   OptaLinkerState &state;

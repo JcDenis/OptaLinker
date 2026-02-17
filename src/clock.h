@@ -16,7 +16,7 @@
 #include <NTPClient.h>
 #include <WiFi.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
@@ -26,7 +26,7 @@ class OptaLinkerBoard;
 class OptaLinkerConfig;
 class OptaLinkerNetwork;
 
-class OptaLinkerClock : public OptaLinkerBase {
+class OptaLinkerClock : public OptaLinkerModule {
 
 private:
   OptaLinkerState &state;

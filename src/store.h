@@ -15,13 +15,13 @@
 #include <kvstore_global_api.h>
 #include <mbed.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
 class OptaLinkerMonitor;
 
-class OptaLinkerStore : public OptaLinkerBase {
+class OptaLinkerStore : public OptaLinkerModule {
 
 private:
   OptaLinkerMonitor &monitor;

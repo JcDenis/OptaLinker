@@ -13,7 +13,7 @@
 
 #include <ArduinoRS485.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
@@ -21,7 +21,7 @@ class OptaLinkerMonitor;
 class OptaLinkerBoard;
 class OptaLinkerConfig;
 
-class OptaLinkerRs485 : public OptaLinkerBase {
+class OptaLinkerRs485 : public OptaLinkerModule {
 
 private:
   OptaLinkerMonitor &monitor;

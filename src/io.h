@@ -13,7 +13,7 @@
 
 #include <OptaBlue.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
@@ -22,7 +22,7 @@ class OptaLinkerMonitor;
 class OptaLinkerBoard;
 class OptaLinkerConfig;
 
-class OptaLinkerIo : public OptaLinkerBase {
+class OptaLinkerIo : public OptaLinkerModule {
 
 private:
   OptaLinkerState &state;

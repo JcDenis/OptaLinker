@@ -8,8 +8,8 @@
  * @see README.md file
  */
 
-#ifndef OPTALINKER_BASE_H
-#define OPTALINKER_BASE_H
+#ifndef OPTALINKER_MODULE_H
+#define OPTALINKER_MODULE_H
 
 #include <Arduino.h>
 
@@ -23,7 +23,7 @@ namespace optalinker {
  *
  * All library modules extend this class
  */
-class OptaLinkerBase {
+class OptaLinkerModule {
 
 private:
 
@@ -57,7 +57,7 @@ protected:
   }
 
 public:
-	virtual ~OptaLinkerBase() {}
+	virtual ~OptaLinkerModule() {}
 
   /**
    * OptaLinker library module setup.
@@ -99,7 +99,7 @@ public:
     return _isEnabled;
   }
 
-}; // class OptaLinkerBase
+}; // class OptaLinkerModule
 
 } // namespace optalinker
 

@@ -11,11 +11,11 @@
 #ifndef OPTALINKER_VERSION_H
 #define OPTALINKER_VERSION_H
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
-class OptaLinkerVersion : public OptaLinkerBase {
+class OptaLinkerVersion : public OptaLinkerModule {
 
 private:
 

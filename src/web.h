@@ -15,7 +15,7 @@
 #include <mbedtls/base64.h>
 #include <WiFi.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 #include "html.h"
 
 namespace optalinker {
@@ -30,7 +30,7 @@ class OptaLinkerNetwork;
 class OptaLinkerClock;
 class OptaLinkerMqtt;
 
-class OptaLinkerWeb : public OptaLinkerBase {
+class OptaLinkerWeb : public OptaLinkerModule {
 
 private:
   OptaLinkerVersion &version;

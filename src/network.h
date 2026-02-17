@@ -14,7 +14,7 @@
 #include <Ethernet.h>
 #include <WiFi.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
@@ -23,7 +23,7 @@ class OptaLinkerMonitor;
 class OptaLinkerBoard;
 class OptaLinkerConfig;
 
-class OptaLinkerNetwork : public OptaLinkerBase {
+class OptaLinkerNetwork : public OptaLinkerModule {
 
 private:
   OptaLinkerState &state;

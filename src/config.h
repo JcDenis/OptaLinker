@@ -14,7 +14,7 @@
 #include <ArduinoJson.h>
 #include <kvstore_global_api.h>
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
@@ -22,7 +22,7 @@ class OptaLinkerVersion;
 class OptaLinkerMonitor;
 class OptaLinkerBoard;
 
-class OptaLinkerConfig : public OptaLinkerBase {
+class OptaLinkerConfig : public OptaLinkerModule {
 
 private:
   OptaLinkerVersion &version;

@@ -11,11 +11,11 @@
 #ifndef OPTALINKER_STATE_H
 #define OPTALINKER_STATE_H
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
-class OptaLinkerState : public OptaLinkerBase {
+class OptaLinkerState : public OptaLinkerModule {
 
 private:
   /**

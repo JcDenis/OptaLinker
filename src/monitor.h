@@ -11,13 +11,13 @@
 #ifndef OPTALINKER_MONITOR_H
 #define OPTALINKER_MONITOR_H
 
-#include "OptaLinkerBase.h"
+#include "OptaLinkerModule.h"
 
 namespace optalinker {
 
 class OptaLinkerState;
 
-class OptaLinkerMonitor : public OptaLinkerBase {
+class OptaLinkerMonitor : public OptaLinkerModule {
 
 private:
   OptaLinkerState &state;
