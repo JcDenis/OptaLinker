@@ -20,32 +20,51 @@ class OptaLinkerVersion : public OptaLinkerModule {
 private:
 
   /**
-   * The library major version.
+   * The library version major.
    */
-  static const uint8_t _major = 1;
+  uint8_t _major;
 
   /**
-   * The library minor version.
+   * The library version minor.
    */
-  static const uint8_t _minor = 0;
+  uint8_t _minor;
 
   /**
-   * The library revision.
+   * The library version revision.
    */
-  static const uint8_t _revision = 0;
+  uint8_t _revision;
 
 public:
-	OptaLinkerVersion() {}
+	OptaLinkerVersion(uint8_t major, uint8_t minor, uint8_t revision) {
+    _major    = major;
+    _minor    = minor;
+    _revision = revision;
+  }
 
-  static uint8_t getMajor() {
+  /**
+   * Get library version major.
+   *
+   * @return  The library version major
+   */
+  uint8_t getMajor() {
     return _major;
   }
 
-  static uint8_t getMinor() {
+  /**
+   * Get library version minor.
+   *
+   * @return  The library version minor
+   */
+  uint8_t getMinor() {
     return _minor;
   }
 
-  static uint8_t getRevision() {
+  /**
+   * Get library version revison.
+   *
+   * @return  The library version revision
+   */
+  uint8_t getRevision() {
     return _revision;
   }
 
@@ -54,7 +73,7 @@ public:
    *
    * @return The string version on form x.y.z
    */
-  static String toString() {
+  String toString() {
 
     return String(_major) + "." + _minor + "." + _revision;
   }
@@ -64,8 +83,8 @@ public:
    *
    * @return The numeric version on form xxyyzz
    */
-  static uint32_t toInt() {
-    char buffer[7];
+  uint32_t toInt() {
+    char buffer[10];
     sprintf(buffer, "%02d%02d%02d", _major, _minor, _revision);
 
     return atoi(buffer);

@@ -89,7 +89,7 @@ private:
    * Construct OptaLinker instance and construct library modules.
    */
   OptaLinker() {
-    version  = new OptaLinkerVersion();
+    version  = new OptaLinkerVersion(1, 0, 0);
     state    = new OptaLinkerState();
     monitor  = new OptaLinkerMonitor(*state);
     board    = new OptaLinkerBoard(*state, *monitor);
@@ -103,7 +103,6 @@ private:
     modbus   = new OptaLinkerModbus(*version, *state, *monitor, *board, *config, *network, *io, *rs485);
     mqtt     = new OptaLinkerMqtt(*version, *state, *monitor, *board, *config, *io, *network, *rs485);
     web      = new OptaLinkerWeb(*version, *state, *monitor, *board, *config, *io, *network, *clock, *mqtt);
-
   }
   //~OptaLinker();
 
@@ -114,10 +113,10 @@ private:
    */
   static OptaLinker *instance;
 
-  uint8_t _threadStarted = 0;
-  uint32_t _benchmarkTime = 0;
+  uint8_t _threadStarted   = 0;
+  uint32_t _benchmarkTime  = 0;
   uint32_t _benchmarkCount = 0;
-  uint32_t _benchmarkSum = 0;
+  uint32_t _benchmarkSum   = 0;
   uint8_t _benchmarkRepeat = 0;
 
 }; // class OptaLinker
