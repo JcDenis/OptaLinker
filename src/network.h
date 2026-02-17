@@ -170,8 +170,8 @@ public:
 				return 0;
 	    }
 
-	    String netApSsid = "OPTALINKER" + String(config.getDeviceId());
-	    String netApPass = "OPTALINKER";
+	    String netApSsid = "optalinker" + String(config.getDeviceId());
+	    String netApPass = "optalinker";
 	    char ssid[32];
 	    char pass[32];
 	    netApSsid.toCharArray(ssid, sizeof(ssid));
