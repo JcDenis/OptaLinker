@@ -70,7 +70,7 @@ void loop() {
       int response[100];
 
       addr = ModbusRegisterInput + (0 * ModbusRegisterStructLength) + (0 * ModbusRegisterStructLength);
-      Serial.println(">>> Reading Input Registers expansion 0 ouput 0 brut values : " + String(addr) + " : ");
+      Serial.println(">>> Reading Input Registers expansion 0 ouput 0 brut values : " + String(addr) + " = ");
       if (linker.modbus->getInputRegisters(response, addr, 19)) {
         for (uint8_t v = 0; v < 19; v++) {
           Serial.println(String("E0 O0 V") + v + " : " + String((uint16_t)response[v]));
@@ -78,21 +78,27 @@ void loop() {
 
         // expansion 0 input 1 state
         addr = ModbusRegisterOutput + (0 * ModbusRegisterStructLength) + (1 * ModbusRegisterStructLength) + 3;
-        Serial.println(">>> Reading Input Register : E0 I1 V3 : I0.1 state : " + String(addr) + " = " + String(linker.modbus->getInputRegisterUint16(addr)));
+        Serial.println(">>> Reading Input Register : E0 I1 V3 : I0.1 state : " + String(addr) + " = ");
+        Serial.println(String(linker.modbus->getInputRegisterUint16(addr)));
         // expansion 0 output 1 state
         addr = ModbusRegisterInput + (0 * ModbusRegisterStructLength) + (2 * ModbusRegisterStructLength) + 3;
-        Serial.println(">>> Reading Input Register : E0 O2 V3 : O0.2 state : " + String(addr) + " = " + String(linker.modbus->getInputRegisterUint16(addr)));
+        Serial.println(">>> Reading Input Register : E0 O2 V3 : O0.2 state : " + String(addr) + " = ");
+        Serial.println(String(linker.modbus->getInputRegisterUint16(addr)));
 
         // Switch expansion 0 ouput 2 every 30s
         _lastState = _lastState == 0 ? 1 : 0;
         Serial.println(">>> Writing Coil 2 : main board output 3 : E0 O2 : O0.2 : " + String(_lastState));
         if (linker.modbus->setCoil(2, _lastState) == -1) {
-          Serial.println(">>> failed to update coil");
+          Serial.println("failed to update coil");
+        } else {
+          Serial.println("coil updated");
         }
 
       } else {
         Serial.println(">>> Failed to get modbus registers");
       }
+
+      Serial.println(">>> End of poll");
     }
 
     // Send "modbus" to serial monitor to update modbus server configuration
@@ -108,7 +114,7 @@ void loop() {
       Serial.println(">>> Writing password verification : " + String(addr));
       linker.modbus->setRegisterString(addr, String(_serverPassword));
 
-      // set end of configuration
+      // Set end of configuration
       addr = ModbusRegisterFirmware + ModbusRegisterConfigValidate;
       Serial.println(">>> Writing config end : " + String(addr));
       linker.modbus->setRegisterUint16(addr, 1);

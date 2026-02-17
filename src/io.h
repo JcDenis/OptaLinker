@@ -78,7 +78,7 @@ public:
     monitor.setInfo(LabelIoExpansionSetup);
 
     // Start Opta controler (expansions)
-    board.freezeTimeout();
+    board.setFreeze();
     OptaController.begin();
 
     // add main board to expansions count
@@ -86,7 +86,7 @@ public:
 
     // Display number of expansions
     monitor.setInfo(LabelIoExpansionNum + String(_expansionsNum -1));
-    board.unfreezeTimeout();
+    board.unsetFreeze();
 
     // init then read values from storage
     initializeIo();

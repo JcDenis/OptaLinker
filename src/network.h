@@ -83,7 +83,7 @@ private:
 	  monitor.setAction(LabelNetworkEthernet);
 
 	  int ret = 0;
-	  board.freezeTimeout();
+	  board.setFreeze();
 	  if (config.getNetworkDhcp()) {
 	    monitor.setInfo(LabelNetworkMode + String("DHCP"));
 	    ret = Ethernet.begin(nullptr, getTimeout(), 4000);
@@ -91,7 +91,7 @@ private:
 	    monitor.setInfo(LabelNetworkMode + String("Static IP"));
 	    ret = Ethernet.begin(nullptr, config.getNetworkIp(), config.getNetworkDns(), config.getNetworkGateway(), config.getNetworkSubnet(), getTimeout(), 4000);
 	  }
-	  board.unfreezeTimeout();
+	  board.unsetFreeze();
 
 	  if (ret == 0) {
 	    _isConnected = 0;
@@ -126,10 +126,10 @@ private:
 	    WiFi.config(config.getNetworkIp(), config.getNetworkDns(), config.getNetworkGateway(), config.getNetworkSubnet());
 	  }
 
-	  board.freezeTimeout();
+	  board.setFreeze();
 	  WiFi.setTimeout(getTimeout());
 	  int ret = WiFi.begin(ssid, pass);
-	  board.unfreezeTimeout();
+	  board.unsetFreeze();
 
 	  if (ret != WL_CONNECTED) {
 	    monitor.setWarning(LabelNetworkStaFail);
@@ -182,9 +182,9 @@ public:
 
 	    WiFi.config(config.getNetworkIp());
 
-	    board.freezeTimeout();
+	    board.setFreeze();
 	    int ret = WiFi.beginAP(ssid, pass);
-	    board.unfreezeTimeout();
+	    board.unsetFreeze();
 
 	    if (ret != WL_AP_LISTENING) {
 				monitor.setWarning(LabelNetworkApFail);

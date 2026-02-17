@@ -121,17 +121,17 @@ private:
     _lastRetry = millis();
     monitor.setAction(LabelMqttBroker);
 
-    board.freezeTimeout();
+    board.setFreeze();
     _genericClient.setId(String("opta" + config.getDeviceId()).c_str());
     _genericClient.setUsernamePassword(config.getMqttUser(), config.getMqttPassword());
     _genericClient.setConnectionTimeout(network.getTimeout()); // This directive has no effect !
     if (!_genericClient.connect(config.getMqttIp(), config.getMqttPort())) {
       monitor.setWarning(LabelMqttBrokerFail);
-      board.unfreezeTimeout();
+      board.unsetFreeze();
 
       return;
     }
-    board.unfreezeTimeout();
+    board.unsetFreeze();
 
     monitor.setInfo(LabelMqttBrokerSuccess);
     _isConnected = 1;
@@ -245,7 +245,7 @@ public:
 
     _baseTopic = config.getMqttBase() + config.getDeviceId() + "/";
 
-    board.freezeTimeout();
+    board.setFreeze();
     if (network.isEthernet()) {
       MqttClient tempMqttClient(_ethernetClient);
       _genericClient = tempMqttClient;
@@ -253,7 +253,7 @@ public:
       MqttClient tempMqttClient(_wifiClient);
       _genericClient = tempMqttClient;
     }
-    board.unfreezeTimeout();
+    board.unsetFreeze();
 
     connect();
 

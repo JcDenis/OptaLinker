@@ -51,7 +51,7 @@ private:
    * @param   udp   The UDP object
    */
   void synchronizeFromUdp(UDP &udp) {
-      board.freezeTimeout();
+      board.setFreeze();
       WiFiUDP wifiUdpClient;
       NTPClient timeClient(udp, config.getTimeServer().c_str(), config.getTimeOffset() * 3600, 0);
       timeClient.begin();
@@ -63,7 +63,7 @@ private:
         monitor.setInfo(LabelClockUpdateSuccess + timeClient.getFormattedTime());
         _isUpdated = 1;
       }
-      board.unfreezeTimeout();
+      board.unsetFreeze();
   }
 
 public:

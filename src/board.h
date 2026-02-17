@@ -11,8 +11,8 @@
 #ifndef OPTALINKER_BOARD_H
 #define OPTALINKER_BOARD_H
 
-#include <drivers/Watchdog.h> //?
 #include <mbed.h>
+#include <drivers/Watchdog.h> //?
 #include <opta_info.h>
 
 #include "OptaLinkerBase.h"
@@ -76,25 +76,40 @@ private:
    */
   uint32_t _buttonLast = 0;
 
-  uint32_t _timeout = 5000;
-  uint32_t _timeoutMax = 30000;
-  uint32_t _timeoutStart = 0;
-  uint16_t _timeoutLevel = 0;
-  uint8_t _timeoutState = 0;
-  uint8_t _timeoutPrevious = 0;
+  /**
+   * Watchdog timeout.
+   *
+   * Opta baord max timrout should be 32720.
+   * Most long operation such as network/mqtt connection timeout can be 30000.
+   * Note: Opta boad does not support to stop watchdog.
+   */
+  uint32_t _timeout = 31000;
+
+  /**
+   * Freeze mode start timestamp.
+   */
+  uint32_t _freezeStart[10];
+
+  /**
+   * Freeze mode level.
+   *
+   * Number of time setFreeze() was called without unsetFreeze().
+   */
+  uint16_t _freezeLevel = 0;
 
 public:
 	OptaLinkerBoard(OptaLinkerState &_state, OptaLinkerMonitor &_monitor) : state(_state), monitor(_monitor) {}
 
   uint8_t setup() {
-    // Setup max timeout from board
-    _timeoutMax = mbed::Watchdog::get_instance().get_max_timeout();
-
-    // During library setup, we use long timeout
-    raiseTimeout();
-
     // Display board setup message
     monitor.setAction(LabelBoardSetup);
+
+    // Setup watchdog timeout
+    if (_timeout > mbed::Watchdog::get_instance().get_max_timeout()) {
+      _timeout = mbed::Watchdog::get_instance().get_max_timeout();
+    }
+    mbed::Watchdog::get_instance().start(_timeout);
+    monitor.setInfo(LabelBoardTimeout + String(_timeout));
 
     // Retrieve board info
     OptaBoardInfo *info = boardInfo();
@@ -356,69 +371,60 @@ public:
   }
 
   /**
-   * Set watchdog short tiemout.
+   * Get watchdog timeout value.
    *
-   * @param   timeout   The short timeout in milliseconds.
-   */
-  void setTimeout(uint32_t timeout) {
-    if (timeout > 50 && timeout < 32000) {
-      monitor.setInfo(LabelBoardTimeout);
-      _timeout = timeout;
-    }
-  }
-
-  /**
-   * Get watchdog short timeout value.
-   *
-   * @return The short timeout value.
+   * @return The timeout value.
    */
   uint32_t getTimeout() {
 
     return _timeout;
   }
 
+  /**
+   * Ping watchdog to extend timeout.
+   */
   void pingTimeout() {
     mbed::Watchdog::get_instance().kick();
   }
 
-  void raiseTimeout() {
-    _timeoutPrevious = 1;
-    mbed::Watchdog::get_instance().start(_timeoutMax);
-  }
-
-  void lowerTimeout() {
-    _timeoutPrevious = 0;
-    mbed::Watchdog::get_instance().start(_timeout);
-  }
-
-  void freezeTimeout() {
-    if (_timeoutLevel < 1) {
-      _timeoutStart = millis();
+  /**
+   * Enter freeze mode.
+   *
+   * This do not freeze board,
+   * but set a state to announce there is a time consuming operation.
+   * (netowrk connection...)
+   */
+  void setFreeze() {
+    // perform raise only if not already in long timeout
+    if (_freezeLevel < 1) {
       state.setType(StateType::StateFreeze);
-Serial.print("d");
-      _timeoutState = _timeoutPrevious;
-      raiseTimeout();
-Serial.print("e");
       setRed(1);
       setGreen(1);
+
+      _freezeStart[_freezeLevel] = millis();
     }
-    _timeoutLevel++;
-    monitor.setWarning(LabelBoardFreeze + String(" (") + _timeoutLevel + ")");
+    _freezeLevel++;
+    monitor.setWarning(LabelBoardFreeze + String(" (") + _freezeLevel + ")");
+    pingTimeout();
   }
 
-  void unfreezeTimeout() {
-      if (_timeoutLevel < 2) {
-        state.setType(StateType::StateRun);
-Serial.print("j");
-        if (!_timeoutState) {
-          lowerTimeout();
-        }
-Serial.print("k");
-        setRed(0);
-        setGreen(0);
-      }
-      _timeoutLevel--;
-      monitor.setInfo(LabelBoardUnfreeze + String((millis() - _timeoutStart)) + " (" + _timeoutLevel + ")");
+  /**
+   * Exit freeze mode.
+   *
+   * If multiple setFreeze() have been set, 
+   * this decrease from one level till it is being in lower timeout. (level 0)
+   */
+  void unsetFreeze() {
+    // perform lower only if not already in short timeout
+    if (_freezeLevel > 0) {
+      state.setType(StateType::StateRun);
+      setRed(0);
+      setGreen(0);
+
+      _freezeLevel--;
+      monitor.setInfo(LabelBoardUnfreeze + String((millis() - _freezeStart[_freezeLevel])) + String(" (") + _freezeLevel + ")");
+    }
+    pingTimeout();
   }
 
   /**

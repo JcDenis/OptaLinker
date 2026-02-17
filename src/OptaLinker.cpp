@@ -39,14 +39,11 @@ uint8_t OptaLinker::setup() {
     return board->stop();
   }
 
-  // Display end of setup
-  monitor->setAction(LabelOptaLinkerLoop);
-
-  // Set watchdog to low timeout
-  board->lowerTimeout();
-
   // Switch to RUN state
   state->setType(StateType::StateRun);
+
+  // Display end of setup
+  monitor->setAction(LabelOptaLinkerLoop);
 
   // Return library state
   return state->getType();
@@ -183,9 +180,6 @@ uint8_t OptaLinker::loop() {
     }
   }
 
-  // Because of thread, library loop and ino loop MUST use yield
-  yield();
-
 	return state->getType();
 }
 
@@ -202,7 +196,9 @@ void OptaLinker::thread() {
     static rtos::Thread thread;
     thread.start([]() {
       // rtos::Thread.start() requires a static callback
-        while(getInstance().loop()){}
+        while(getInstance().loop()){
+  // Because of thread, library loop and ino loop MUST use yield
+  yield();}
     });
   }
 }

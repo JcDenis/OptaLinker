@@ -341,7 +341,7 @@ private:
     String oldNetPassword = config.getNetworkPassword();
     String oldMqttPassword = config.getMqttPassword();
 
-    board.freezeTimeout();
+    board.setFreeze();
     while (client->available()) {
       String line = client->readStringUntil('\n');  // Read line-by-line
 
@@ -397,7 +397,7 @@ private:
       client->println();
       client->println("{\"status\":\"error\",\"message\":\"Configuration not updated\"}");
     }
-    board.unfreezeTimeout();
+    board.unsetFreeze();
   }
 
 

@@ -59,12 +59,10 @@ private:
    */
   uint8_t _clientServerId = 0;
 
-  uint32_t _connectToTcpServerDelay = 50;
-  uint32_t _connectToTcpServerLast = 0;
-
+  /**
+   * Last update time of IO.
+   */
   uint32_t _updateLast = 0;
-
-  uint8_t _isReconfigured = 0;
 
   void prepareRS485() {
      auto bitduration{ 1.f / config.getRs485Baudrate() };
@@ -73,39 +71,51 @@ private:
      RS485.setDelays(preDelayBR, postDelayBR);
   }
 
+  /**
+   * Connect lcoal modbus client to distant modbus TCP server.
+   *
+   * @return 1 on success, else 0
+   */
   uint8_t connectToTcpServer() {
     uint8_t ret = 0;
-    if (millis() - _connectToTcpServerLast > _connectToTcpServerDelay) {
-      _connectToTcpServerLast = millis();
 
-      if (network.isEthernet()) {
-        if (!_tcpEthernetClient.connected()) {
-          board.freezeTimeout();
-          _tcpEthernetClient.setTimeout(1000);
-          if (!_tcpEthernetClient.begin(config.getModbusIp(), config.getModbusPort())) {
-            monitor.setWarning(LabelModbusClientFail);
-          } else {
-            ret = _tcpEthernetClient.connected() == 1 ? 1 : 0;
-          }
-          board.unfreezeTimeout();
+    // Wait previous for connection handle
+    lock();
+
+    if (network.isEthernet()) {
+      if (!_tcpEthernetClient.connected()) {
+        board.setFreeze();
+        _tcpEthernetClient.setTimeout(5000);
+        if (!_tcpEthernetClient.begin(config.getModbusIp(), config.getModbusPort())) {
+          monitor.setWarning(LabelModbusClientFail);
+        } else {
+          ret = _tcpEthernetClient.connected() == 1 ? 1 : 0;
         }
-      } else if (network.isStandard()) {
-        if (!_tcpWifiClient.connected()) {
-          board.freezeTimeout();
-          _tcpWifiClient.setTimeout(1000);
-          if (!_tcpWifiClient.begin(config.getModbusIp(), config.getModbusPort())) {
-            monitor.setWarning(LabelModbusClientFail);
-          } else {
-            ret = _tcpWifiClient.connected() == 1 ? 1 : 0;
-          }
-          board.unfreezeTimeout();
+        board.unsetFreeze();
+      }
+    } else if (network.isStandard()) {
+      if (!_tcpWifiClient.connected()) {
+        board.setFreeze();
+        _tcpWifiClient.setTimeout(5000);
+        if (!_tcpWifiClient.begin(config.getModbusIp(), config.getModbusPort())) {
+          monitor.setWarning(LabelModbusClientFail);
+        } else {
+          ret = _tcpWifiClient.connected() == 1 ? 1 : 0;
         }
+        board.unsetFreeze();
       }
     }
+
+    unlock();
 
     return ret;
   }
 
+  /**
+   * Disconnect local modbus client from distant modbus TCP server.
+   *
+   * We connect/disconnect on each request to prevent server kick.
+   */
   void disconnectFromTcpServer() {
     if (network.isEthernet()) {
       _tcpEthernetClient.stop();
@@ -114,6 +124,11 @@ private:
     }
   }
 
+  /**
+   * Configure modbus local modbus server registers and discretes and coils.
+   *
+   * On startup.
+   */
   void configureServerRegisters() {
     if (isRtuServer()) {
       _rtuServer.configureInputRegisters(RegisterOffsetAddress, ModbusRegisterTotalLength);
@@ -128,6 +143,9 @@ private:
     }
   }
 
+  /**
+   * Update local modbus server registers.
+   */
   void setServerRegisters() {
     _updateLast = state.getTime() + 1;
     uint16_t offset = 0;
@@ -212,6 +230,13 @@ private:
     }
   }
 
+  /**
+   * Update local modbus server IO registers.
+   *
+   * @param   offset    The starting address of the IO registers
+   * @param   ios       The IO structure
+   * @param   isInput   True if IO is an input
+   */
   void setRegisterIo(uint16_t offset, IoStruct ios, uint8_t isInput = true) {
     setRegisterUint16(offset + ModbusRegisterIoExists, ios.exists);
     setRegisterUint16(offset + ModbusRegisterIoUid, ios.uid);
@@ -234,6 +259,9 @@ private:
     }
   }
 
+  /**
+   * Parser received holding registers.
+   */
   void parseServerHoldingRegisters() {
     monitor.setAction(LabelModbusRegisterParse);
 
@@ -302,6 +330,16 @@ private:
     }
   }
 
+  /**
+   * Get registers.
+   *
+   * @param   response  The reponse container
+   * @param   type      The regiter type (holding or input)
+   * @param   start     The starting address
+   * @param   length    The number of regieter to read
+   *
+   * @return  1 on success, else 0
+   */
   uint8_t getRegisters(int *response, uint8_t type, uint16_t start, uint16_t length) { // only for client
     uint8_t ret = 0;
 
@@ -319,7 +357,7 @@ private:
         ret = 0;
       } else {
         if (network.isEthernet()) {
-          board.freezeTimeout();
+          board.setFreeze();
           if (_tcpEthernetClient.requestFrom(_clientServerId, type, start, length) == 0) {
               monitor.setWarning(String(_tcpEthernetClient.lastError()));
           } else {
@@ -328,12 +366,12 @@ private:
             }
             ret = 1;
           }
-          board.unfreezeTimeout();
+          board.unsetFreeze();
 
         } else if (network.isStandard()) {
-          board.freezeTimeout();
+          board.setFreeze();
           if (_tcpWifiClient.requestFrom(_clientServerId, type, start, length) == 0) {
-              board.unfreezeTimeout();
+              board.unsetFreeze();
               monitor.setWarning(String(_tcpWifiClient.lastError()));
           } else {
             for (uint16_t index = 0; index < length; index++) {
@@ -341,11 +379,10 @@ private:
             }
             ret = 1;
           }
-          board.unfreezeTimeout();
+          board.unsetFreeze();
         }
-
-        disconnectFromTcpServer();
       }
+      disconnectFromTcpServer();
     } else if (isRtuServer()) {
       for (uint16_t index = 0; index < length; index++) {
         if (type == INPUT_REGISTERS) {
@@ -663,8 +700,8 @@ public:
         } else if (network.isStandard()) {
           ret = _tcpWifiClient.holdingRegisterRead(offset);
         }
-        disconnectFromTcpServer();
       }
+      disconnectFromTcpServer();
     }
 
     return ret;
@@ -685,8 +722,8 @@ public:
         } else if (network.isStandard()) {
           ret = _tcpWifiClient.holdingRegisterWrite(offset, value) == 0 ? -1 : 1;
         }
-        disconnectFromTcpServer();
       }
+      disconnectFromTcpServer();
     }
 
     return ret;
@@ -707,8 +744,8 @@ public:
         } else if (network.isStandard()) {
           ret = _tcpWifiClient.discreteInputRead(offset);
         }
-        disconnectFromTcpServer();
       }
+      disconnectFromTcpServer();
     }
 
     return ret;
@@ -740,8 +777,8 @@ public:
         } else if (network.isStandard()) {
           ret = _tcpWifiClient.coilRead(offset);
         }
-        disconnectFromTcpServer();
       }
+      disconnectFromTcpServer();
     }
 
     return ret;
@@ -762,8 +799,8 @@ public:
         } else if (network.isStandard()) {
           ret = _tcpWifiClient.coilWrite(offset, state) == 0 ? -1 : 1;
         }
-        disconnectFromTcpServer();
       }
+      disconnectFromTcpServer();
     }
 
     return ret;
@@ -798,12 +835,12 @@ public:
 
   int16_t getInputRegisterInt16(uint16_t start) {
     int response[2];
-    return getRegisters(response, INPUT_REGISTERS, start, 2) == 0 ? 0 : toUint32(response, 0);
+    return getRegisters(response, INPUT_REGISTERS, start, 2) == 0 ? 0 : toInt16(response, 0);
   }
 
   int16_t getHoldingRegisterInt16(uint16_t start) {
     int response[2];
-    return getRegisters(response, HOLDING_REGISTERS, start, 2) == 0 ? 0 : toUint32(response, 0);
+    return getRegisters(response, HOLDING_REGISTERS, start, 2) == 0 ? 0 : toInt16(response, 0);
   }
 
   void setRegisterInt16(uint16_t offset, int value) {
