@@ -22,12 +22,12 @@ private:
   /**
    * The library major version.
    */
-  static const uint8_t _major = 0;
+  static const uint8_t _major = 1;
 
   /**
    * The library minor version.
    */
-  static const uint8_t _minor = 1;
+  static const uint8_t _minor = 0;
 
   /**
    * The library revision.
