@@ -77,7 +77,7 @@ Network settings are configured in setup process and can not be changed without 
 
 ### Serial
 
-This sketch display activity on serial port and also support several commands.  
+This library display activity on serial port and also support several commands.  
 These commands are not case sensitive.
  
 * `print version`	: Send to serial monitor the OptaLinker library version
@@ -102,9 +102,9 @@ You should do a `REBOOT` after `SWITCH DHCP`, `SWITCH WIFI` actions to take effe
 
 ### MQTT
 
-This sketch has MQTT client that supports MQTT 3.3.1 and broker with password credentials.
+This library has MQTT client that supports MQTT 3.3.1 and broker with password credentials.
 
-MQTT broker IP, port, user, password, topic, delay can be configured through web server interface or config.h file.
+MQTT broker IP, port, user, password, topic, delay can be configured through web server interface (recommanded) or define.h file.
 
 Publishing inputs statistics topics:
 * `<base_topic>/<device_id>/input/x/state` The digital state of the input
@@ -115,12 +115,12 @@ Publishing inputs statistics topics:
 * `<base_topic>/<device_id>/input/x/partialHigh` The partial time (ms) of high level of the input (resetable)
 
 Publishing outputs statistics topics:
-* `<base_topic>/<device_id>/output/x/state` The digital state of the input
-* `<base_topic>/<device_id>/output/x/voltage` The voltage of the input
-* `<base_topic>/<device_id>/output/x/pulse` The total number of pulse of the input
-* `<base_topic>/<device_id>/output/x/partialPulse` The partial number of pulse of the input (resetable)
-* `<base_topic>/<device_id>/output/x/high` The total time (ms) of high level of the input
-* `<base_topic>/<device_id>/output/x/partialHigh` The partial time (ms) of high level of the input (resetable)
+* `<base_topic>/<device_id>/output/x/state` The digital state of the output
+* `<base_topic>/<device_id>/output/x/voltage` The voltage of the output (not implemented)
+* `<base_topic>/<device_id>/output/x/pulse` The total number of pulse of the output
+* `<base_topic>/<device_id>/output/x/partialPulse` The partial number of pulse of the output (resetable)
+* `<base_topic>/<device_id>/output/x/high` The total time (ms) of high level of the output
+* `<base_topic>/<device_id>/output/x/partialHigh` The partial time (ms) of high level of the output (resetable)
 
 Publishing device informations topics:
 * `<base_topic>/<device_id>/device/type` The human readable device type (Opta Lite...)
@@ -134,7 +134,7 @@ Command output state and device counters and device information topics:
 * `<base_topic>/<device_id>/output/x/set` To set state of an output with `0` = OFF, `1` = ON
 * `<base_topic>/<device_id>/device/get` to force device information publishing (value doesn't matter)
 
-In notation, x mean Input or Output uniq ID, Uid is made of "Expansion number" and "Input Number" starting at 0 for main board. 
+In notation, x mean Input or Output uniq ID, it is made of "Expansion number" and "Input Number" starting at 0 for main board. 
 For example to set the output O1.3 of the device 98 (device 98, expansion 1, Output 3, the ouput print as 4 on the device) to 1 : `opta/98/output/103/set = 1`.
 
 Input state can also be published on demand by sending an HTTP request to the `/publish` URL.
@@ -147,7 +147,7 @@ See dedicated [Modbus document](https://github.com/JcDenis/OptaLinker/blob/maste
 
 ### Web server
 
-This sketch provides a web interface for visualization and configuration through a web server with basic authentication.
+This library provides a web interface for visualization and configuration through a web server with basic authentication.
 Web server is available in both Ethernet and Wifi mode.
 
 * Default static IP address for web server is `192.168.1.231`
