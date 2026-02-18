@@ -152,8 +152,9 @@ private:
     ExpansionStruct *expansion = io.getExpansions();
 
     // Address
-    setRegisterUint16(ModbusRegisterAddress + ModbusRegisterFirmware, ModbusRegisterFirmware);
-    setRegisterUint16(ModbusRegisterAddress + ModbusRegisterAddressStructLength, ModbusRegisterStructLength);
+    setRegisterUint16(ModbusRegisterAddress + ModbusRegisterAddressExpansionLength, ModbusRegisterExpansionLength);
+    setRegisterUint16(ModbusRegisterAddress + ModbusRegisterAddressIoLength, ModbusRegisterIoLength);
+    setRegisterUint16(ModbusRegisterAddress + ModbusRegisterAddressFirmware, ModbusRegisterFirmware);
     setRegisterUint16(ModbusRegisterAddress + ModbusRegisterAddressExpansion, ModbusRegisterExpansion);
     setRegisterUint16(ModbusRegisterAddress + ModbusRegisterAddressInput, ModbusRegisterInput);
     setRegisterUint16(ModbusRegisterAddress + ModbusRegisterAddressOutput, ModbusRegisterOutput);
@@ -206,7 +207,7 @@ private:
 
     // Expansions
     for (uint8_t e = 0; e < io.getExpansionsNum(); e++) {
-      offset = ModbusRegisterExpansion + (e * ModbusRegisterStructLength);
+      offset = ModbusRegisterExpansion + (e * ModbusRegisterExpansionLength);
       setRegisterUint16(offset + ModbusRegisterExpansionExists, expansion[e].exists);
       setRegisterUint16(offset + ModbusRegisterExpansionId, expansion[e].id);
       setRegisterUint16(offset + ModbusRegisterExpansionType, expansion[e].type);
@@ -216,7 +217,7 @@ private:
     // Inputs
     for (uint8_t e = 0; e < io.getExpansionsNum(); e++) {
       for(uint8_t i = 0; i < io.getMaxInputNum(); i++) {
-        setRegisterIo(ModbusRegisterInput + ((e + 1) * i * ModbusRegisterStructLength), expansion[e].input[i], 1);
+        setRegisterIo(ModbusRegisterInput + (e * ModbusRegisterIoLength) + (i * ModbusRegisterIoLength), expansion[e].input[i], 1);
         //max 6*16*20
       }
     }
@@ -224,7 +225,7 @@ private:
     // Output
     for (uint8_t e = 0; e < io.getExpansionsNum(); e++) {
       for(uint8_t i = 0; i < io.getMaxOutputNum(); i++) {
-        setRegisterIo(ModbusRegisterOutput + ((e + 1) * i * ModbusRegisterStructLength), expansion[e].output[i], 0);
+        setRegisterIo(ModbusRegisterOutput + (e * ModbusRegisterIoLength) + (i * ModbusRegisterIoLength), expansion[e].output[i], 0);
         //max 6*8*20
       }
     }
@@ -584,7 +585,7 @@ public:
           if (expansion[e].exists && expansion[e].input[i].exists) {
 
             // Check changes to inputs from local then update HoldingRegisters, InputRegisters, DiscreteInputs
-            offset = ModbusRegisterInput + ((e + 1) * i * ModbusRegisterStructLength);
+            offset = ModbusRegisterInput + (e * ModbusRegisterIoLength) + (i * ModbusRegisterIoLength);
             if (expansion[e].input[i].update >= _updateLast) {
               //monitor.setInfo("Modbus registers update input " + String(expansion[e].input[i].uid) + " starting at offset " + offset);
               setRegisterIo(offset, expansion[e].input[i], 1);
@@ -592,7 +593,7 @@ public:
             }
 
             // Check distant changes to intputs from HoldingRegisters then update local inputs. Manage only "input reset" from HoldingRegisters
-            offset = ModbusRegisterInput + ((e + 1) * i * ModbusRegisterStructLength) + ModbusRegisterIoPartialReset;
+            offset = ModbusRegisterInput + (e * ModbusRegisterIoLength) + (i * ModbusRegisterIoLength) + ModbusRegisterIoPartialReset;
             rcv = getHoldingRegister(offset);
             if (rcv == 1) {
               io.resetIo(expansion[e].input[i]);
@@ -607,7 +608,7 @@ public:
           if (expansion[e].exists && expansion[e].output[i].exists) {
 
             // Check changes to outputs from local then update HoldingRegisters, InputRegisters, Coils
-            offset = ModbusRegisterOutput + ((e + 1) * i * ModbusRegisterStructLength);
+            offset = ModbusRegisterOutput + (e * ModbusRegisterIoLength) +  (i * ModbusRegisterIoLength);
             if (expansion[e].output[i].update >= _updateLast) {
               //monitor.setInfo("Modbus registers update output " + String(expansion[e].output[i].uid) + " starting at offset " + offset);
               setRegisterIo(offset, expansion[e].output[i], 0);
@@ -615,14 +616,14 @@ public:
             }
 
             // Check command to outputs from Coils
-            offset = ModbusRegisterOutput + ((e + 1) * i * ModbusRegisterStructLength) + ModbusRegisterIoState;
+            offset = ModbusRegisterOutput + (e * ModbusRegisterIoLength) + (i * ModbusRegisterIoLength) + ModbusRegisterIoState;
             rcv = getCoil(expansion[e].output[i].uid);
             if (rcv != -1 && rcv != getInputRegister(offset)) {
               io.setOutput(e, i, rcv);
             }
 
             // Check distant changes to intputs from HoldingRegisters then update local inputs. Manage only "input reset" from HoldingRegisters
-            offset = ModbusRegisterOutput + ((e + 1) * i * ModbusRegisterStructLength) + ModbusRegisterIoPartialReset;
+            offset = ModbusRegisterOutput + (e * ModbusRegisterIoLength) + (i * ModbusRegisterIoLength) + ModbusRegisterIoPartialReset;
             rcv = getHoldingRegister(offset);
             if (rcv == 1) {
               io.resetIo(expansion[e].output[i]);

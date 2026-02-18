@@ -69,20 +69,20 @@ void loop() {
 
       int response[100];
 
-      addr = ModbusRegisterInput + (0 * ModbusRegisterStructLength) + (0 * ModbusRegisterStructLength);
+      addr = ModbusRegisterInput + (0 * ModbusRegisterIoLength) + (0 * ModbusRegisterIoLength);
       Serial.println(">>> Reading Input Registers expansion 0 ouput 0 brut values : " + String(addr) + " = ");
-      if (linker.modbus->getInputRegisters(response, addr, 19)) {
-        for (uint8_t v = 0; v < 19; v++) {
+      if (linker.modbus->getInputRegisters(response, addr, ModbusRegisterIoLength)) {
+        for (uint8_t v = 0; v < ModbusRegisterIoLength; v++) {
           Serial.println(String("E0 O0 V") + v + " : " + String((uint16_t)response[v]));
         }
 
         // expansion 0 input 1 state
-        addr = ModbusRegisterOutput + (0 * ModbusRegisterStructLength) + (1 * ModbusRegisterStructLength) + 3;
+        addr = ModbusRegisterInput + (0 * ModbusRegisterIoLength) + (1 * ModbusRegisterIoLength) + ModbusRegisterIoState;
         Serial.println(">>> Reading Input Register : E0 I1 V3 : I0.1 state : " + String(addr) + " = ");
         Serial.println(String(linker.modbus->getInputRegisterUint16(addr)));
-        // expansion 0 output 1 state
-        addr = ModbusRegisterInput + (0 * ModbusRegisterStructLength) + (2 * ModbusRegisterStructLength) + 3;
-        Serial.println(">>> Reading Input Register : E0 O2 V3 : O0.2 state : " + String(addr) + " = ");
+        // expansion 0 output 2 state
+        addr = ModbusRegisterOutput + (0 * ModbusRegisterIoLength) + (2 * ModbusRegisterIoLength) + ModbusRegisterIoState;
+        Serial.println(">>> Reading Output Register : E0 O2 V3 : O0.2 state : " + String(addr) + " = ");
         Serial.println(String(linker.modbus->getInputRegisterUint16(addr)));
 
         // Switch expansion 0 ouput 2 every 30s

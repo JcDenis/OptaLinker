@@ -145,31 +145,33 @@ struct ExpansionStruct {
  */
 
 // Groups starting offset and length definition
-constexpr uint16_t ModbusRegisterAddress      = 10000; // This address MUST never change through firmware versions
-constexpr uint16_t ModbusRegisterFirmware     = 10010;
-constexpr uint16_t ModbusRegisterDevice       = 10100;
-constexpr uint16_t ModbusRegisterNetwork      = 10250;
-constexpr uint16_t ModbusRegisterRs485        = 10400;
-constexpr uint16_t ModbusRegisterModbus       = 10410;
-constexpr uint16_t ModbusRegisterMqtt         = 10420;
-constexpr uint16_t ModbusRegisterExpansion    = 10620;
-constexpr uint16_t ModbusRegisterInput        = 12220;
-constexpr uint16_t ModbusRegisterOutput       = 12820; // next 13420
-constexpr uint16_t ModbusRegisterStructLength = 100;
-constexpr uint16_t ModbusRegisterTotalLength  = 3500;
+constexpr uint16_t ModbusRegisterAddress         = 10000; // 10011 to 10019 empty. This address MUST never change through firmware versions
+constexpr uint16_t ModbusRegisterFirmware        = 10020; // 10074 to 10079 empty
+constexpr uint16_t ModbusRegisterDevice          = 10080; // 10183 to 10189 empty
+constexpr uint16_t ModbusRegisterNetwork         = 10190; // 10308 to 10309 empty
+constexpr uint16_t ModbusRegisterRs485           = 10310; // 10314 to 10319 empty
+constexpr uint16_t ModbusRegisterModbus          = 10320; // 10326 to 10329 empty
+constexpr uint16_t ModbusRegisterMqtt            = 10330; // 10487 to 10489 empty
+constexpr uint16_t ModbusRegisterExpansion       = 10490; // 10543, 10544, 10598, 10599, 10653, 10654, 10708, 10709, 10763, 10764, 10818, 10819 empty
+constexpr uint16_t ModbusRegisterInput           = 10820; // 10839, 10859, 10879, 10899, 10919, 10939, 10959, 10979, 10999, 11019, 11039, 11059, 11079, 11099, 11119, 11139 empty
+constexpr uint16_t ModbusRegisterOutput          = 11140; // 11159, 11179, 11199, 11219, 11239, 11259, 11279, 11299 empty. END 11300
+constexpr uint16_t ModbusRegisterExpansionLength = 55;
+constexpr uint16_t ModbusRegisterIoLength        = 20;
+constexpr uint16_t ModbusRegisterTotalLength     = 1300;
 
 // Offset starting at address ModbusRegisterAddress
-constexpr uint16_t ModbusRegisterAddressFirmware     = 0;
-constexpr uint16_t ModbusRegisterAddressStructLength = 1;
-constexpr uint16_t ModbusRegisterAddressExpansion    = 2;
-constexpr uint16_t ModbusRegisterAddressInput        = 3;
-constexpr uint16_t ModbusRegisterAddressOutput       = 4;
-constexpr uint16_t ModbusRegisterAddressDevice       = 5;
-constexpr uint16_t ModbusRegisterAddressNetwork      = 6;
-constexpr uint16_t ModbusRegisterAddressRs485        = 7;
-constexpr uint16_t ModbusRegisterAddressModbus       = 8;
-constexpr uint16_t ModbusRegisterAddressMqtt         = 9;
-// length 10
+constexpr uint16_t ModbusRegisterAddressExpansionLength = 0;
+constexpr uint16_t ModbusRegisterAddressIoLength        = 1;
+constexpr uint16_t ModbusRegisterAddressFirmware        = 2;
+constexpr uint16_t ModbusRegisterAddressExpansion       = 3;
+constexpr uint16_t ModbusRegisterAddressInput           = 4;
+constexpr uint16_t ModbusRegisterAddressOutput          = 5;
+constexpr uint16_t ModbusRegisterAddressDevice          = 6;
+constexpr uint16_t ModbusRegisterAddressNetwork         = 7;
+constexpr uint16_t ModbusRegisterAddressRs485           = 8;
+constexpr uint16_t ModbusRegisterAddressModbus          = 9;
+constexpr uint16_t ModbusRegisterAddressMqtt            = 10;
+// next 11
 
 // Offset starting at address ModbusRegisterFirmware
 constexpr uint16_t ModbusRegisterVersionMajor    = 0; // T1
@@ -177,14 +179,14 @@ constexpr uint16_t ModbusRegisterVersionMinor    = 1; // T1
 constexpr uint16_t ModbusRegisterVersionRevision = 2; // T1
 constexpr uint16_t ModbusRegisterConfigValidate  = 3; // T1, value 0~1, for holding register only, set to 1 to announce end of configuration update. (board reboot after)
 constexpr uint16_t ModbusRegisterConfigPassword  = 4; // T4, Before setting ModbusRegisterConfigValidate, you MUST confirm device password here
-// length 54 
+// next 54
 
 // Offset starting at address ModbusRegisterDevice
 constexpr uint16_t ModbusRegisterDeviceId       = 0;  // T1, value 0~254
 constexpr uint16_t ModbusRegisterTimeOffset     = 1;  // T3, value -24~24
 constexpr uint16_t ModbusRegisterDeviceUser     = 3;  // T4
 constexpr uint16_t ModbusRegisterDevicePassword = 53; // T4
-// length 103
+// next 103
 
 // Offset starting at address ModbusRegisterNetwork
 constexpr uint16_t ModbusRegisterNetworkIp       = 0;  // T5
@@ -195,38 +197,38 @@ constexpr uint16_t ModbusRegisterNetworkDhcp     = 16; // T1, value 0~1
 constexpr uint16_t ModbusRegisterNetworkWifi     = 17; // T1, value 0~1
 constexpr uint16_t ModbusRegisterNetworkSsid     = 18; // T4
 constexpr uint16_t ModbusRegisterNetworkPassword = 68; // T4
-// length 118
+// next 118
 
 // Offset starting at address ModbusRegisterRs485
 constexpr uint16_t ModbusRegisterRs485Type     = 0; // T1, see Rs485Type
 constexpr uint16_t ModbusRegisterRs485Baudrate = 1; // T2
 constexpr uint16_t ModbusRegisterRs485ToMqtt   = 3; // T1, value 0~1
-// length 4
+// next 4
 
 // Offset starting at address ModbusRegisterModbus
 constexpr uint16_t ModbusRegisterModbusType = 0; // T1, see ModbusType
-constexpr uint16_t ModbusRegisterModbusIp   = 4; // T5
+constexpr uint16_t ModbusRegisterModbusIp   = 1; // T5
 constexpr uint16_t ModbusRegisterModbusPort = 5; // T1
-// length 6
+// next 6
 
 // Offset starting at address ModbusRegisterMqtt
 constexpr uint16_t ModbusRegisterMqttIp       = 0;   // T5
 constexpr uint16_t ModbusRegisterMqttPort     = 4;   // T1
 constexpr uint16_t ModbusRegisterMqttInterval = 5;   // T2
-constexpr uint16_t ModbusRegisterMqttUser     = 6;   // T5
-constexpr uint16_t ModbusRegisterMqttPassword = 56;  // T5
-constexpr uint16_t ModbusRegisterMqttBase     = 106; // T5
-// length 156
+constexpr uint16_t ModbusRegisterMqttUser     = 7;   // T4
+constexpr uint16_t ModbusRegisterMqttPassword = 57;  // T4
+constexpr uint16_t ModbusRegisterMqttBase     = 107; // T4
+// next 157
 
-// Offset starting at address ModbusRegisterExpansion + (expension number * ModbusRegisterIoLength)
+// Offset starting at address ModbusRegisterExpansion + (expension number * ModbusRegisterExpansionLength)
 constexpr uint16_t ModbusRegisterExpansionExists = 0; // T1
 constexpr uint16_t ModbusRegisterExpansionId     = 1; // T1
 constexpr uint16_t ModbusRegisterExpansionType   = 2; // T1, See ExpansionType
 constexpr uint16_t ModbusRegisterExpansionName   = 3; // T4
-// length 53
+// next 53
 
-// Offset starting at address ModbusRegisterInput + ((expansion number + 1) * input number * ModbusRegisterStructLength)
-// Offset starting at address ModbusRegisterOutput + ((expansion number + 1) * output number * ModbusRegisterStructLength)
+// Offset starting at address ModbusRegisterInput + (expansion number * ModbusRegisterIoLength) + (input number * ModbusRegisterIoLength)
+// Offset starting at address ModbusRegisterOutput + (expansion number * ModbusRegisterIoLength) + (output number * ModbusRegisterIoLength)
 constexpr uint16_t ModbusRegisterIoExists       = 0;  // T1, value 0~1
 constexpr uint16_t ModbusRegisterIoUid          = 1;  // T1, value 0~516
 constexpr uint16_t ModbusRegisterIoId           = 2;  // T1, value 0~16
@@ -240,7 +242,7 @@ constexpr uint16_t ModbusRegisterIoPartialPulse = 12; // T2
 constexpr uint16_t ModbusRegisterIoHigh         = 14; // T2
 constexpr uint16_t ModbusRegisterIoPartialHigh  = 16; // T2
 constexpr uint16_t ModbusRegisterIoPartialReset = 18; // T1, value 0~1, for holding register only, Expension e input i reset partial counters
-// length 19
+// next 19
 
 
 /**

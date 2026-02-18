@@ -14,6 +14,8 @@ Arduino Findernet Opta All In One Industrial IoT gateway
 
 The goal of this library is to implement an easy to use MQTT/Modbus gateway and more for industrial equipments.
 
+**Web page and config are inspired by "Remoto" (27-12-2024) by Alberto Perro under CERN-OHL-P license at https://github.com/albydnc/remoto**
+
 
 ## Features
 
@@ -41,30 +43,37 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 
 * Support for OTA update
 * Support for analog expansions boards
-* Modbus addresses documentation
 * Code documentation
 * More examples
 
 
 ## USAGE
 
+### Notes
+
+As this library is for industrial usage, expansion numbering and input numbering and output numbering start at 0, 
+not 1 as printed on Opta device. This means that the first input of the opta board is named as I0.0 in industry.
+
+
 ### Network
 
-**Wifi AP MODE**  
-If Wifi SSID is not configured and Wifi is set as prefered network, the Wifi goes into Access Point mode.  
-Default IP is `192.168.1.231`, default SSID is `optalinker` + device ID and password is `optalinker`.
+**Wifi AP mode**  
+If Wifi SSID is not configured and Wifi is set as prefered network, the Wifi goes into Access Point mode. 
+Default SSID is `optalinker` + device ID and password is `optalinker`.
 
-**Wifi STA MODE**  
+**Wifi STA mode**  
 If Wifi SSID and password are configured and Wifi is set as prefered network, the wifi goes into Standard mode.
 
 **Ethernet mode**  
 If Ethernet is set as prefered network, wifi is disbaled.
 
+
 **DHCP**  
 If DHCP mode is enabled in configuration, connection is tried to be established with dynamic IP, 
-else configured static IP address is used.
+else configured static IP address is used. By default static IP is `192.168.1.231`.
 
 Network settings are configured in setup process and can not be changed without a device reboot.
+
 
 ### Serial
 
@@ -89,6 +98,7 @@ These commands are not case sensitive.
 * `reboot`  		: Reboot device
 
 You should do a `REBOOT` after `SWITCH DHCP`, `SWITCH WIFI` actions to take effect.
+
 
 ### MQTT
 
@@ -118,13 +128,21 @@ Publishing device informations topics:
 * `<base_topic>/<device_id>/device/revision` The device OptaLinker library version
 * `<base_topic>/<device_id>/rs485` The RS485 received values
 
-Command output state and device information topics:
+Command output state and device counters and device information topics:
 * `<base_topic>/<device_id>/input/x/reset` To reset partial counters for an input (value doesn't matter)
 * `<base_topic>/<device_id>/output/x/reset` To reset partial counters for an ouput (value doesn't matter)
 * `<base_topic>/<device_id>/output/x/set` To set state of an output with `0` = OFF, `1` = ON
 * `<base_topic>/<device_id>/device/get` to force device information publishing (value doesn't matter)
 
+In notation, x mean Input or Output uniq ID, Uid is made of "Expansion number" and "Input Number" starting at 0 for main board. 
+For example to set the output O1.3 of the device 98 (device 98, expansion 1, Output 3, the ouput print as 4 on the device) to 1 : `opta/98/output/103/set = 1`.
+
 Input state can also be published on demand by sending an HTTP request to the `/publish` URL.
+
+
+### Modbus
+
+See dedicated [Modbus document](https://github.com/JcDenis/OptaLinker/blob/master/docs/modbusserver.md)
 
 
 ### Web server
@@ -147,6 +165,7 @@ Available web server entrypoints are:
 
 **Note:** All pages require basic authentication !
 
+
 ### LED
 
 During boot:
@@ -167,6 +186,7 @@ Wifi device:
 * Slow blink Blue : Wifi in AP mode
 * No Blue : Not in Wifi mode
 
+
 ### Button
 
 Button pushed duration make different actions :
@@ -182,10 +202,12 @@ After boot:
 
 Note that actions take effect on button release. WIFI and DHCP actions reboot device.
 
+
 ### Watchdog
 
 A watchog is present. If device does not respond until 30s, the device reboot.
 (Maximum timeout of Opta board is 32270 milliseconds and cannot be stop.)
+
 
 ### USB
 
@@ -197,11 +219,13 @@ And on cable disconnetion, board reboot after about 10 seconds.
 
 For Arduino Finder Opta on its M7 core.
 
+
 ### Boards manager
 
 From Arduino IDE menu: _Tools > Boards > Boards Manager_, you must install: 
 
 * `Arduino Mbed OS Opta Boards` by Arduino
+
 
 ### Library manager
 
@@ -216,12 +240,14 @@ From Arduino IDE menu: _Tools > Manage libraries_, you must install:
 * `Arduino_Opta_Blueprint` by Daniele Aimo at https://github.com/arduino-libraries/Arduino_Opta_Blueprint
 * `NTPClient` by Fabrice Weinberg at https://github.com/arduino-libraries/NTPClient
 
+
 ### Settings
 
 * Tools > Boards > Arduino Mbed OS Opta Boards > Opta
 * Tools > Security > None
 * Tools > Flash split > 2Mb M7
 * Tools > Target core > Main Core
+
 
 ### Install
 
@@ -236,9 +262,11 @@ To use OptaLinker in your sketch, see example `OptaLinkerAuto.ino`
 
 ## CONTRIBUTORS
 
+* Alberto Perro (remoto author)
 * Jean-Christian Paul Denis (OptaLinker author)
 
 You are welcome to contribute to this code.
+
 
 ## LICENSE
 
