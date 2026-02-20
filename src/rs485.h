@@ -51,8 +51,8 @@ public:
       return 1;
     }
 
-    monitor.setAction(LabelRs485Setup);
-    monitor.setInfo(LabelRs485Baudrate + String(config.getRs485Baudrate()));
+    monitor.setMessage(LabelRs485Setup, MonitorAction);
+    monitor.setMessage(LabelRs485Baudrate + String(config.getRs485Baudrate()), MonitorInfo);
 
     RS485.begin(config.getRs485Baudrate());
     prepare();
@@ -107,7 +107,7 @@ public:
           } else {
             // force stop reading after 150 ms
             if (millis() - wait > 1000) {//watchdog.getTimeout()) {
-              //monitor.setWarning("Receiving partial RS485 message");
+              //monitor.setMessage("Receiving partial RS485 message", MonitorWarning);
               r_message[r_index] = '\0';
 
               break;
@@ -142,7 +142,7 @@ public:
 
   uint8_t send(String msg) {
     if (isSender() && isSleeping()) {
-      //monitor.setInfo("Sending RS485 message");
+      //monitor.setMessage("Sending RS485 message", MonitorInfo);
 
       _sleep = 0;
 

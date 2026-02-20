@@ -43,7 +43,7 @@ uint8_t OptaLinker::setup() {
   state->setType(StateType::StateRun);
 
   // Display end of setup
-  monitor->setAction(LabelOptaLinkerLoop);
+  monitor->setMessage(LabelOptaLinkerLoop, MonitorAction);
 
   // Return library state
   return state->getType();
@@ -79,15 +79,15 @@ uint8_t OptaLinker::loop() {
 
     String message = monitor->getIncoming();
     if (message.equals("print version")) {
-      monitor->setInfo(version->toString());
+      monitor->setMessage(version->toString());
     }
 
     if (message.equals("print config")) {
-      monitor->setInfo(config->writeToJson(false));
+      monitor->setMessage(config->writeToJson(false));
     }
 
     if (message.equals("print io")) {
-      monitor->setInfo(io->writeToJson());
+      monitor->setMessage(io->writeToJson());
     }
 
     if (message.equals("print store")) {
@@ -95,7 +95,7 @@ uint8_t OptaLinker::loop() {
     }
 
     if (message.equals("print boot")) {
-      monitor->setInfo(String(store->getBootCount()));
+      monitor->setMessage(String(store->getBootCount()));
     }
 
     if (message.equals("print loop")) {
@@ -103,23 +103,23 @@ uint8_t OptaLinker::loop() {
     }
 
     if (message.equals("print ip")) {
-      monitor->setInfo(network->getLocalIp().toString());
+      monitor->setMessage(network->getLocalIp().toString());
     }
 
     if (message.equals("switch dhcp")) {
       config->setNetworkDhcp(config->getNetworkDhcp() ? false : true);
       config->writeToFile();
-      monitor->setWarning(LabelOptaLinkerApply);
+      monitor->setMessage(LabelOptaLinkerApply, MonitorWarning);
     }
 
     if (message.equals("switch wifi")) {
       config->setNetworkWifi(config->getNetworkWifi() ? false : true);
       config->writeToFile();
-      monitor->setWarning(LabelOptaLinkerApply);
+      monitor->setMessage(LabelOptaLinkerApply, MonitorWarning);
     }
 
     if (message.equals("print time")) {
-      monitor->setInfo(clock->toString());
+      monitor->setMessage(clock->toString());
     }
 
     if (message.equals("update time")) {
@@ -156,7 +156,7 @@ uint8_t OptaLinker::loop() {
 
   // Start a loop benchmark
   if (loopBenchmarkStart && _benchmarkTime == 0) {
-    monitor->setAction(LabelOptaLinkerBenchmarkStart);
+    monitor->setMessage(LabelOptaLinkerBenchmarkStart, MonitorAction);
 
     _benchmarkTime = state->getTime();
     _benchmarkCount = _benchmarkRepeat = _benchmarkSum = 0;
@@ -165,7 +165,7 @@ uint8_t OptaLinker::loop() {
   } else if (_benchmarkTime > 0) {
     _benchmarkCount++;
     if (state->getTime() - _benchmarkTime > 1000) {
-      monitor->setInfo(LabelOptaLinkerBenchmarkLine + String(_benchmarkCount));
+      monitor->setMessage(LabelOptaLinkerBenchmarkLine + String(_benchmarkCount));
 
       if (_benchmarkRepeat < 10) {
         _benchmarkTime = state->getTime();
@@ -175,7 +175,7 @@ uint8_t OptaLinker::loop() {
       } else {
         _benchmarkTime = 0;
 
-        monitor->setInfo(LabelOptaLinkerBenchmarkAverage + String(_benchmarkSum / 10));
+        monitor->setMessage(LabelOptaLinkerBenchmarkAverage + String(_benchmarkSum / 10));
       }
     }
   }
@@ -189,7 +189,7 @@ uint8_t OptaLinker::loop() {
 void OptaLinker::thread() {
   // Prevent start twice thread
   if (!_threadStarted) {
-    monitor->setAction(LabelOptaLinkerThread);
+    monitor->setMessage(LabelOptaLinkerThread, MonitorAction);
 
     _threadStarted = 1;
 

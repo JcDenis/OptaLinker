@@ -84,14 +84,14 @@ public:
 
 	  if (isEnabled()) {
 
-		  monitor.setAction(LabelConfigSetup);
+		  monitor.setMessage(LabelConfigSetup, MonitorAction);
 
 		  readFromDefault();
 
 	  	if (readFromFile()) {
 
 		  	// wait user to push reset button
-		    monitor.setWarning(LabelConfigHold);
+		    monitor.setMessage(LabelConfigHold, MonitorWarning);
 
 		    uint32_t resetPushStart = 0;
 		    uint8_t resetLedState = 0;
@@ -115,7 +115,7 @@ public:
 		        board.pingTimeout();
 		      }
 		      if (i > 0) {
-		        monitor.setInfo(String(i));
+		        monitor.setMessage(String(i), MonitorNone);
 		      }
 		    }
 		    board.setGreen(0);
@@ -146,7 +146,7 @@ public:
    * Device must be rebooted after.
    */
 	void reset() {
-	  monitor.setAction(LabelConfigReset);
+	  monitor.setMessage(LabelConfigReset, MonitorAction);
 
 	  kv_remove("config");
 	  delay(10);
@@ -162,13 +162,13 @@ public:
 	 * @return 	1 on success, else 0
 	 */
 	uint8_t readFromJson(const char *buffer, size_t length) {
-	  monitor.setInfo(LabelConfigJsonRead);
+	  monitor.setMessage(LabelConfigJsonRead, MonitorInfo);
 
 	  JsonDocument doc;
 	  DeserializationError error = deserializeJson(doc, buffer, length);
 
 	  if (error) {
-	    monitor.setWarning(LabelConfigJsonReadFail);
+	    monitor.setMessage(LabelConfigJsonReadFail, MonitorWarning);
 
 	    return 0;
 	  }
@@ -198,7 +198,7 @@ public:
 	      || doc["mqttPassword"].isNull()
 	      || doc["mqttBase"].isNull()
 	      || doc["mqttInterval"].isNull()) {
-	    monitor.setWarning(LabelConfigJsonReadUncomplete);
+	    monitor.setMessage(LabelConfigJsonReadUncomplete, MonitorWarning);
 	  }
 
 	  if (!doc["deviceId"].isNull()) {
@@ -342,7 +342,7 @@ public:
 	 * Read configuration from default define.
 	 */
 	void readFromDefault() {
-	  monitor.setInfo(LabelConfigDefaultRead);
+	  monitor.setMessage(LabelConfigDefaultRead, MonitorInfo);
 
 	  setDeviceId(OPTALINKER_DEVICE_ID);
 	  setDeviceUser(OPTALINKER_DEVICE_USER);
@@ -384,7 +384,7 @@ public:
 	uint8_t writeToFile() {
 	  String str = writeToJson(false);
 
-	  monitor.setInfo(LabelConfigFileWrite);
+	  monitor.setMessage(LabelConfigFileWrite, MonitorInfo);
 	  
 	  return kv_set("config", str.c_str(), str.length(), 0) == MBED_SUCCESS ? 1 : 0;
 	}
@@ -397,12 +397,12 @@ public:
 	 * @return 	1 on success, else 0
 	 */
 	uint8_t readFromFile() {
-	  monitor.setInfo(LabelConfigFileRead);
+	  monitor.setMessage(LabelConfigFileRead, MonitorInfo);
 
 	  char readBuffer[1024];
 	  kv_get("config", readBuffer, 1024, 0);
 	  if (readFromJson(readBuffer, 1024) < 1) {
-	    monitor.setWarning(LabelConfigFileFail);
+	    monitor.setMessage(LabelConfigFileFail, MonitorWarning);
 	    reset();
 
 	    return 0;
@@ -418,7 +418,7 @@ public:
 
 	void setDeviceId(int value) {
 	  if (value >= 0 && value < 255 && value != _deviceId) {
-	    monitor.setInfo(LabelConfigSetDeviceId + String(value));
+	    monitor.setMessage(LabelConfigSetDeviceId + String(value), MonitorInfo);
 	    _deviceId = value;
 	  }
 	}
@@ -430,7 +430,7 @@ public:
 
 	void setDeviceUser(String value) {
 		if (value.length() <= MaxStringLength && !value.equals(_deviceUser)) {
-		  monitor.setInfo(LabelConfigSetDeviceUser + String(value));
+		  monitor.setMessage(LabelConfigSetDeviceUser + String(value), MonitorInfo);
 		  _deviceUser = value;
 		}
 	}
@@ -442,7 +442,7 @@ public:
 
 	void setDevicePassword(String value) {
 		if (value.length() <= MaxStringLength && !value.equals(_devicePassword)) {
-		  monitor.setInfo(LabelConfigSetDevicePassword + String(value));
+		  monitor.setMessage(LabelConfigSetDevicePassword + String(value), MonitorInfo);
 		  _devicePassword = value;
 		}
 	}
@@ -454,7 +454,7 @@ public:
 
 	void setTimeOffset(int16_t value) {
 	  if (value > -24 && value < 24 && value != _timeOffset) {
-	    monitor.setInfo(LabelConfigSetTimeOffset + String(value));
+	    monitor.setMessage(LabelConfigSetTimeOffset + String(value), MonitorInfo);
 	    _timeOffset = value;
 	  }
 	}
@@ -466,7 +466,7 @@ public:
 
 	void setTimeServer(String value) {
 		if (!value.equals(_timeServer)) {
-		  monitor.setInfo(LabelConfigSetTimeServer + String(value));
+		  monitor.setMessage(LabelConfigSetTimeServer + String(value), MonitorInfo);
 		  _timeServer = value;
 		}
 	}
@@ -478,7 +478,7 @@ public:
 
 	void setRs485Type(uint8_t value) {
 	  if (value < 3 && value != _rs485Type) {
-	    monitor.setInfo(LabelConfigSetRs485Type + String(value));
+	    monitor.setMessage(LabelConfigSetRs485Type + String(value), MonitorInfo);
 	    _rs485Type = value;
 	  }
 	}
@@ -490,7 +490,7 @@ public:
 
 	void setRs485Baudrate(uint32_t value) {
 	  if (value > 0 && value < 921600 && value != _rs485Baudrate) {
-	    monitor.setInfo(LabelConfigSetRs485Baudrate + String(value));
+	    monitor.setMessage(LabelConfigSetRs485Baudrate + String(value), MonitorInfo);
 	    _rs485Baudrate = value;
 	  }
 	}
@@ -502,7 +502,7 @@ public:
 
 	void setRs485ToMqtt(int value) {
 		if ((value == 0 || value == 1) && value != _rs485ToMqtt) {
-		  monitor.setInfo(LabelConfigSetRs485ToMqtt + String(value ? "Enable" : "Disable"));
+		  monitor.setMessage(LabelConfigSetRs485ToMqtt + String(value ? "Enable" : "Disable"), MonitorInfo);
 		  _rs485ToMqtt = value;
 		}
 	}
@@ -514,7 +514,7 @@ public:
 
 	void setNetworkIp(IPAddress value) {
 		if (value != _networkIp) {
-		  monitor.setInfo(LabelConfigSetNetworkIp + value.toString());
+		  monitor.setMessage(LabelConfigSetNetworkIp + value.toString(), MonitorInfo);
 		  _networkIp = value;
 		}
 	}
@@ -526,7 +526,7 @@ public:
 
 	void setNetworkGateway(IPAddress value) {
 		if (value != _networkGateway) {
-		  monitor.setInfo(LabelConfigSetNetworkGateway + value.toString());
+		  monitor.setMessage(LabelConfigSetNetworkGateway + value.toString(), MonitorInfo);
 		  _networkGateway = value;
 		}
 	}
@@ -538,7 +538,7 @@ public:
 
 	void setNetworkSubnet(IPAddress value) {
 		if (value != _networkSubnet) {
-		  monitor.setInfo(LabelConfigSetNetworkSubnet + value.toString());
+		  monitor.setMessage(LabelConfigSetNetworkSubnet + value.toString(), MonitorInfo);
 	  	_networkSubnet = value;
 	  }
 	}
@@ -550,7 +550,7 @@ public:
 
 	void setNetworkDns(IPAddress value) {
 		if (value != _networkDns) {
-	  	monitor.setInfo(LabelConfigSetNetworkDns + value.toString());
+	  	monitor.setMessage(LabelConfigSetNetworkDns + value.toString(), MonitorInfo);
 		  _networkDns = value;
 		}
 	}
@@ -562,7 +562,7 @@ public:
 
 	void setNetworkDhcp(int value) {
 		if ((value == 0 || value == 1) && value != _networkDhcp) {
-		  monitor.setInfo(LabelConfigSetNetworkDhcp + String(value ? "Enable" : "Disable"));
+		  monitor.setMessage(LabelConfigSetNetworkDhcp + String(value ? "Enable" : "Disable"), MonitorInfo);
 		  _networkDhcp = value;
 		}
 	}
@@ -574,7 +574,7 @@ public:
 
 	void setNetworkWifi(int value) {
 		if ((value == 0 || value == 1) && value != _networkWifi) {
-		  monitor.setInfo(LabelConfigSetNetworkWifi + String(value ? "Enable" : "Disable"));
+		  monitor.setMessage(LabelConfigSetNetworkWifi + String(value ? "Enable" : "Disable"), MonitorInfo);
 		  _networkWifi = value;
 		}
 	}
@@ -586,7 +586,7 @@ public:
 
 	void setNetworkSsid(String value) {
 		if (value.length() <= MaxStringLength && !value.equals(_networkSsid)) {
-	  	monitor.setInfo(LabelConfigSetNetworkSsid + String(value));
+	  	monitor.setMessage(LabelConfigSetNetworkSsid + String(value), MonitorInfo);
 	  	_networkSsid = value;
 	  }
 	}
@@ -598,7 +598,7 @@ public:
 
 	void setNetworkPassword(String value) {
 		if (value.length() <= MaxStringLength && !value.equals(_networkPassword)) {
-		  monitor.setInfo(LabelConfigSetNetworkPassword + String(value));
+		  monitor.setMessage(LabelConfigSetNetworkPassword + String(value), MonitorInfo);
 		  _networkPassword = value;
 		}
 	}
@@ -610,7 +610,7 @@ public:
 
 	void setMqttIp(IPAddress value) {
 		if (value != _mqttIp) {
-	  	monitor.setInfo(LabelConfigSetMqttIp + value.toString());
+	  	monitor.setMessage(LabelConfigSetMqttIp + value.toString(), MonitorInfo);
 	  	_mqttIp = value;
 	  }
 	}
@@ -622,7 +622,7 @@ public:
 
 	void setMqttPort(int value) {
 		if ((value > 0 && value < 65536) && value != _mqttPort) {
-		  monitor.setInfo(LabelConfigSetMqttPort + String(value));
+		  monitor.setMessage(LabelConfigSetMqttPort + String(value), MonitorInfo);
 		  _mqttPort = value;
 		}
 	}
@@ -634,7 +634,7 @@ public:
 
 	void setMqttUser(String value) {
 		if (value.length() <= MaxStringLength && !value.equals(_mqttUser)) {
-	  	monitor.setInfo(LabelConfigSetMqttUser + value);
+	  	monitor.setMessage(LabelConfigSetMqttUser + value, MonitorInfo);
 	  	_mqttUser = value;
 	  }
 	}
@@ -646,7 +646,7 @@ public:
 
 	void setMqttPassword(String value) {
 		if (value.length() <= MaxStringLength && !value.equals(_mqttPassword)) {
-	  	monitor.setInfo(LabelConfigSetMqttPassword + value);
+	  	monitor.setMessage(LabelConfigSetMqttPassword + value, MonitorInfo);
 	  	_mqttPassword = value;
 	  }
 	}
@@ -658,7 +658,7 @@ public:
 
 	void setMqttBase(String value) {
 		if (value.length() <= MaxStringLength && !value.equals(_mqttBase)) {
-	  	monitor.setInfo(LabelConfigSetMqttBase + value);
+	  	monitor.setMessage(LabelConfigSetMqttBase + value, MonitorInfo);
 	  	_mqttBase = value;
 	  }
 	}
@@ -670,7 +670,7 @@ public:
 
 	void setMqttInterval(uint32_t value) {
 	  if (value != _mqttInterval) {
-	    monitor.setInfo(LabelConfigSetMqttInterval + String(value));
+	    monitor.setMessage(LabelConfigSetMqttInterval + String(value), MonitorInfo);
 	    _mqttInterval = value;
 	  }
 	}
@@ -682,7 +682,7 @@ public:
 
 	void setModbusType(uint8_t value) {
 	  if (value < 5 && value != _modbusType) {
-	    monitor.setInfo(LabelConfigSetModbusType + String(value));
+	    monitor.setMessage(LabelConfigSetModbusType + String(value), MonitorInfo);
 	    _modbusType = value;
 	  }
 	}
@@ -694,7 +694,7 @@ public:
 
 	void setModbusIp(IPAddress value) {
 		if (value != _modbusIp) {
-	  	monitor.setInfo(LabelConfigSetModbusIp + value.toString());
+	  	monitor.setMessage(LabelConfigSetModbusIp + value.toString(), MonitorInfo);
 	  	_modbusIp = value;
 	  }
 	}
@@ -706,7 +706,7 @@ public:
 
 	void setModbusPort(int value) {
 		if (value > 0 && value < 65536 && value != _modbusPort) {
-		  monitor.setInfo(LabelConfigSetModbusPort + String(value));
+		  monitor.setMessage(LabelConfigSetModbusPort + String(value), MonitorInfo);
 		  _modbusPort = value;
 		}
 	}

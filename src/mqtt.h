@@ -119,38 +119,38 @@ private:
 
     _isConnected = 0;
     _lastRetry = millis();
-    monitor.setAction(LabelMqttBroker);
+    monitor.setMessage(LabelMqttBroker, MonitorAction);
 
     board.setFreeze();
     _genericClient.setId(String("opta" + config.getDeviceId()).c_str());
     _genericClient.setUsernamePassword(config.getMqttUser(), config.getMqttPassword());
     _genericClient.setConnectionTimeout(network.getTimeout()); // This directive has no effect !
     if (!_genericClient.connect(config.getMqttIp(), config.getMqttPort())) {
-      monitor.setWarning(LabelMqttBrokerFail);
+      monitor.setMessage(LabelMqttBrokerFail, MonitorWarning);
       board.unsetFreeze();
 
       return;
     }
     board.unsetFreeze();
 
-    monitor.setInfo(LabelMqttBrokerSuccess);
+    monitor.setMessage(LabelMqttBrokerSuccess, MonitorInfo);
     _isConnected = 1;
 
     // subscribe to command for device information
     _genericClient.subscribe(_baseTopic + "device/get");
-    monitor.setInfo(LabelMqttSubscribe + _baseTopic + "device/get");
+    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "device/get", MonitorInfo);
 
     // subscribe to commands for outputs
     _genericClient.subscribe(_baseTopic + "output/set/#");
-    monitor.setInfo(LabelMqttSubscribe + _baseTopic + "output/set/#");
+    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "output/set/#", MonitorInfo);
 
     // subscribe to commands for outputs reset high
     _genericClient.subscribe(_baseTopic + "output/reset/#");
-    monitor.setInfo(LabelMqttSubscribe + _baseTopic + "output/reset/#");
+    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "output/reset/#", MonitorInfo);
 
     // subscribe to commands for inputs reset high
     _genericClient.subscribe(_baseTopic + "input/reset/#");
-    monitor.setInfo(LabelMqttSubscribe + _baseTopic + "input/reset/#");
+    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "input/reset/#", MonitorInfo);
 
     publishDevice();
   }
@@ -162,7 +162,7 @@ private:
    * @param   payload   The MQTT payload
    */
   void receiveMessage(String &topic, String &payload) {
-    monitor.setAction(LabelMqttReceive + topic + " = " + payload);
+    monitor.setMessage(LabelMqttReceive + topic + " = " + payload, MonitorAction);
 
     String match = _baseTopic + "device/get";
     if (topic == match) {
@@ -177,7 +177,7 @@ private:
           if (expansion[e].input[i].exists) {
             // reset output state
             if (topic.equals(_baseTopic + "input/reset/" + String(expansion[e].input[i].id))) {
-              monitor.setInfo("Resetting from MQTT input " + String(expansion[e].input[i].id));
+              monitor.setMessage("Resetting from MQTT input " + String(expansion[e].input[i].id), MonitorInfo);
 
               io.resetInput(e, i);
             }
@@ -186,14 +186,14 @@ private:
           if (expansion[e].output[i].exists) {
             // reset output state
             if (topic.equals(_baseTopic + "output/reset/" + String(expansion[e].output[i].id))) {
-              monitor.setInfo("Resetting from MQTT output " + String(expansion[e].output[i].id));
+              monitor.setMessage("Resetting from MQTT output " + String(expansion[e].output[i].id), MonitorInfo);
 
               io.resetOutput(e, i);
             }
 
             // set output state
             if (topic.equals(_baseTopic + "output/set/" + String(expansion[e].output[i].id))) {
-              monitor.setInfo("Setting from MQTT output " + String(expansion[e].output[i].id) + " to " + payload);
+              monitor.setMessage("Setting from MQTT output " + String(expansion[e].output[i].id) + " to " + payload, MonitorInfo);
 
               io.setOutput(e, i, payload.toInt());
             }
@@ -240,8 +240,8 @@ public:
       return 1;
     }
 
-    monitor.setAction(LabelMqttSetup);
-    monitor.setInfo(LabelMqttServer + config.getMqttIp().toString() + ":" + String(config.getMqttPort()));
+    monitor.setMessage(LabelMqttSetup, MonitorAction);
+    monitor.setMessage(LabelMqttServer + config.getMqttIp().toString() + ":" + String(config.getMqttPort()), MonitorInfo);
 
     _baseTopic = config.getMqttBase() + config.getDeviceId() + "/";
 
@@ -380,7 +380,7 @@ public:
    */
   void publishDevice() {
     if (network.isConnected() && isConnected()) {
-      monitor.setAction(LabelMqttPublishDevice);
+      monitor.setMessage(LabelMqttPublishDevice, MonitorAction);
 
       publishMessage(_baseTopic + "device/type", board.getName());
       publishMessage(_baseTopic + "device/ip", network.getLocalIp().toString());
@@ -393,7 +393,7 @@ public:
    */
   void publishInputs() {
     if (network.isConnected() && isConnected()) {
-      monitor.setAction(LabelMqttPublishInput);
+      monitor.setMessage(LabelMqttPublishInput, MonitorAction);
 
       ExpansionStruct *expansion = io.getExpansions();
       for (uint8_t e = 0; e < io.getExpansionsNum(); e++) {

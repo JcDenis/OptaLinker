@@ -102,14 +102,14 @@ public:
 
   uint8_t setup() {
     // Display board setup message
-    monitor.setAction(LabelBoardSetup);
+    monitor.setMessage(LabelBoardSetup, MonitorAction);
 
     // Setup watchdog timeout
     if (_timeout > mbed::Watchdog::get_instance().get_max_timeout()) {
       _timeout = mbed::Watchdog::get_instance().get_max_timeout();
     }
     mbed::Watchdog::get_instance().start(_timeout);
-    monitor.setInfo(LabelBoardTimeout + String(_timeout));
+    monitor.setMessage(LabelBoardTimeout + String(_timeout), MonitorInfo);
 
     // Retrieve board info
     OptaBoardInfo *info = boardInfo();
@@ -124,7 +124,7 @@ public:
     }
 
     // Display board name
-    monitor.setInfo(LabelBoardName + getName());
+    monitor.setMessage(LabelBoardName + getName(), MonitorInfo);
 
     return isNone() ? 0 : 1;
   }
@@ -186,7 +186,7 @@ public:
     } else if (_buttonStart > 0 && _buttonDuration > 0) {
       _buttonStart = 0;
       _buttonLast = _buttonDuration;
-      monitor.setInfo(LabelBoardButtonDuration + String(_buttonDuration));
+      monitor.setMessage(LabelBoardButtonDuration + String(_buttonDuration), MonitorInfo);
 
       return _buttonDuration;
     }
@@ -404,7 +404,7 @@ public:
       _freezeStart[_freezeLevel] = millis();
     }
     _freezeLevel++;
-    monitor.setWarning(LabelBoardFreeze + String(" (") + _freezeLevel + ")");
+    monitor.setMessage(LabelBoardFreeze + String(" (") + _freezeLevel + ")", MonitorPlus);
     pingTimeout();
   }
 
@@ -422,7 +422,7 @@ public:
       setGreen(0);
 
       _freezeLevel--;
-      monitor.setInfo(LabelBoardUnfreeze + String((millis() - _freezeStart[_freezeLevel])) + String(" (") + _freezeLevel + ")");
+      monitor.setMessage(LabelBoardUnfreeze + String((millis() - _freezeStart[_freezeLevel])) + String(" (") + _freezeLevel + ")", MonitorMinus);
     }
     pingTimeout();
   }
@@ -434,7 +434,7 @@ public:
    */
   uint8_t stop() {
     // Display stop message
-    monitor.setWarning(LabelBoardStop);
+    monitor.setMessage(LabelBoardStop, MonitorStop);
 
     // Set fixed red LED
     setGreen(0);
@@ -452,7 +452,7 @@ public:
    */
   void reboot() {
     // Display reboot message
-    monitor.setAction(LabelBoardReboot);
+    monitor.setMessage(LabelBoardReboot, MonitorStop);
 
     // Blink LEDs
     uint8_t on = 1;

@@ -70,12 +70,12 @@ public:
 
   uint8_t setup() {
 
-    monitor.setAction(LabelIoSetup);
+    monitor.setMessage(LabelIoSetup, MonitorAction);
 
     analogReadResolution(12);
 
     // Display expansion setup message
-    monitor.setInfo(LabelIoExpansionSetup);
+    monitor.setMessage(LabelIoExpansionSetup, MonitorInfo);
 
     // Start Opta controler (expansions)
     board.setFreeze();
@@ -85,7 +85,7 @@ public:
     _expansionsNum = OptaController.getExpansionNum() + 1;
 
     // Display number of expansions
-    monitor.setInfo(LabelIoExpansionNum + String(_expansionsNum -1));
+    monitor.setMessage(LabelIoExpansionNum + String(_expansionsNum -1), MonitorInfo);
     board.unsetFreeze();
 
     // init then read values from storage
@@ -131,7 +131,7 @@ public:
 
           // state
           if (dr != _expansion[0].input[i].state) {
-            monitor.setInfo(String("[I0.") + i + "] => " + dr + ", " + _expansion[0].input[i].voltage + "mV, Pulse: " + _expansion[0].input[i].pulse);
+            monitor.setMessage(String("[I0.") + i + "] => " + dr + ", " + _expansion[0].input[i].voltage + "mV, Pulse: " + _expansion[0].input[i].pulse, MonitorInfo);
 
             _expansion[0].input[i].state = dr;
             _expansion[0].input[i].update = state.getTime();
@@ -193,7 +193,7 @@ public:
 
               // state
               if (dr != _expansion[e].input[i].state) {
-                monitor.setInfo(String("[I") + e + "." + i + "] => " + dr + ", " + _expansion[e].input[i].voltage + "mV, " + _expansion[e].input[i].pulse + " pulses, " + _expansion[e].input[i].high + "ms High");
+                monitor.setMessage(String("[I") + e + "." + i + "] => " + dr + ", " + _expansion[e].input[i].voltage + "mV, " + _expansion[e].input[i].pulse + " pulses, " + _expansion[e].input[i].high + "ms High", MonitorInfo);
 
                 _expansion[e].input[i].state = dr;
                 _expansion[e].input[i].update = state.getTime();
@@ -220,7 +220,7 @@ public:
 
     // write expansion values into file every minute
     if (state.getTime() - _storeLast > 60000) {
-      monitor.setInfo(LabelIoStore);
+      monitor.setMessage(LabelIoStore, MonitorInfo);
       _storeLast = state.getTime();
       writeToFile();
     }
@@ -327,7 +327,7 @@ public:
       _expansion[e].name = getName(e);
 
       // Display expansion name
-      monitor.setInfo(LabelIoExpansionName + String(e) + ": " + _expansion[e].name);
+      monitor.setMessage(LabelIoExpansionName + String(e) + ": " + _expansion[e].name, MonitorInfo);
     }
   }
 
@@ -420,7 +420,7 @@ public:
     DeserializationError error = deserializeJson(doc, buffer, length);
 
     if (error) {
-      monitor.setWarning(LabelConfigJsonReadFail);
+      monitor.setMessage(LabelConfigJsonReadFail, MonitorWarning);
 
       return 0;
     }
@@ -683,7 +683,7 @@ public:
         _expansion[expansion].output[output].state = value;
         _expansion[expansion].output[output].update = state.getTime();
 
-        monitor.setInfo(String("[O") + expansion + "." + output+ "] => " + value + ", " + _expansion[expansion].output[output].pulse + " pulses, " + _expansion[expansion].output[output].high + "ms high");
+        monitor.setMessage(String("[O") + expansion + "." + output+ "] => " + value + ", " + _expansion[expansion].output[output].pulse + " pulses, " + _expansion[expansion].output[output].high + "ms high", MonitorInfo);
       }
     }
   }
@@ -728,7 +728,7 @@ public:
    * @param   delay  The io poll delay in ms
    */
   void setPollDelay(uint32_t delay) {
-    monitor.setInfo(LabelIoPoll + String(delay));
+    monitor.setMessage(LabelIoPoll + String(delay), MonitorInfo);
     _pollDelay = delay;
   }
 

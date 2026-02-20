@@ -47,14 +47,14 @@ private:
     uint32_t chunk_size = 1024;
     uint32_t byte_count = 0;
 
-    monitor.setInfo(LabelFlashFirmware);
+    monitor.setMessage(LabelFlashFirmware, MonitorInfo);
     monitor.setProgress(byte_count, wifi_firmware_file_size, 10, true);
     while (byte_count < wifi_firmware_file_size) {
       if (byte_count + chunk_size > wifi_firmware_file_size)
         chunk_size = wifi_firmware_file_size - byte_count;
       int ret = fwrite(&wifi_firmware_image_data[byte_count], chunk_size, 1, fp);
       if (ret != 1) {
-        monitor.setWarning(LabelFlashFirmwareFail);
+        monitor.setMessage(LabelFlashFirmwareFail, MonitorWarning);
 
         return 0;
       }
@@ -68,7 +68,7 @@ private:
     chunk_size = 128;
     byte_count = 0;
 
-    monitor.setInfo(LabelFlashCertificate);
+    monitor.setMessage(LabelFlashCertificate, MonitorInfo);
     monitor.setProgress(byte_count, wifi_firmware_cacert_pem_len, 10, true);
 
     while (byte_count < wifi_firmware_cacert_pem_len) {
@@ -76,7 +76,7 @@ private:
         chunk_size = wifi_firmware_cacert_pem_len - byte_count;
       int ret = fwrite(&wifi_firmware_cacert_pem[byte_count], chunk_size, 1, fp);
       if (ret != 1) {
-        monitor.setWarning(LabelFlashCertificateFail);
+        monitor.setMessage(LabelFlashCertificateFail, MonitorWarning);
 
         return 0;
       }
@@ -98,7 +98,7 @@ private:
     uint32_t byte_count = 0;
     const uint32_t offset = 15 * 1024 * 1024 + 1024 * 512;
 
-    monitor.setInfo(LabelFlashMapped);
+    monitor.setMessage(LabelFlashMapped, MonitorInfo);
     monitor.setProgress(byte_count, wifi_firmware_file_size, 10, true);
 
     while (byte_count < wifi_firmware_file_size) {
@@ -106,7 +106,7 @@ private:
         chunk_size = wifi_firmware_file_size - byte_count;
       int ret = _root->program(wifi_firmware_image_data, offset + byte_count, chunk_size);
       if (ret != 0) {
-        monitor.setWarning(LabelFlashMappedFail);
+        monitor.setMessage(LabelFlashMappedFail, MonitorWarning);
 
         return 0;
       }
@@ -124,19 +124,19 @@ public:
   uint8_t setup() {
 
     // Display falsh memoery setup message
-    monitor.setAction(LabelFlashSetup);
+    monitor.setMessage(LabelFlashSetup, MonitorAction);
 
     // Get block device instance
     _root = mbed::BlockDevice::get_default_instance();
     if (_root->init() != mbed::BD_ERROR_OK) {
-      monitor.setWarning(LabelFlashInitFail);
+      monitor.setMessage(LabelFlashInitFail, MonitorWarning);
 
       return 0;
     }
 
     // Check flash memory
     if (!format()) {
-      monitor.setWarning(LabelFlashFail);
+      monitor.setMessage(LabelFlashFail, MonitorWarning);
 
       return 0;
     }
@@ -153,12 +153,12 @@ public:
     mbed::MBRBlockDevice wifi_data(_root, 1);
     mbed::FATFileSystem wifi_data_fs("wlan");
     bool noWifi = wifi_data_fs.mount(&wifi_data) != 0;
-    monitor.setInfo((noWifi ? LabelFlashMissing : LabelFlashExisting) + String("Wifi"));
+    monitor.setMessage((noWifi ? LabelFlashMissing : LabelFlashExisting) + String("Wifi"), MonitorInfo);
 
     mbed::MBRBlockDevice ota_data(_root, 2);
     mbed::FATFileSystem ota_data_fs("fs");
     bool noOta = ota_data_fs.mount(&ota_data) != 0;
-    monitor.setInfo((noOta ? LabelFlashMissing : LabelFlashExisting) + String("OTA"));
+    monitor.setMessage((noOta ? LabelFlashMissing : LabelFlashExisting) + String("OTA"), MonitorInfo);
 
     mbed::MBRBlockDevice kvstore_data(_root, 3);
     // do not touch this one
@@ -166,14 +166,14 @@ public:
     mbed::MBRBlockDevice user_data(_root, 4);
     mbed::FATFileSystem user_data_fs("fs");
     bool noUser = user_data_fs.mount(&user_data) != 0;
-    monitor.setInfo((noUser ? LabelFlashMissing : LabelFlashExisting) + String("User"));
+    monitor.setMessage((noUser ? LabelFlashMissing : LabelFlashExisting) + String("User"), MonitorInfo);
 
     bool perform = force || noWifi || noOta || noUser;
 
     if (perform) {
-      monitor.setInfo(LabelFlashErase);
+      monitor.setMessage(LabelFlashErase, MonitorInfo);
       _root->erase(0x0, _root->size());
-      monitor.setInfo(LabelFlashEraseSuccess);
+      monitor.setMessage(LabelFlashEraseSuccess, MonitorInfo);
     }
 
     mbed::MBRBlockDevice::partition(_root, 1, 0x0B, 0, 1 * 1024 * 1024);                // WIFI
@@ -183,11 +183,11 @@ public:
     // use space from 15.5MB to 16 MB for another fw, memory mapped
 
     if (force || noWifi) {
-      monitor.setInfo(LabelFlashFormat + String("Wifi"));
+      monitor.setMessage(LabelFlashFormat + String("Wifi"), MonitorInfo);
 
       wifi_data_fs.unmount();
       if (wifi_data_fs.reformat(&wifi_data) != 0) {  // not used yet
-        monitor.setWarning(LabelFlashFormatFail);
+        monitor.setMessage(LabelFlashFormatFail, MonitorWarning);
 
         return 0;
       }
@@ -200,11 +200,11 @@ public:
     }
 
     if (force || noOta) {
-      monitor.setInfo(LabelFlashFormat + String("OTA"));
+      monitor.setMessage(LabelFlashFormat + String("OTA"), MonitorInfo);
 
       ota_data_fs.unmount();
       if (ota_data_fs.reformat(&ota_data) != 0) {
-        monitor.setWarning(LabelFlashFormatFail);
+        monitor.setMessage(LabelFlashFormatFail, MonitorWarning);
 
         return 0;
       }
@@ -212,11 +212,11 @@ public:
     }
 
     if (force || noUser) {
-      monitor.setInfo(LabelFlashFormat + String("User"));
+      monitor.setMessage(LabelFlashFormat + String("User"), MonitorInfo);
 
       user_data_fs.unmount();
       if (user_data_fs.reformat(&user_data) != 0) {
-        monitor.setWarning(LabelFlashFormatFail);
+        monitor.setMessage(LabelFlashFormatFail, MonitorWarning);
 
         return 0;
       }

@@ -332,7 +332,7 @@ private:
    * @param   client  The client
    */
   void receiveConfig(Client *&client) {
-    monitor.setAction(LabelWebConfig);
+    monitor.setMessage(LabelWebConfig, MonitorAction);
 
     bool isValid = true;
     String jsonString = "";
@@ -355,24 +355,24 @@ private:
     board.pingTimeout();
 
     if (!isValid || config.readFromJson(jsonString.c_str(), jsonString.length()) < 1) {
-      monitor.setWarning(LabelWebConfigFail);
+      monitor.setMessage(LabelWebConfigFail, MonitorWarning);
       isValid = false;
     } else {
       if (config.getDeviceUser() == "") {  // device user must be set
-        monitor.setWarning(LabelWebConfigFailUser);
+        monitor.setMessage(LabelWebConfigFailUser, MonitorWarning);
         isValid = false;
       }
       if (config.getDevicePassword() == "") {  // get old device password if none set
-        monitor.setInfo(LabelWebConfigKeepDevice);
+        monitor.setMessage(LabelWebConfigKeepDevice, MonitorInfo);
         config.setDevicePassword(oldDevicePassword);
       }
       if (config.getNetworkPassword() == "" && config.getNetworkSsid() != "") {  // get old wifi password if none set
-        monitor.setInfo(LabelWebConfigKeepWifi);
+        monitor.setMessage(LabelWebConfigKeepWifi, MonitorInfo);
         config.setNetworkPassword(oldNetPassword);
       }
 
       if (config.getMqttPassword() == "" && config.getMqttUser() != "") {  // get old mqtt password if none set
-        monitor.setInfo(LabelWebConfigKeepMqtt);
+        monitor.setMessage(LabelWebConfigKeepMqtt, MonitorInfo);
         config.setMqttPassword(oldMqttPassword);
       }
 
@@ -421,15 +421,15 @@ public:
   OptaLinkerWeb(OptaLinkerVersion &_version, OptaLinkerState &_state, OptaLinkerMonitor &_monitor, OptaLinkerBoard &_board, OptaLinkerConfig &_config, OptaLinkerIo &_io, OptaLinkerNetwork &_network, OptaLinkerClock &_clock, OptaLinkerMqtt &_mqtt) : version(_version), state(_state), monitor(_monitor), board(_board), config(_config), io(_io), network(_network), clock(_clock), mqtt(_mqtt) {}
 
   uint8_t setup() {
-    monitor.setAction(LabelWebSetup);
+    monitor.setMessage(LabelWebSetup, MonitorAction);
 
     _ethernetServer = EthernetServer(80);
     _wifiServer = WiFiServer(80);
     if (network.isEthernet()) {
-      monitor.setInfo(LabelWebEthernet);
+      monitor.setMessage(LabelWebEthernet, MonitorInfo);
       _ethernetServer.begin();
     } else {
-      monitor.setInfo(LabelWebWifi);
+      monitor.setMessage(LabelWebWifi, MonitorInfo);
       _wifiServer.begin();
     }
 

@@ -87,7 +87,7 @@ private:
         board.setFreeze();
         _tcpEthernetClient.setTimeout(5000);
         if (!_tcpEthernetClient.begin(config.getModbusIp(), config.getModbusPort())) {
-          monitor.setWarning(LabelModbusClientFail);
+          monitor.setMessage(LabelModbusClientFail, MonitorWarning);
         } else {
           ret = _tcpEthernetClient.connected() == 1 ? 1 : 0;
         }
@@ -98,7 +98,7 @@ private:
         board.setFreeze();
         _tcpWifiClient.setTimeout(5000);
         if (!_tcpWifiClient.begin(config.getModbusIp(), config.getModbusPort())) {
-          monitor.setWarning(LabelModbusClientFail);
+          monitor.setMessage(LabelModbusClientFail, MonitorWarning);
         } else {
           ret = _tcpWifiClient.connected() == 1 ? 1 : 0;
         }
@@ -264,13 +264,13 @@ private:
    * Parser received holding registers.
    */
   void parseServerHoldingRegisters() {
-    monitor.setAction(LabelModbusRegisterParse);
+    monitor.setMessage(LabelModbusRegisterParse, MonitorAction);
 
     // prevent infinite loop
     setHoldingRegister(ModbusRegisterFirmware + ModbusRegisterConfigValidate, 0);
 
     if (!getHoldingRegisterString(ModbusRegisterFirmware + ModbusRegisterConfigPassword).equals(config.getDevicePassword())) {
-      monitor.setWarning(LabelModbusRegisterMissmatch);
+      monitor.setMessage(LabelModbusRegisterMissmatch, MonitorWarning);
     } else {
 
       // Device
@@ -346,7 +346,7 @@ private:
 
     if (isRtuClient()) {
       if (_rtuClient.requestFrom(_clientServerId, type, start, length) == 0) {
-          monitor.setWarning(String(_rtuClient.lastError()));
+          monitor.setMessage(String(_rtuClient.lastError()), MonitorWarning);
       } else {
         for (uint16_t index = 0; index < length; index++) {
           response[index] = _rtuClient.read();
@@ -360,7 +360,7 @@ private:
         if (network.isEthernet()) {
           board.setFreeze();
           if (_tcpEthernetClient.requestFrom(_clientServerId, type, start, length) == 0) {
-              monitor.setWarning(String(_tcpEthernetClient.lastError()));
+              monitor.setMessage(String(_tcpEthernetClient.lastError()), MonitorWarning);
           } else {
             for (uint16_t index = 0; index < length; index++) {
               response[index] = _tcpEthernetClient.read();
@@ -373,7 +373,7 @@ private:
           board.setFreeze();
           if (_tcpWifiClient.requestFrom(_clientServerId, type, start, length) == 0) {
               board.unsetFreeze();
-              monitor.setWarning(String(_tcpWifiClient.lastError()));
+              monitor.setMessage(String(_tcpWifiClient.lastError()), MonitorWarning);
           } else {
             for (uint16_t index = 0; index < length; index++) {
               response[index] = _tcpWifiClient.read();
@@ -440,20 +440,20 @@ public:
   static const uint32_t RegisterOffsetOutput        = 32000;
 
   uint8_t setup() {
-    monitor.setAction(LabelModbusSetup);
+    monitor.setMessage(LabelModbusSetup, MonitorAction);
 
     uint8_t ret = 1;
     uint8_t type = config.getModbusType();
     switch (type) {
 
       case ModbusType::ModbusRtuServer:
-        monitor.setInfo(LabelModbusRtuServer);
+        monitor.setMessage(LabelModbusRtuServer, MonitorInfo);
 
         // Check Modbus RTU capability
         if (!board.isLite() && !rs485.isEnabled()) {
           prepareRS485();
           if (!_rtuServer.begin(config.getDeviceId(), config.getRs485Baudrate(), SERIAL_8E1)) {
-            monitor.setWarning(LabelModbusBeginFail);
+            monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
             ret = 0;
           } else {
             configureServerRegisters();
@@ -463,22 +463,22 @@ public:
         break;
 
       case ModbusType::ModbusTcpServer:
-        monitor.setInfo(LabelModbusTcpServer);
+        monitor.setMessage(LabelModbusTcpServer, MonitorInfo);
 
         _ethernetServer = EthernetServer(config.getModbusPort());
         _wifiServer = WiFiServer(config.getModbusPort());
 
         if (network.isEthernet()) {
-          monitor.setInfo(LabelModbusEthernetServer);
+          monitor.setMessage(LabelModbusEthernetServer, MonitorInfo);
           _ethernetServer.begin();
         } else {
-          monitor.setInfo(LabelModbusWifiServer);
+          monitor.setMessage(LabelModbusWifiServer, MonitorInfo);
           _wifiServer.begin();
         }
         board.pingTimeout();
 
         if (!_tcpServer.begin()) {
-          monitor.setWarning(LabelModbusBeginFail);
+          monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
         } else {
           configureServerRegisters();
           setServerRegisters();
@@ -486,13 +486,13 @@ public:
         break;
 
       case ModbusType::ModbusRtuClient:
-        monitor.setInfo(LabelModbusRtuClient);
+        monitor.setMessage(LabelModbusRtuClient, MonitorInfo);
 
         // Check Modbus RTU capability
         if (!board.isLite() && !rs485.isEnabled()) {
           prepareRS485();
           if (!_rtuClient.begin(config.getRs485Baudrate(), SERIAL_8E1)) {
-            monitor.setWarning(LabelModbusBeginFail);
+            monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
             ret = 0;;
           }
           _rtuClient.setTimeout(1000);
@@ -500,7 +500,7 @@ public:
        break;
 
       case ModbusType::ModbusTcpClient:
-        monitor.setInfo(LabelModbusTcpClient);
+        monitor.setMessage(LabelModbusTcpClient, MonitorInfo);
 
         // Check distant server IP
         if (config.getModbusIp().toString().equals("0.0.0.0")) {
@@ -517,7 +517,7 @@ public:
 
     if (ret == 0) {
       config.setModbusType(ModbusType::ModbusNone);
-      monitor.setWarning(LabelModbusNone);
+      monitor.setMessage(LabelModbusNone, MonitorWarning);
     }
 
     return 1;
@@ -532,14 +532,14 @@ public:
       if (network.isEthernet()) {
         EthernetClient modbusEthernetClient = _ethernetServer.accept();
         if (modbusEthernetClient) {
-          monitor.setInfo(LabelModbusClientConnect);
+          monitor.setMessage(LabelModbusClientConnect, MonitorInfo);
           _tcpServer.accept(modbusEthernetClient);
 
           while (modbusEthernetClient.connected()) {
             _tcpServer.poll();
             board.pingTimeout();
             if (state.getDuration() > 1000) { // use timer instead of freeze, for debug purpose...
-                monitor.setWarning(String(LabelModbusClientKick));
+                monitor.setMessage(String(LabelModbusClientKick), MonitorWarning);
                 break;
             }
 
@@ -552,14 +552,14 @@ public:
       } else {
         WiFiClient modbusWifiClient = _wifiServer.accept();
         if (modbusWifiClient) {
-          monitor.setInfo(LabelModbusClientConnect);
+          monitor.setMessage(LabelModbusClientConnect, MonitorInfo);
           _tcpServer.accept(modbusWifiClient);
 
           while (modbusWifiClient.connected()) {
             _tcpServer.poll();
             board.pingTimeout();
             if (state.getDuration() > 1000) { // use timer instead of freeze, for debug purpose...
-                monitor.setWarning(String(LabelModbusClientKick));
+                monitor.setMessage(String(LabelModbusClientKick), MonitorWarning);
                 break;
             }
           }
@@ -587,7 +587,7 @@ public:
             // Check changes to inputs from local then update HoldingRegisters, InputRegisters, DiscreteInputs
             offset = ModbusRegisterInput + (e * ModbusRegisterIoLength) + (i * ModbusRegisterIoLength);
             if (expansion[e].input[i].update >= _updateLast) {
-              //monitor.setInfo("Modbus registers update input " + String(expansion[e].input[i].uid) + " starting at offset " + offset);
+              //monitor.setMessagge("Modbus registers update input " + String(expansion[e].input[i].uid) + " starting at offset " + offset, MonitorInfo);
               setRegisterIo(offset, expansion[e].input[i], 1);
               setDiscreteInput(expansion[e].input[i].uid, expansion[e].input[i].state);
             }
@@ -610,7 +610,7 @@ public:
             // Check changes to outputs from local then update HoldingRegisters, InputRegisters, Coils
             offset = ModbusRegisterOutput + (e * ModbusRegisterIoLength) +  (i * ModbusRegisterIoLength);
             if (expansion[e].output[i].update >= _updateLast) {
-              //monitor.setInfo("Modbus registers update output " + String(expansion[e].output[i].uid) + " starting at offset " + offset);
+              //monitor.setMessage("Modbus registers update output " + String(expansion[e].output[i].uid) + " starting at offset " + offset, MonitorInfo);
               setRegisterIo(offset, expansion[e].output[i], 0);
               setCoil(expansion[e].output[i].uid, expansion[e].output[i].state);
             }
@@ -643,23 +643,29 @@ public:
   }
 
   uint8_t isRtuClient() {
-    return config.getModbusType() == ModbusType::ModbusRtuClient;
+    return config.getModbusType() == ModbusType::ModbusRtuClient ? 1 : 0;
   }
 
   uint8_t isTcpClient() {
-    return config.getModbusType() == ModbusType::ModbusTcpClient;
+    return config.getModbusType() == ModbusType::ModbusTcpClient ? 1 : 0;
   }
 
   uint8_t isRtuServer() {
-    return config.getModbusType() == ModbusType::ModbusRtuServer;
+    return config.getModbusType() == ModbusType::ModbusRtuServer ? 1 : 0;
   }
 
   uint8_t isTcpServer() {
-    return config.getModbusType() == ModbusType::ModbusTcpServer;
+    return config.getModbusType() == ModbusType::ModbusTcpServer ? 1 : 0;
   }
 
-  void setServer(uint8_t server) {
-    _clientServerId = server;
+  uint8_t setServer(uint8_t server) {
+    if (server < 255) {
+      _clientServerId = server;
+
+      return 1;
+    }
+
+    return 0;
   }
 
   int getInputRegister(uint16_t offset) {
@@ -829,9 +835,11 @@ public:
     return getRegisters(response, HOLDING_REGISTERS, start, 1) == 0 ? 0 : (uint16_t)response[0];
   }
 
-  void setRegisterUint16(uint16_t offset, uint32_t value) {
+  uint8_t setRegisterUint16(uint16_t offset, uint32_t value) {
     setInputRegister(offset, value);
     setHoldingRegister(offset, value);
+
+    return 1;
   }
 
   int16_t getInputRegisterInt16(uint16_t start) {
@@ -844,11 +852,13 @@ public:
     return getRegisters(response, HOLDING_REGISTERS, start, 2) == 0 ? 0 : toInt16(response, 0);
   }
 
-  void setRegisterInt16(uint16_t offset, int value) {
+  uint8_t setRegisterInt16(uint16_t offset, int value) {
     setInputRegister(offset, value < 0 ? 0 : 1);
     setHoldingRegister(offset++, value < 0 ? 0 : 1);
     setInputRegister(offset, (uint16_t)abs(value));
     setHoldingRegister(offset, (uint16_t)abs(value));
+
+    return 1;
   }
 
   uint32_t getInputRegisterUint32(uint16_t start) {
@@ -861,7 +871,7 @@ public:
     return getRegisters(response, HOLDING_REGISTERS, start, 2) == 0 ? 0 : toUint32(response, 0);
   }
 
-  void setRegisterUint32(uint16_t offset, uint32_t value) {
+  uint8_t setRegisterUint32(uint16_t offset, uint32_t value) {
     uint16_t high = (value >> 16) & 0xFFFF;
     uint16_t low  = value & 0xFFFF;
 
@@ -869,6 +879,8 @@ public:
     setHoldingRegister(offset++, high);
     setInputRegister(offset, low);
     setHoldingRegister(offset, low);
+
+    return 1;
   }
 
   String getInputRegisterString(uint16_t start) {
@@ -881,7 +893,7 @@ public:
     return getRegisters(response, HOLDING_REGISTERS, start, config.MaxStringLength + 1) == 0 ? String("") : toString(response, 0);
   }
 
-  void setRegisterString(uint16_t offset, String str) {
+  uint8_t setRegisterString(uint16_t offset, String str) {
     if (str.length() <= config.MaxStringLength) {
       setInputRegister(offset, str.length());
       setHoldingRegister(offset++, str.length());
@@ -892,6 +904,8 @@ public:
       setInputRegister(offset, '\0');
       setHoldingRegister(offset, '\0');
     }
+
+    return 1;
   }
 
   IPAddress getInputRegisterIp(uint16_t start) {
@@ -904,11 +918,13 @@ public:
     return getRegisters(response, HOLDING_REGISTERS, start, 4) == 0 ? IPAddress(0, 0, 0, 0) : toIp(response, 0);
   }
 
-  void setRegisterIp(uint16_t offset, IPAddress Ip) {
+  uint8_t setRegisterIp(uint16_t offset, IPAddress Ip) {
     for (uint8_t n = 0; n < 4; n++) {
       setInputRegister(offset, Ip[n]);
       setHoldingRegister(offset++, Ip[n]);
     }
+
+    return 1;
   }
 
   int16_t toInt16(int *response, uint16_t start) {

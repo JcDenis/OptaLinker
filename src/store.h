@@ -52,7 +52,7 @@ public:
     if (kv_iterator_open(&it, nullptr) == MBED_SUCCESS) {
         while(kv_iterator_next(it, key, 32) == MBED_SUCCESS) {
         if (kv_get_info(key, &info) == MBED_SUCCESS) {
-          monitor.setInfo(String(key) + " : " + String(info.size));
+          monitor.setMessage(String(key) + " : " + String(info.size), MonitorInfo);
         }
       }
       kv_iterator_close(it);
@@ -76,7 +76,7 @@ public:
       } 
     }
 
-    monitor.setWarning(LabelStoreReadFail);
+    monitor.setMessage(LabelStoreReadFail, MonitorWarning);
 
     return "";
   }

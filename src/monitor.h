@@ -23,11 +23,6 @@ private:
   OptaLinkerState &state;
 
   /**
-   * Colorized some messages.
-   */
-  uint8_t _colorized = 0;
-
-  /**
    * Heartbeat timer.
    */
 	uint32_t _heartbeat = 0;
@@ -47,6 +42,7 @@ private:
    */
   uint8_t _hasIncoming = 0;
 
+
 public:
 	OptaLinkerMonitor(OptaLinkerState &_state) : state(_state) {}
 
@@ -63,7 +59,7 @@ public:
     }
 
     // Display "welcome" message
-    setMessage(LabelMonitorSetup);
+    Serial.println(LabelMonitorSetup);
 
     return 1;
   }
@@ -75,7 +71,7 @@ public:
 
   	// Heartbeat
   	if (state.getTime() - _heartbeat > 10000) {
-        setInfo(LabelMonitorHeartbeat);
+        setMessage(LabelMonitorHeartbeat, MonitorInfo);
         _heartbeat = state.getTime();
   	}
 
@@ -89,7 +85,7 @@ public:
 	      switch (c) {
 	        case '\n':
 	          _incoming[index] = '\0';
-	          setAction(String(LabelMonitorReceive) + _incoming);
+	          setMessage(String(LabelMonitorReceive) + _incoming, MonitorAction);
 	          index = 0;
 	          ended = 1;
 	          break;
@@ -107,70 +103,16 @@ public:
   }
 
   /**
-   * Set colorized message if serial monitor supports this.
-   *
-   * @param 	set 	1 to enabled colorized message, else 0
-   */
-  void setColorisation(uint8_t set = 1) {
-  	_colorized = set == 1 ? 1 : 0;
-  }
-
-  /**
-   * Print a message (whitout newline).
+   * Print a message.
    *
    * @param 	str 	The message.
    */
-	void setMessage(String str) {
-	  setMessage(str.c_str());
+	void setMessage(String str, MonitorType type = MonitorNone) {
+	  setMessage(str.c_str(), type);
 	}
-	void setMessage(const char *str) {
-	  Serial.print(String(LabelMonitorPrint) + str);
+	void setMessage(const char *str, MonitorType type = MonitorNone) {
+	  Serial.println(String(MonitorTypeIcons[type]) + " " + str);
 	}
-
-	/**
-	 * Print an action message.
-	 *
-   * @param 	str 	The message.
-   */
-	void setAction(String str) {
-	  setAction(str.c_str());
-	}
-	void setAction(const char *str) {
-		if (_colorized) Serial.print("\033[32m"); // green
-	  Serial.print(String(LabelMonitorAction) + str);
-	  Serial.println(_colorized ? "\033[0m" : "");
-	}
-
-
-	/**
-	 * Print an informational message.
-	 *
-   * @param 	str 	The message.
-   */
-	void setInfo(String str) {
-	  setInfo(str.c_str());
-	}
-	void setInfo(const char *str) {
-		if (_colorized) Serial.print("\033[33m"); // yellow
-	  Serial.print(String(LabelMonitorInfo) + str);
-	  Serial.println(_colorized ? "\033[0m" : "");
-	}
-
-
-	/**
-	 * Print a warning message.
-	 *
-   * @param 	str 	The message.
-   */
-	void setWarning(String str) {
-	  setWarning(str.c_str());
-	}
-	void setWarning(const char *str) {
-		if (_colorized) Serial.print("\033[31m"); // red
-	  Serial.print(String(LabelMonitorWarning) + str);
-	  Serial.println(_colorized ? "\033[0m" : "");
-	}
-
 
 	/**
 	 * Print a progress percent.
@@ -183,12 +125,12 @@ public:
 	void setProgress(uint32_t offset, uint32_t size, uint32_t threshold, uint8_t reset) {
 	  if (reset == 1) {
 	    _progress = 0;
-	    setInfo(String(_progress) + "%");
+	    setMessage(String(_progress) + "%", MonitorNone);
 	  } else {
 	    uint8_t percent_done_new = offset * 100 / size;
 	    if (percent_done_new >= _progress + threshold) {
 	      _progress = percent_done_new;
-	      setInfo(String(_progress) + "%");
+	      setMessage(String(_progress) + "%", MonitorNone);
 	    }
 	  }
 	}

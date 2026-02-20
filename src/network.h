@@ -80,28 +80,28 @@ private:
    * Netowrk connection using Ethernet.
    */
 	void connectEthernet() {
-	  monitor.setAction(LabelNetworkEthernet);
+	  monitor.setMessage(LabelNetworkEthernet, MonitorAction);
 
 	  int ret = 0;
 	  board.setFreeze();
 	  if (config.getNetworkDhcp()) {
-	    monitor.setInfo(LabelNetworkMode + String("DHCP"));
+	    monitor.setMessage(LabelNetworkMode + String("DHCP"), MonitorInfo);
 	    ret = Ethernet.begin(nullptr, getTimeout(), 4000);
 	  } else {
-	    monitor.setInfo(LabelNetworkMode + String("Static IP"));
+	    monitor.setMessage(LabelNetworkMode + String("Static IP"), MonitorInfo);
 	    ret = Ethernet.begin(nullptr, config.getNetworkIp(), config.getNetworkDns(), config.getNetworkGateway(), config.getNetworkSubnet(), getTimeout(), 4000);
 	  }
 	  board.unsetFreeze();
 
 	  if (ret == 0) {
 	    _isConnected = 0;
-	    monitor.setWarning(LabelNetworkEthernetFail);
+	    monitor.setMessage(LabelNetworkEthernetFail, MonitorWarning);
 	    if (Ethernet.linkStatus() == LinkOFF) {
-	      monitor.setWarning(LabelNetworkEthernetDisconnect);
+	      monitor.setMessage(LabelNetworkEthernetDisconnect, MonitorWarning);
 	    }
 	  } else {
 	    _isConnected = 1;
-	    monitor.setInfo(LabelNetworkEthernetSuccess + getLocalIp().toString());
+	    monitor.setMessage(LabelNetworkEthernetSuccess + getLocalIp().toString(), MonitorInfo);
 	  }
 	}
 
@@ -109,7 +109,7 @@ private:
 	 * Network connection using Wifi standard.
 	 */
 	void connectStandard() {
-	  monitor.setAction(LabelNetworkSta);
+	  monitor.setMessage(LabelNetworkSta, MonitorAction);
 
 	  String netApSsid = config.getNetworkSsid();
 	  String netApPass = config.getNetworkPassword();
@@ -118,11 +118,11 @@ private:
 	  netApSsid.toCharArray(ssid, sizeof(ssid));
 	  netApPass.toCharArray(pass, sizeof(pass));
 
-	  monitor.setInfo(LabelNetworkSsid + netApSsid + " / " + netApPass);
+	  monitor.setMessage(LabelNetworkSsid + netApSsid + " / " + netApPass, MonitorInfo);
 	  if (config.getNetworkDhcp()) {
-	    monitor.setInfo(LabelNetworkMode + String("DHCP"));
+	    monitor.setMessage(LabelNetworkMode + String("DHCP"), MonitorInfo);
 	  } else {
-	    monitor.setInfo(LabelNetworkMode + String("Static IP"));
+	    monitor.setMessage(LabelNetworkMode + String("Static IP"), MonitorInfo);
 	    WiFi.config(config.getNetworkIp(), config.getNetworkDns(), config.getNetworkGateway(), config.getNetworkSubnet());
 	  }
 
@@ -132,10 +132,10 @@ private:
 	  board.unsetFreeze();
 
 	  if (ret != WL_CONNECTED) {
-	    monitor.setWarning(LabelNetworkStaFail);
+	    monitor.setMessage(LabelNetworkStaFail, MonitorWarning);
 	    _isConnected = 0;
 	  } else {
-	    monitor.setInfo(LabelNetworkStaSuccess);
+	    monitor.setMessage(LabelNetworkStaSuccess, MonitorInfo);
 	    _isConnected = 1;
 	  }
 	}
@@ -145,15 +145,15 @@ public:
 
   uint8_t setup() {
 
-	  monitor.setAction(LabelNetworkSetup);
+	  monitor.setMessage(LabelNetworkSetup, MonitorAction);
 
 	  // Check configuration to use Wifi Standard
 	  if (board.isWifi() && config.getNetworkWifi() && config.getNetworkSsid() != "" && config.getNetworkPassword() != "") {
-	    monitor.setInfo(LabelNetworkMode + String("Wifi standard network"));
+	    monitor.setMessage(LabelNetworkMode + String("Wifi standard network"), MonitorInfo);
 	    _networkType = NetworkType::NetworkStandard;
 
 	    if (WiFi.status() == WL_NO_MODULE) {
-				monitor.setWarning(LabelNetworkFail);
+				monitor.setMessage(LabelNetworkFail, MonitorWarning);
 
 				return 0;
 	    }
@@ -161,11 +161,11 @@ public:
 	    connectStandard();
 	  // Check configuration to use Wifi Access Point
 	  } else if (board.isWifi() && config.getNetworkWifi()) {
-	    monitor.setInfo(LabelNetworkMode + String("Wifi Access Point network"));
+	    monitor.setMessage(LabelNetworkMode + String("Wifi Access Point network"), MonitorInfo);
 	    _networkType = NetworkType::NetworkAccessPoint;
 
 	    if (WiFi.status() == WL_NO_MODULE) {
-				monitor.setWarning(LabelNetworkFail);
+				monitor.setMessage(LabelNetworkFail, MonitorWarning);
 
 				return 0;
 	    }
@@ -177,8 +177,8 @@ public:
 	    netApSsid.toCharArray(ssid, sizeof(ssid));
 	    netApPass.toCharArray(pass, sizeof(pass));
 
-	    monitor.setInfo(LabelNetworkSsid + netApSsid + " / " + netApPass);
-	    monitor.setInfo(LabelNetworkStaticIp + config.getNetworkIp().toString());
+	    monitor.setMessage(LabelNetworkSsid + netApSsid + " / " + netApPass, MonitorInfo);
+	    monitor.setMessage(LabelNetworkStaticIp + config.getNetworkIp().toString(), MonitorInfo);
 
 	    WiFi.config(config.getNetworkIp());
 
@@ -187,20 +187,20 @@ public:
 	    board.unsetFreeze();
 
 	    if (ret != WL_AP_LISTENING) {
-				monitor.setWarning(LabelNetworkApFail);
+				monitor.setMessage(LabelNetworkApFail, MonitorWarning);
 
 				return 0;
 	    } else {
-	      monitor.setInfo(LabelNetworkApSuccess);
+	      monitor.setMessage(LabelNetworkApSuccess, MonitorInfo);
 	      _isConnected = 1;
 	    }
 	  // At least, use Ethernet
 	  } else {
-	    monitor.setInfo(LabelNetworkMode + String("Ethernet network"));
+	    monitor.setMessage(LabelNetworkMode + String("Ethernet network"), MonitorInfo);
 	    _networkType = NetworkType::NetworkEthernet;
 
 	    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-				monitor.setWarning(LabelNetworkFail);
+				monitor.setMessage(LabelNetworkFail, MonitorWarning);
 
 				return 0;
 	    }
@@ -209,7 +209,7 @@ public:
 	  }
 
 	  if (isConnected() && config.getNetworkDhcp()) {
-	    monitor.setInfo(LabelNetworkDhcpIp + getLocalIp().toString());
+	    monitor.setMessage(LabelNetworkDhcpIp + getLocalIp().toString(), MonitorInfo);
 	  }
 
 	  board.pingTimeout();
@@ -229,11 +229,11 @@ public:
 	      }
 	    }
 	    if (!isConnected() && Ethernet.linkStatus() == LinkON) {
-	      monitor.setInfo(LabelNetworkEthernetConnect);
+	      monitor.setMessage(LabelNetworkEthernetConnect, MonitorInfo);
 	      _isConnected = 1;
 	    }
 	    if (isConnected() && Ethernet.linkStatus() != LinkON) {
-	      monitor.setWarning(LabelNetworkEthernetDisconnect);
+	      monitor.setMessage(LabelNetworkEthernetDisconnect, MonitorWarning);
 	      _isConnected = 0;
 	    }
 	    if (isConnected() && Ethernet.linkStatus() == LinkON) {
@@ -250,11 +250,11 @@ public:
 	      _apStatus = WiFi.status();
 
 	      if (_apStatus == WL_AP_CONNECTED) {
-	        monitor.setInfo(LabelNetworkApConnect);
+	        monitor.setMessage(LabelNetworkApConnect, MonitorInfo);
 	      } else if (_apFirstLoop) {  // do not display message on startup
 	        _apFirstLoop = 0;
 	      } else {
-	        monitor.setWarning(LabelNetworkApDisconnect);
+	        monitor.setMessage(LabelNetworkApDisconnect, MonitorWarning);
 	      }
 	    }
 	  }
@@ -298,7 +298,7 @@ public:
    */
   void setPollDelay(uint32_t delay) {
 	  if (delay > 0 && delay < 120000) {
-	    monitor.setInfo(LabelNetworkPoll);
+	    monitor.setMessage(LabelNetworkPoll, MonitorInfo);
 	    _pollDelay = delay;
 	  }
   }
@@ -322,7 +322,7 @@ public:
 	 */
 	void setTimeout(uint32_t timeout) {
 	  if (timeout > 0 && timeout < 120000) {
-	    monitor.setInfo(LabelNetworkTimeout + String(timeout));
+	    monitor.setMessage(LabelNetworkTimeout + String(timeout), MonitorInfo);
 	    _timeoutDelay = timeout;
 	  }
 	}

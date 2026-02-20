@@ -16,6 +16,32 @@
 namespace optalinker {
 
 /**
+ * Monitor message type.
+ */
+enum MonitorType {
+  MonitorNone = 0,
+  MonitorInfo,
+  MonitorSuccess,
+  MonitorFail,
+  MonitorWarning,
+  MonitorAction,
+  MonitorLock,
+  MonitorStop,
+  MonitorReceive,
+  MonitorSend,
+  MonitorConfig,
+  MonitorPlus,
+  MonitorMinus,
+};
+
+/**
+ * Icons used in message.
+ *
+ * //maybe usable 🔗➡️✅❌⚠️⚙️⛔🔒🔍🚀📝➕➖🔶🛑🌐⚪️
+ */
+constexpr char *MonitorTypeIcons[] = { "", "➡️", "✅", "❌", "⚠️", "⚪️", "🔒", "⛔", "🔍", "🚀", "📝", "➕", "➖" };
+
+/**
  * Board type.
  */
 enum BoardType {
@@ -259,10 +285,6 @@ constexpr char LabelOptaLinkerBenchmarkAverage[] = "Average of loops per second:
 
 // Monitor
 constexpr char LabelMonitorSetup[]     = "\n+—————————————————————————————————————+\n| Arduino Opta Industrial IoT gateway |\n+—————————————————————————————————————+\n\n";
-constexpr char LabelMonitorPrint[]     = "";
-constexpr char LabelMonitorAction[]    = "* ";
-constexpr char LabelMonitorInfo[]      = "  - ";
-constexpr char LabelMonitorWarning[]   = "  ! ";
 constexpr char LabelMonitorReceive[]   = "Receiving message from serial monitor: ";
 constexpr char LabelMonitorHeartbeat[] = "I'm alive";
 
