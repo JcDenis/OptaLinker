@@ -106,4 +106,9 @@
 #define OPTALINKER_MODBUS_POLL 50
 
 
+// OTA update
+
+#define OPTALINKER_UPDATE_URL ""
+
+
 #endif  // #ifndef OPTALINKER_DEFINE_H

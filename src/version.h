@@ -34,6 +34,16 @@ private:
    */
   uint8_t _revision;
 
+  /**
+   * OTA update firmware version.
+   */
+  uint32_t _ota = 0;
+
+  /**
+   * Simple ongoing OTA marker.
+   */
+  uint8_t _ongoing = 0;
+
 public:
 	OptaLinkerVersion(uint8_t major, uint8_t minor, uint8_t revision) {
     _major    = major;
@@ -88,6 +98,38 @@ public:
     sprintf(buffer, "%02d%02d%02d", _major, _minor, _revision);
 
     return atoi(buffer);
+  }
+
+  /**
+   * Set OTA firmware version.
+   *
+   * @param The numeric version of distant OTA firmware version available.
+   */
+  void setOtaVersion(uint32_t version) {
+    _ota = version;
+  }
+
+
+  /**
+   * Get OTA firmware version.
+   *
+   * @return  The numeric version of distant OTA firmware version available.
+   */
+  uint32_t getOtaVersion() {
+    return _ota;
+  }
+
+  /**
+   * Get/Set ongoing OTA marker.
+   *
+   * Only used to print monitor message.
+   */
+  uint8_t getOtaState(int8_t state = -1) {
+    if (state == 1 || state == 0) {
+      _ongoing = state;
+    }
+
+    return _ongoing;
   }
 
 }; // class OptaLinkerVersion

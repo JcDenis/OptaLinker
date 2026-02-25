@@ -578,6 +578,16 @@ const char web_device_html[] = R"rawliteral(
     </div>
 
     <div class="part">
+      <h2>OTA update</h2>
+
+      <div class="field">
+        <label for="updateUrl">Firmware file URL:</label>
+        <input type="text" id="updateUrl" name="updateUrl" required>
+      </div>
+
+    </div>
+
+    <div class="part">
       <h2>Save</h2>
 
       <div class="field">
@@ -630,6 +640,7 @@ const char web_device_html[] = R"rawliteral(
         document.getElementById('mqttPassword').value = data.mqttPassword;
         document.getElementById('mqttBase').value = data.mqttBase;
         document.getElementById('mqttInterval').value = data.mqttInterval;
+        document.getElementById('updateUrl').value = data.updateUrl;
 
         for (let i = 0; i < 4; i++) {
           const j = i.toString();
@@ -756,6 +767,7 @@ const char web_device_html[] = R"rawliteral(
         mqttPassword: formData.get('mqttPassword'),
         mqttBase: formData.get('mqttBase'),
         mqttInterval: parseInt(formData.get('mqttInterval'), 10),
+        updateUrl: formData.get('updateUrl'),
       };
 
       const rs485Button = document.querySelector('.rs485Type button.selected');

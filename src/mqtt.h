@@ -136,6 +136,10 @@ private:
     monitor.setMessage(LabelMqttBrokerSuccess, MonitorInfo);
     _isConnected = 1;
 
+    // subscribe to OTA update firmware version
+    _genericClient.subscribe(config.getMqttBase() + "firmware/version");
+    monitor.setMessage(LabelMqttSubscribe + config.getMqttBase() + "firmware/version", MonitorInfo);
+
     // subscribe to command for device information
     _genericClient.subscribe(_baseTopic + "device/get");
     monitor.setMessage(LabelMqttSubscribe + _baseTopic + "device/get", MonitorInfo);
@@ -164,11 +168,19 @@ private:
   void receiveMessage(String &topic, String &payload) {
     monitor.setMessage(LabelMqttReceive + topic + " = " + payload, MonitorAction);
 
-    String match = _baseTopic + "device/get";
-    if (topic == match) {
+    // Get OTA update version
+    String matchVersion = config.getMqttBase() + "firmware/version";
+    if (topic == matchVersion) {
+      version.setOtaVersion((uint32_t)payload.toInt());
+    }
+
+    // Get order to publish device info
+    String matchDevice = _baseTopic + "device/get";
+    if (topic == matchDevice) {
       publishDevice();
     }
 
+    // Get IO order
     ExpansionStruct *expansion = io.getExpansions();
     for (uint8_t e = 0; e < io.getExpansionsNum(); e++) {
       if (expansion[e].exists) {

@@ -102,6 +102,10 @@ public:
     return 1;
   }
 
+  void testIcons() {
+  	Serial.println("🔗➡️✅❌⚠️⚙️⛔🔒🔍🚀📝➕➖🔶🛑🌐⚪️📶🔄");
+  }
+
   /**
    * Print a message.
    *
@@ -111,7 +115,9 @@ public:
 	  setMessage(str.c_str(), type);
 	}
 	void setMessage(const char *str, MonitorType type = MonitorNone) {
-	  Serial.println(String(MonitorTypeIcons[type]) + " " + str);
+		lock();
+	  Serial.println(MonitorTypeIcons[type] + " " + str);
+	  unlock();
 	}
 
 	/**

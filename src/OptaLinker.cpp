@@ -9,6 +9,7 @@
  */
 
 #include <mbed.h>
+#include <Arduino_Portenta_OTA.h>
 
 #ifdef CORE_CM7
 
@@ -39,11 +40,14 @@ uint8_t OptaLinker::setup() {
     return board->stop();
   }
 
+  // Start OTA updater
+  ota();
+
   // Switch to RUN state
   state->setType(StateType::StateRun);
 
   // Display end of setup
-  monitor->setMessage(LabelOptaLinkerLoop, MonitorAction);
+  monitor->setMessage(LabelOptaLinkerLoop, MonitorSuccess);
 
   // Return library state
   return state->getType();
@@ -72,9 +76,15 @@ uint8_t OptaLinker::loop() {
     return board->stop();
   }
 
+  // Move to main loop OTA state
+  if (version->getOtaState() && (_otaLast == 0 || (state->getTime() - _otaLast > 10000))) { // 10s
+    _otaLast = state->getTime();
+    monitor->setMessage("Processing OTA update, this may take a while...", MonitorLock);
+  }
+
   uint8_t loopBenchmarkStart = 0;
 
-	// Check if a know serial message arrives
+	// Check if a known serial message arrives
 	if (monitor->hasIncoming()) {
 
     String message = monitor->getIncoming();
@@ -183,22 +193,105 @@ uint8_t OptaLinker::loop() {
 	return state->getType();
 }
 
-/**
- * Start library loop in a dedicated thread.
- */
 void OptaLinker::thread() {
   // Prevent start twice thread
-  if (!_threadStarted) {
+  if (!_loopStarted) {
     monitor->setMessage(LabelOptaLinkerThread, MonitorAction);
 
-    _threadStarted = 1;
+    _loopStarted = 1;
 
-    static rtos::Thread thread;
-    thread.start([]() {
+    static rtos::Thread loopThread;
+    loopThread.start([]() {
       // rtos::Thread.start() requires a static callback
-        while(getInstance().loop()){
-  // Because of thread, library loop and ino loop MUST use yield
-  yield();}
+      while(getInstance().loop()){
+        // Because of thread, library loop and ino loop MUST use yield
+        yield();
+      }
+    });
+  }
+}
+
+void OptaLinker::ota() {
+  // Prevent start twice thread
+  if (!_otaStarted) {
+    _otaStarted = 1;
+
+    static rtos::Thread otaThread;
+    otaThread.start([]() {
+      uint32_t otaLast = 0;
+      uint32_t otaDelay = 60000;
+      auto ol = getInstance();
+
+      while(1) {
+        if (ol.state->getTime() - otaLast > otaDelay) {
+          otaLast = ol.state->getTime();
+          String otaUrl = ol.config->getUpdateUrl();
+
+          if (!ol.network->isConnected() || !otaUrl.length() || !ol.version->getOtaVersion()) {
+            // Requirements missing
+          } else if (ol.version->getOtaVersion() <= ol.version->toInt()) {
+            ol.monitor->setMessage(LabelUpdateNone, MonitorInfo);
+          } else {
+            ol.monitor->setMessage(LabelUpdateCheck, MonitorAction);
+
+            // Announce to main loop we are processing ota update
+            ol.version->getOtaState(1);
+
+            // Stop web server as OTA download fails if web server is running!
+            ol.web->stopServer();
+
+            // Prepare OTA
+            Arduino_Portenta_OTA_QSPI aota(QSPI_FLASH_FATFS_MBR, 2);
+            Arduino_Portenta_OTA::Error otaError = Arduino_Portenta_OTA::Error::None;
+
+            // Check board
+            if (!aota.isOtaCapable()) {
+              ol.monitor->setMessage(LabelUpdateUpgrade, MonitorWarning);
+
+            // Begin OTA
+            } else if ((otaError = aota.begin()) != Arduino_Portenta_OTA::Error::None) {
+              ol.monitor->setMessage(LabelUpdateBeginFail + String((int)otaError), MonitorWarning);
+
+            } else {
+              // Bad way to check if we use ssl
+              bool ssl = strstr(otaUrl.c_str(), "ttps") > 0;
+
+              // Download
+              ol.monitor->setMessage(LabelUpdateDownload + otaUrl, MonitorInfo);
+              int const ota_download = aota.download(otaUrl.c_str(), ssl /* is_https */);
+              if (ota_download <= 0) {
+                ol.monitor->setMessage(LabelUpdateDownloadFail + String(ota_download), MonitorWarning);
+
+              } else {
+                ol.monitor->setMessage(String(ota_download) + " bytes stored.", MonitorInfo);
+
+                // Uncompress
+                ol.monitor->setMessage(LabelUpdateUncompress, MonitorInfo);
+                int const ota_decompress = aota.decompress();
+                if (ota_decompress < 0) {
+                  ol.monitor->setMessage(LabelUpdateUncompressFail + String(ota_decompress), MonitorWarning);
+                } else {
+                  ol.monitor->setMessage(String(ota_decompress) + " bytes decompressed.", MonitorInfo);
+
+                  // Prepare bootloader
+                  ol.monitor->setMessage(LabelUpdateBootloader, MonitorInfo);
+                  if ((otaError = aota.update()) != Arduino_Portenta_OTA::Error::None) {
+                    ol.monitor->setMessage(LabelUpdateBootloaderFail + String((int)otaError), MonitorWarning);
+                  } else {
+                    ol.monitor->setMessage(LabelUpdateSuccess, MonitorStop);
+
+                    // Reboot
+                    aota.reset();
+                  }
+                }
+              }
+            }
+            ol.web->startServer();
+            ol.version->getOtaState(0);
+          }
+        }
+        yield();
+      }
     });
   }
 }

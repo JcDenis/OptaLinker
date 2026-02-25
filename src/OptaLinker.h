@@ -79,7 +79,7 @@ public:
   uint8_t loop();
 
   /**
-   * Execute the loop process in a dedicated thread.
+   * Execute the OptaLinker library loop process in a dedicated thread.
    */
   void thread();
 
@@ -89,7 +89,7 @@ private:
    * Construct OptaLinker instance and construct library modules.
    */
   OptaLinker() {
-    version  = new OptaLinkerVersion(1, 0, 1);
+    version  = new OptaLinkerVersion(1, 0, 3);
     state    = new OptaLinkerState();
     monitor  = new OptaLinkerMonitor(*state);
     board    = new OptaLinkerBoard(*state, *monitor);
@@ -113,11 +113,28 @@ private:
    */
   static OptaLinker *instance;
 
-  uint8_t _threadStarted   = 0;
   uint32_t _benchmarkTime  = 0;
   uint32_t _benchmarkCount = 0;
   uint32_t _benchmarkSum   = 0;
   uint8_t _benchmarkRepeat = 0;
+  uint8_t _loopStarted     = 0;
+
+  uint8_t _otaStarted = 0;
+  uint32_t _otaLast   = 0;
+
+  /**
+   * Execute OTA updater process in a dedicated thread.
+   * 
+   * Download and uncompress large OTA file take lots of time.
+   * Using OTA Watchdog callback has no effect on socket download.
+   * So we use dedicated thread not to freeze main thread and loop.
+   *
+   * TODO: Best way to resolve this is to provide custom socket->download function with internal watchdog kicker...
+   * 
+   * TODO: Manage fatal error on ota class because we can not do ota.begin() twice
+   * see https://github.com/arduino-libraries/Arduino_Portenta_OTA/issues/55
+   */
+  void ota();
 
 }; // class OptaLinker
 

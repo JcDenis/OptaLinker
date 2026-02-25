@@ -54,6 +54,11 @@ private:
   WiFiServer _wifiServer;
 
   /**
+   * Web server is started.
+   */
+  uint8_t _isStarted = 0;
+
+  /**
    * Handle client.
    *
    * @param   client  The web server client
@@ -425,19 +430,14 @@ public:
 
     _ethernetServer = EthernetServer(80);
     _wifiServer = WiFiServer(80);
-    if (network.isEthernet()) {
-      monitor.setMessage(LabelWebEthernet, MonitorInfo);
-      _ethernetServer.begin();
-    } else {
-      monitor.setMessage(LabelWebWifi, MonitorInfo);
-      _wifiServer.begin();
-    }
+
+    startServer();
 
     return 1;
   }
 
   uint8_t loop() {
-    if (network.isConnected() && state.isOdd()) {  // state.isOdd() leave place for other things
+    if (isStarted() && network.isConnected() && state.isOdd()) {  // state.isOdd() leave place for other things
       // generic client
       Client *webClient = nullptr;
       if (network.isEthernet()) {
@@ -456,6 +456,41 @@ public:
     }
 
     return 1;
+  }
+
+  uint8_t startServer() {
+    if (!_isStarted) {
+      monitor.setMessage(LabelWebStart, MonitorInfo);
+      if (network.isEthernet()) {
+        _ethernetServer.begin();
+        _isStarted = 1;
+      } else {
+        _wifiServer.begin();
+        _isStarted = 1;
+      }
+    }
+
+    return _isStarted;
+  }
+
+  uint8_t stopServer() {
+    if (_isStarted) {
+      monitor.setMessage(LabelWebStop, MonitorInfo);
+      if (network.isEthernet()) {
+        _ethernetServer.end();
+        _isStarted = 0;
+      } else {
+        _wifiServer.end();
+        _isStarted = 0;
+      }
+    }
+
+    return _isStarted;
+  }
+
+  uint8_t isStarted() {
+
+    return _isStarted;
   }
 
 

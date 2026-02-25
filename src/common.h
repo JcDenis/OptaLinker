@@ -35,11 +35,9 @@ enum MonitorType {
 };
 
 /**
- * Icons used in message.
- *
- * //maybe usable 🔗➡️✅❌⚠️⚙️⛔🔒🔍🚀📝➕➖🔶🛑🌐⚪️
+ * Icons used in monitor message.
  */
-constexpr char *MonitorTypeIcons[] = { "", "➡️", "✅", "❌", "⚠️", "⚪️", "🔒", "⛔", "🔍", "🚀", "📝", "➕", "➖" };
+static const String MonitorTypeIcons[] = { "", "➡️", "✅", "❌", "⚠️", "⚪️", "🔒", "⛔", "🔍", "🚀", "📝", "➕", "➖" };
 
 /**
  * Board type.
@@ -358,6 +356,7 @@ constexpr char LabelConfigSetMqttInterval[] = "Set MQTT interval: ";
 constexpr char LabelConfigSetModbusType[] = "Set Modbus mode: ";
 constexpr char LabelConfigSetModbusIp[] = "Set distant Modbus TCP server IP: ";
 constexpr char LabelConfigSetModbusPort[] = "Set distant Modbus TCP server port: ";
+constexpr char LabelConfigSetUpdateUrl[] = "Set OTA update URL: ";
 
 // Io
 constexpr char LabelIoSetup[] = "Configuring IO";
@@ -400,6 +399,7 @@ constexpr char LabelClockUpdate[] = "Updating local time";
 constexpr char LabelClockUpdateFail[] = "Failed to update local time";
 constexpr char LabelClockUpdateSuccess[] = "Time set to: ";
 
+
 // RS485
 constexpr char LabelRs485Setup[] = "Configuring RS485";
 constexpr char LabelRs485Baudrate[] = "Using baudrate: ";
@@ -433,14 +433,27 @@ constexpr char LabelMqttPublishInput[] = "Publishing inputs informations to MQTT
 
 // Web server
 constexpr char LabelWebSetup[] = "Configuring web server";
-constexpr char LabelWebEthernet[] = "Creating Ethernet Web server";
-constexpr char LabelWebWifi[] = "Creating Wifi Web server";
+constexpr char LabelWebStart[] = "Starting Web server";
+constexpr char LabelWebStop[] = "Stopping Web server";
 constexpr char LabelWebConfig[] = "Parsing received configuration";
 constexpr char LabelWebConfigFail[] = "Failed to load configuration from response";
 constexpr char LabelWebConfigFailUser[] = "Missing device user";
 constexpr char LabelWebConfigKeepDevice[] = "Get previous device password";
 constexpr char LabelWebConfigKeepWifi[] = "Get previous Wifi password";
 constexpr char LabelWebConfigKeepMqtt[] = "Get previous MQTT password";
+
+// OTA update
+constexpr char LabelUpdateCheck[] = "Checking OTA update";
+constexpr char LabelUpdateUpgrade[] = "Higher version bootloader required to perform OTA.\nPlease update the bootloader.\nFile -> Examples -> STM32H747_System -> STM32H747_manageBootloader";
+constexpr char LabelUpdateNone[] = "No new OTA firmware version";
+constexpr char LabelUpdateBeginFail[] = "Failed to begin OTA firmware ";
+constexpr char LabelUpdateDownload[] = "Starting OTA download ";
+constexpr char LabelUpdateDownloadFail[] = "Failed to download OTA firmware ";
+constexpr char LabelUpdateUncompress[] = "Decompressing LZSS compressed file";
+constexpr char LabelUpdateUncompressFail[] = "Failed to uncompress OTA firmware ";
+constexpr char LabelUpdateBootloader[] = "Storing parameters for firmware update in bootloader";
+constexpr char LabelUpdateBootloaderFail[] = "Failed to set up bootlader ";
+constexpr char LabelUpdateSuccess[] = "Performing a reset after which the bootloader will update the firmware";
 
 } // namespace optalinker
 

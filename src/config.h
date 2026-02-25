@@ -60,6 +60,8 @@ private:
   String _mqttBase = "/opta/";
   uint32_t _mqttInterval = 0;
 
+  String _OtaUrl = "";
+
   /**
    * Convert IP addresse from string 0.0.0.0 to IPAddress object.
    *
@@ -197,7 +199,8 @@ public:
 	      || doc["mqttUser"].isNull()
 	      || doc["mqttPassword"].isNull()
 	      || doc["mqttBase"].isNull()
-	      || doc["mqttInterval"].isNull()) {
+	      || doc["mqttInterval"].isNull()
+	      || doc["updateUrl"].isNull()) {
 	    monitor.setMessage(LabelConfigJsonReadUncomplete, MonitorWarning);
 	  }
 
@@ -288,6 +291,10 @@ public:
 	    setMqttInterval(doc["mqttInterval"].as<int>());
 	  }
 
+	  if (!doc["updateUrl"].isNull()) {
+	    setUpdateUrl(doc["updateUrl"].as<String>());
+	  }
+
 	  return 1;
 	}
 
@@ -322,6 +329,7 @@ public:
 	  doc["mqttPassword"] = nopass ? "" : getMqttPassword();
 	  doc["mqttBase"] = getMqttBase();
 	  doc["mqttInterval"] = getMqttInterval();
+	  doc["updateUrl"] = getUpdateUrl();
 
 	  for (uint8_t i; i < 4; i++) {
 	    doc["modbusIp"][i] = getModbusIp()[i];
@@ -374,6 +382,8 @@ public:
 	  setMqttPassword(OPTALINKER_MQTT_PASSWORD);
 	  setMqttBase(OPTALINKER_MQTT_BASE);
 	  setMqttInterval(OPTALINKER_MQTT_INTERVAL);
+
+	  setUpdateUrl(OPTALINKER_UPDATE_URL);
 	}
 
 	/**
@@ -708,6 +718,19 @@ public:
 		if (value > 0 && value < 65536 && value != _modbusPort) {
 		  monitor.setMessage(LabelConfigSetModbusPort + String(value), MonitorInfo);
 		  _modbusPort = value;
+		}
+	}
+
+	// OTA update URL is not manage in modbus registers
+	String getUpdateUrl() const {
+
+	  return _updateUrl;
+	}
+
+	void setUpdateUrl(String value) {
+		if (!value.equals(_updateUrl)) {
+		  monitor.setMessage(LabelConfigSetUpdateUrl + String(value), MonitorInfo);
+		  _updateUrl = value;
 		}
 	}
 
