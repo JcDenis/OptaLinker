@@ -21,6 +21,7 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 
 * Support Opta RS485 AFX00001, Opta Wifi AFX00002, Opta Lite AFX00003 
 * Support for digital expansion board Arduino Pro Opta Ext D16O8E AFX0000 and Arduino Pro Opta Ext D16O8S AFX00006
+* Support OTA firmware update (wifi and ethernet)
 * Partition formating (first boot or on demand) with Wifi firmware update
 * Configurable Ethernet with DHCP or static IP
 * Configurable Wifi STA or AP and with DHCP or static IP
@@ -41,9 +42,9 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 
 ## To do
 
-* Support for OTA update
 * Support for analog expansions boards
 * Code documentation
+* OTA update documentation
 * More examples
 
 
@@ -66,7 +67,6 @@ If Wifi SSID and password are configured and Wifi is set as prefered network, th
 
 **Ethernet mode**  
 If Ethernet is set as prefered network, wifi is disbaled.
-
 
 **DHCP**  
 If DHCP mode is enabled in configuration, connection is tried to be established with dynamic IP, 
@@ -133,6 +133,7 @@ Command output state and device counters and device information topics:
 * `<base_topic>/<device_id>/output/x/reset` To reset partial counters for an ouput (value doesn't matter)
 * `<base_topic>/<device_id>/output/x/set` To set state of an output with `0` = OFF, `1` = ON
 * `<base_topic>/<device_id>/device/get` to force device information publishing (value doesn't matter)
+* `<base_topic>/firmware/version` To alert board about a firmware update version
 
 In notation, x mean Input or Output uniq ID, it is made of "Expansion number" and "Input Number" starting at 0 for main board. 
 For example to set the output O1.3 of the device 98 (device 98, expansion 1, Output 3, the ouput print as 4 on the device) to 1 : `opta/98/output/103/set = 1`.
@@ -143,6 +144,11 @@ Input state can also be published on demand by sending an HTTP request to the `/
 ### Modbus
 
 See dedicated [Modbus document](https://github.com/JcDenis/OptaLinker/blob/master/docs/modbusserver.md)
+
+
+## OTA firmware update
+
+See dedicated [OTA document](https://github.com/JcDenis/OptaLinker/blob/master/docs/otaupdate.md)
 
 
 ### Web server
@@ -238,6 +244,7 @@ From Arduino IDE menu: _Tools > Manage libraries_, you must install:
 * `ArduinoModbus` by Arduino at https://docs.arduino.cc/libraries/arduinomodbus/
 * `Arduino_KVStore` by arduino at https://github.com/arduino-libraries/Arduino_KVStore
 * `Arduino_Opta_Blueprint` by Daniele Aimo at https://github.com/arduino-libraries/Arduino_Opta_Blueprint
+* `Arduino_Portenta_OTA` by Arduino at https://github.com/arduino-libraries/Arduino_Portenta_OTA
 * `NTPClient` by Fabrice Weinberg at https://github.com/arduino-libraries/NTPClient
 
 
@@ -254,10 +261,10 @@ From Arduino IDE menu: _Tools > Manage libraries_, you must install:
 * Copy folder `OptaLinker` to your Arduino IDE `libraries` folder, 
 * Restart your Arduino IDE
 * Select your Opta board and port
-* In menu go to: _file > Examples > Examples from Custom Libraries > Opta Industrial IoT_ and select an example.
+* In menu go to: _file > Examples > Examples from Custom Libraries > Opta Linker_ and select an example.
 * Upload sketch to your Opta board. Enjoy.
 
-To use OptaLinker in your sketch, see example `OptaLinkerAuto.ino`
+To use OptaLinker in your sketch, see example `OptaLinkerSimple.ino`
 
 
 ## CONTRIBUTORS

@@ -10,14 +10,14 @@ Arduino Findernet Opta All In One Industrial IoT gateway
 
 ## About
 
-This document decribe addresses of Modbus Server and how it works.
+This document describe addresses of Modbus Server and how it works.
 
 
 ## Rules
 
 * Holding Registers and Input Registers content same values.
 * Holding Registers and Input Registers content device configuration and IO values.
-* Changing values of Intputs and Outputs in Holding Registers as no effect.
+* Changing values of Intputs and Outputs in Holding Registers has no effect.
 * To command Ouputs states, use Coils.
 * All passwords are NOT exposed in Holding Registers nor Input Registers.
 * Expansion 0 is always main board. (The device)
