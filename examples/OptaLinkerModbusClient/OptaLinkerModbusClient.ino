@@ -107,17 +107,23 @@ void loop() {
       // Change device timeOffset
       addr = ModbusRegisterDevice + ModbusRegisterTimeOffset;
       Serial.println(">>> Writing time offset : " + String(addr));
-      linker.modbus->setRegisterInt16(addr, _lastState);
+      if (!linker.modbus->setRegisterInt16(addr, _lastState)) {
+        Serial.println(">>> Failed to set modbus registers");
+      }
 
       // Set password for verifiation
       addr = ModbusRegisterFirmware + ModbusRegisterConfigPassword;
       Serial.println(">>> Writing password verification : " + String(addr));
-      linker.modbus->setRegisterString(addr, String(_serverPassword));
+      if (!linker.modbus->setRegisterString(addr, String(_serverPassword))) {
+        Serial.println(">>> Failed to set modbus registers");
+      }
 
       // Set end of configuration
       addr = ModbusRegisterFirmware + ModbusRegisterConfigValidate;
       Serial.println(">>> Writing config end : " + String(addr));
-      linker.modbus->setRegisterUint16(addr, 1);
+      if (!linker.modbus->setRegisterUint16(addr, 1)) {
+        Serial.println(">>> Failed to set modbus registers");
+      }
 
     }
   }

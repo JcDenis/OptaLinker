@@ -43,7 +43,7 @@ void loop() {
 
     // Check device configuration
     if (!linker.modbus->isEnabled() || (!linker.modbus->isRtuServer() && !linker.modbus->isTcpServer())) {
-      Serial.println(">>> You must configure this device as modbus server <<<");
+      linker.monitor->setMessage(">>> You must configure this device as modbus server <<<");
 
       while(1) {}
     }
@@ -54,14 +54,14 @@ void loop() {
      */
 
     // Poll itself every 30000
-    if (millis() - lastPoll > 30000) {
+    if (millis() - lastPoll > 25000) {
       uint16_t addr = 0;
       lastPoll = millis();
 
       // Get Expansion 0 (main board) name
       addr = ModbusRegisterExpansion + ModbusRegisterExpansionName;
-      Serial.println(">>> Reading board name starting at offset : " + String(addr));
-      Serial.println(linker.modbus->getInputRegisterString(addr));
+      linker.monitor->setMessage(">>> Reading board name starting at offset : " + String(addr));
+      linker.monitor->setMessage(linker.modbus->getInputRegisterString(addr));
     }
   }
 
