@@ -60,7 +60,7 @@ public:
 
   uint8_t format(uint8_t force = 0) {
 
-    uint8_t wifi_exists = 0, ota_exists = 0, kvstore_exists = 0, user_exists = 0;
+    uint8_t wifi_exists = 0, ota_exists = 0, user_exists = 0;
 
     // Init partitions
     BlockDevice* root = BlockDevice::get_default_instance();

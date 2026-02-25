@@ -60,7 +60,7 @@ private:
   String _mqttBase = "/opta/";
   uint32_t _mqttInterval = 0;
 
-  String _OtaUrl = "";
+  String _updateUrl = "";
 
   /**
    * Convert IP addresse from string 0.0.0.0 to IPAddress object.
