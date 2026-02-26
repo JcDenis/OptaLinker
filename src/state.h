@@ -15,6 +15,11 @@
 
 namespace optalinker {
 
+/**
+ * OptaLinker Library state module.
+ *
+ * Manage process state and timer.
+ */
 class OptaLinkerState : public OptaLinkerModule {
 
 private:
@@ -122,7 +127,13 @@ public:
     return _type == StateType::StateRun ? 1 : 0;
   }
 
+  /**
+   * Get duration since current loop start time.
+   *
+   * @return  The duration
+   */
   uint32_t getDuration() {
+
     return millis() - _time;
   }
 

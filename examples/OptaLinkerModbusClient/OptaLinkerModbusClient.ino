@@ -56,7 +56,7 @@ void loop() {
     // Check device configuration
     if (!linker.modbus->isEnabled() || linker.modbus->isRtuServer() || linker.modbus->isTcpServer()) {
       // Note: If Modbus RTU is used, RS485 baudrate of client and server must be the same
-      Serial.println(">>> You must configure this device as modbus client <<<");
+      linker.monitor->setMessage(">>> You must configure this device as modbus client <<<", MonitorReceive);
 
       while(1) {}
     }
@@ -70,35 +70,35 @@ void loop() {
       int response[100];
 
       addr = ModbusRegisterInput + (0 * ModbusRegisterIoLength) + (0 * ModbusRegisterIoLength);
-      Serial.println(">>> Reading Input Registers expansion 0 ouput 0 brut values : " + String(addr) + " = ");
+      linker.monitor->setMessage(">>> Reading Input Registers expansion 0 ouput 0 brut values : " + String(addr) + " = ", MonitorReceive);
       if (linker.modbus->getInputRegisters(response, addr, ModbusRegisterIoLength)) {
         for (uint8_t v = 0; v < ModbusRegisterIoLength; v++) {
-          Serial.println(String("E0 O0 V") + v + " : " + String((uint16_t)response[v]));
+          linker.monitor->setMessage(String("E0 O0 V") + v + " : " + String((uint16_t)response[v]), MonitorReceive);
         }
 
         // expansion 0 input 1 state
         addr = ModbusRegisterInput + (0 * ModbusRegisterIoLength) + (1 * ModbusRegisterIoLength) + ModbusRegisterIoState;
-        Serial.println(">>> Reading Input Register : E0 I1 V3 : I0.1 state : " + String(addr) + " = ");
-        Serial.println(String(linker.modbus->getInputRegisterUint16(addr)));
+        linker.monitor->setMessage(">>> Reading Input Register : E0 I1 V3 : I0.1 state : " + String(addr) + " = ", MonitorReceive);
+        linker.monitor->setMessage(String(linker.modbus->getInputRegisterUint16(addr)), MonitorReceive);
         // expansion 0 output 2 state
         addr = ModbusRegisterOutput + (0 * ModbusRegisterIoLength) + (2 * ModbusRegisterIoLength) + ModbusRegisterIoState;
-        Serial.println(">>> Reading Output Register : E0 O2 V3 : O0.2 state : " + String(addr) + " = ");
-        Serial.println(String(linker.modbus->getInputRegisterUint16(addr)));
+        linker.monitor->setMessage(">>> Reading Output Register : E0 O2 V3 : O0.2 state : " + String(addr) + " = ", MonitorReceive);
+        linker.monitor->setMessage(String(linker.modbus->getInputRegisterUint16(addr)), MonitorReceive);
 
         // Switch expansion 0 ouput 2 every 30s
         _lastState = _lastState == 0 ? 1 : 0;
-        Serial.println(">>> Writing Coil 2 : main board output 3 : E0 O2 : O0.2 : " + String(_lastState));
+        linker.monitor->setMessage(">>> Writing Coil 2 : main board output 3 : E0 O2 : O0.2 : " + String(_lastState), MonitorReceive);
         if (linker.modbus->setCoil(2, _lastState) == -1) {
-          Serial.println("failed to update coil");
+          linker.monitor->setMessage("failed to update coil", MonitorReceive);
         } else {
-          Serial.println("coil updated");
+          linker.monitor->setMessage("coil updated", MonitorReceive);
         }
 
       } else {
-        Serial.println(">>> Failed to get modbus registers");
+        linker.monitor->setMessage(">>> Failed to get modbus registers", MonitorReceive);
       }
 
-      Serial.println(">>> End of poll");
+      linker.monitor->setMessage(">>> End of poll", MonitorReceive);
     }
 
     // Send "modbus" to serial monitor to update modbus server configuration
@@ -106,23 +106,23 @@ void loop() {
 
       // Change device timeOffset
       addr = ModbusRegisterDevice + ModbusRegisterTimeOffset;
-      Serial.println(">>> Writing time offset : " + String(addr));
+      linker.monitor->setMessage(">>> Writing time offset : " + String(addr), MonitorReceive);
       if (!linker.modbus->setRegisterInt16(addr, _lastState)) {
-        Serial.println(">>> Failed to set modbus registers");
+        linker.monitor->setMessage(">>> Failed to set modbus registers", MonitorReceive);
       }
 
       // Set password for verifiation
       addr = ModbusRegisterFirmware + ModbusRegisterConfigPassword;
-      Serial.println(">>> Writing password verification : " + String(addr));
+      linker.monitor->setMessage(">>> Writing password verification : " + String(addr), MonitorReceive);
       if (!linker.modbus->setRegisterString(addr, String(_serverPassword))) {
-        Serial.println(">>> Failed to set modbus registers");
+        linker.monitor->setMessage(">>> Failed to set modbus registers", MonitorReceive);
       }
 
       // Set end of configuration
       addr = ModbusRegisterFirmware + ModbusRegisterConfigValidate;
-      Serial.println(">>> Writing config end : " + String(addr));
+      linker.monitor->setMessage(">>> Writing config end : " + String(addr), MonitorReceive);
       if (!linker.modbus->setRegisterUint16(addr, 1)) {
-        Serial.println(">>> Failed to set modbus registers");
+        linker.monitor->setMessage(">>> Failed to set modbus registers", MonitorReceive);
       }
 
     }

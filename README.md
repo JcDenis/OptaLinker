@@ -44,8 +44,8 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 
 * Support for analog expansions boards
 * Code documentation
-* OTA update documentation
 * More examples
+* Bootloader check
 
 
 ## USAGE
@@ -54,6 +54,13 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 
 As this library is for industrial usage, expansion numbering and input numbering and output numbering start at 0, 
 not 1 as printed on Opta device. This means that the first input of the opta board is named as I0.0 in industry.
+
+
+### Expansion
+
+* For now, only digital expansions are supported.
+* Just plug in expansion and reboot Opta, Inputs and Ouputs are automatically added.
+* First expansion has number 1, second has 2, ... the main board (The Opta device) has number 0.
 
 
 ### Network
@@ -143,12 +150,34 @@ Input state can also be published on demand by sending an HTTP request to the `/
 
 ### Modbus
 
+This library support one of these modbus types at a time:
+* Modbus TCP server (Ethernet or Wifi)
+* Modbus TCP client (Ethernet or Wifi)
+* Modbus RTU server (Rs485)
+* Modbus RTU client (Rs485)
+
 See dedicated [Modbus document](https://github.com/JcDenis/OptaLinker/blob/master/docs/modbusserver.md)
 
 
-## OTA firmware update
+### OTA firmware update
 
-See dedicated [OTA document](https://github.com/JcDenis/OptaLinker/blob/master/docs/otaupdate.md)
+This library OTA update feature is not written to work with ArduinoIotCould plateforme but it may work with... 
+
+__OTA file__
+
+To learn more about OTA and on how to create `.ota` file, see official documentation at https://docs.arduino.cc/tutorials/portenta-h7/over-the-air-update/ 
+The OptaLinker library contains python tools to create OTA file. Available in "extra" directory. (There is also a compiled dll version for Windows 11)
+There is also some .ota files from example .ino sketch to test OTA update. 
+
+__OTA workflow__
+
+On web server device configuration page, there is a field named "Firmware file URL", you must fill in with the URL of your firmware .ota file. 
+OptaLinker library listen on MQTT topic `<base topic>/firmware/version` for latest available version. 
+It is also possible to announce new firmware through modbus Holding Registers. (see modbus documentation) 
+Every hour, device check if a newer firmware version are available and if so, launch OTA update process. 
+In background, the firmware is downloaded and uncompress, the bootloader is edited and if all is OK, device reboot and install new Firmware. 
+
+The update is processed in bakcground and may take up to 10 minutes, during process the board is still active.
 
 
 ### Web server
@@ -265,6 +294,8 @@ From Arduino IDE menu: _Tools > Manage libraries_, you must install:
 * Upload sketch to your Opta board. Enjoy.
 
 To use OptaLinker in your sketch, see example `OptaLinkerSimple.ino`
+
+Note: In your .ino loop() function, do not forget to add yield(); function to its end or your loop will become very slow.
 
 
 ## CONTRIBUTORS

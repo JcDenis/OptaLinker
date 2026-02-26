@@ -30,6 +30,11 @@ class OptaLinkerNetwork;
 class OptaLinkerClock;
 class OptaLinkerMqtt;
 
+/**
+ * OptaLinker Library web server module.
+ *
+ * Manage web server interface.
+ */
 class OptaLinkerWeb : public OptaLinkerModule {
 
 private:

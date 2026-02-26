@@ -21,6 +21,11 @@ class OptaLinkerMonitor;
 class OptaLinkerBoard;
 class OptaLinkerConfig;
 
+/**
+ * OptaLinker Library RS485 module.
+ *
+ * Manage RS485 transmissions.
+ */
 class OptaLinkerRs485 : public OptaLinkerModule {
 
 private:
@@ -31,6 +36,9 @@ private:
   uint8_t _sleep = 1;
   String _received = "";
 
+  /**
+   * Prepare RS485 transmission.
+   */
   void prepare() {
     auto bitduration{ 1.f / config.getRs485Baudrate() };
     auto wordlen{ 9.6f };  // required for modbus, OR 10.0f depending on the channel configuration for rs485
@@ -63,21 +71,41 @@ public:
     return 1;
   }
 
+  /**
+   * Check if board is setup as RS485 receiver.
+   *
+   * @return  1 if receiver, else 0
+   */
   uint8_t isReceiver() {
 
     return isEnabled() && config.getRs485Type() == Rs485Type::Rs485Receiver ? 1 : 0;
   }
 
+  /**
+   * Check if board is setup as RS485 sender.
+   *
+   * @return  1 if sender, else 0
+   */
   uint8_t isSender() {
 
     return isEnabled() && config.getRs485Type() == Rs485Type::Rs485Sender ? 1 : 0;
   }
 
+  /**
+   * Check if RS port is not used.
+   *
+   * @return  1 if sleeping, else 0
+   */
   uint8_t isSleeping() {
 
     return _sleep;
   }
 
+  /**
+   * Grab incoming message.
+   *
+   * @return  1 if a message arrives, else 0
+   */
   uint8_t incoming() {
     if (isReceiver() && isSleeping()) {
 
@@ -130,6 +158,11 @@ public:
     return 0;
   }
 
+  /**
+   * Get received message.
+   *
+   * @return  The received message as String
+   */
   String received() {
     String ret = "";
     if (_received.length()) {
@@ -140,6 +173,13 @@ public:
     return ret;
   }
 
+  /**
+   * Send a message.
+   *
+   * @param   The message to send as string
+   *
+   * @return  1 if message send, else 0 (and you must retry)
+   */
   uint8_t send(String msg) {
     if (isSender() && isSleeping()) {
       //monitor.setMessage("Sending RS485 message", MonitorInfo);

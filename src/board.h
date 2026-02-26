@@ -25,6 +25,11 @@ namespace optalinker {
 class OptaLinkerState;
 class OptaLinkerMonitor;
 
+/**
+ * OptaLinker Library board module.
+ *
+ * Manage board type, LEDs, button.
+ */
 class OptaLinkerBoard : public OptaLinkerModule {
 
 private:
@@ -79,7 +84,7 @@ private:
   /**
    * Watchdog timeout.
    *
-   * Opta baord max timrout should be 32720.
+   * Opta baord max timeout should be 32720.
    * Most long operation such as network/mqtt connection timeout can be 30000.
    * Note: Opta boad does not support to stop watchdog.
    */
@@ -347,6 +352,7 @@ public:
    * @return  The button state, 1 = pressed, else 0
    */
   uint8_t isPushed() {
+
     return digitalRead(BTN_USER) == LOW ? 1 : 0;
   }
 
@@ -364,6 +370,7 @@ public:
       if (reset) {
         _buttonLast = 0;
       }
+
       return 1;
     }
 

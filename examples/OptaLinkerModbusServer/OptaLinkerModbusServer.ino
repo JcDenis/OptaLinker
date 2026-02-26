@@ -43,7 +43,7 @@ void loop() {
 
     // Check device configuration
     if (!linker.modbus->isEnabled() || (!linker.modbus->isRtuServer() && !linker.modbus->isTcpServer())) {
-      linker.monitor->setMessage(">>> You must configure this device as modbus server <<<");
+      linker.monitor->setMessage(">>> You must configure this device as modbus server <<<", MonitorReceive);
 
       while(1) {}
     }
@@ -61,7 +61,7 @@ void loop() {
       // Get Expansion 0 (main board) name
       addr = ModbusRegisterExpansion + ModbusRegisterExpansionName;
       linker.monitor->setMessage(">>> Reading board name starting at offset : " + String(addr));
-      linker.monitor->setMessage(linker.modbus->getInputRegisterString(addr));
+      linker.monitor->setMessage(linker.modbus->getInputRegisterString(addr), MonitorReceive);
     }
   }
 

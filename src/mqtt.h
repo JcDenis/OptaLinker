@@ -28,6 +28,9 @@ class OptaLinkerIo;
 class OptaLinkerNetwork;
 class OptaLinkerRs485;
 
+/**
+ * OptaLinker Library MQTT module.
+ */
 class OptaLinkerMqtt : public OptaLinkerModule {
 
 private:

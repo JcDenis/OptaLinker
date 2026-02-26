@@ -198,12 +198,13 @@ constexpr uint16_t ModbusRegisterAddressMqtt            = 10;
 // next 11
 
 // Offset starting at address ModbusRegisterFirmware
-constexpr uint16_t ModbusRegisterVersionMajor    = 0; // T1
-constexpr uint16_t ModbusRegisterVersionMinor    = 1; // T1
-constexpr uint16_t ModbusRegisterVersionRevision = 2; // T1
-constexpr uint16_t ModbusRegisterConfigValidate  = 3; // T1, value 0~1, for holding register only, set to 1 to announce end of configuration update. (board reboot after)
-constexpr uint16_t ModbusRegisterConfigPassword  = 4; // T4, Before setting ModbusRegisterConfigValidate, you MUST confirm device password here
-// next 54
+constexpr uint16_t ModbusRegisterVersionMajor    = 0;  // T1
+constexpr uint16_t ModbusRegisterVersionMinor    = 1;  // T1
+constexpr uint16_t ModbusRegisterVersionRevision = 2;  // T1
+constexpr uint16_t ModbusRegisterConfigValidate  = 3;  // T1, value 0~1, for holding register only, set to 1 to announce end of configuration update. (board reboot after)
+constexpr uint16_t ModbusRegisterConfigPassword  = 4;  // T4, Before setting ModbusRegisterConfigValidate, you MUST confirm device password here
+constexpr uint16_t ModbusRegisterOtaVersion      = 54; // T2, in form of concat version like 10302
+// next 56
 
 // Offset starting at address ModbusRegisterDevice
 constexpr uint16_t ModbusRegisterDeviceId       = 0;  // T1, value 0~254
@@ -301,24 +302,19 @@ constexpr char LabelBoardNameWifi[]       = "Arduino OPTA Wifi -- AFX00002";
 constexpr char LabelBoardButtonDuration[] = "Button was activated: ";
 
 // Store
-constexpr char LabelStoreReadFail[] = "Failed to read stored file";
-
-// Flash
-constexpr char LabelFlashSetup[]           = "Configuring flash memory";
-constexpr char LabelFlashInitFail[]        = "QSPI initialization failed";
-constexpr char LabelFlashFail[]            = "Flash memory failed";
-constexpr char LabelFlashFormat[]          = "Formatting partition: ";
-constexpr char LabelFlashFormatFail[]      = "Error formatting partition";
-constexpr char LabelFlashErase[]           = "Erasing partitions, please wait...";
-constexpr char LabelFlashEraseSuccess[]    = "Erase completed";
-constexpr char LabelFlashMissing[]         = "Missing partition: ";
-constexpr char LabelFlashExisting[]        = "Existing partition: ";
-constexpr char LabelFlashFirmware[]        = "Flashing firmware";
-constexpr char LabelFlashFirmwareFail[]    = "Error writing firmware data";
-constexpr char LabelFlashCertificate[]     = "Flashing certificate";
-constexpr char LabelFlashCertificateFail[] = "Error writing certificates";
-constexpr char LabelFlashMapped[]          = "Flashing memory mapped WiFi firmware";
-constexpr char LabelFlashMappedFail[]      = "Error writing memory mapped firmware";
+constexpr char LabelStoreSetup[]           = "Configuring flash memory";
+constexpr char LabelStoreReadFail[]        = "Failed to read stored file";
+constexpr char LabelStoreInitFail[]        = "QSPI initialization failed";
+constexpr char LabelStoreErase[]           = "Erasing partitions, please wait...";
+constexpr char LabelStoreExisting[]        = "Existing partition: ";
+constexpr char LabelStoreFormat[]          = "Formatting partition: ";
+constexpr char LabelStoreFormatFail[]      = "Error formatting partition: ";
+constexpr char LabelStoreFirmware[]        = "Flashing firmware";
+constexpr char LabelStoreFirmwareFail[]    = "Error writing firmware data";
+constexpr char LabelStoreCertificate[]     = "Flashing certificate";
+constexpr char LabelStoreCertificateFail[] = "Error writing certificates";
+constexpr char LabelStorehMapped[]          = "Flashing memory mapped WiFi firmware";
+constexpr char LabelStoreMappedFail[]      = "Error writing memory mapped firmware";
 
 // Config
 constexpr char LabelConfigSetup[] = "Configuring parameters";

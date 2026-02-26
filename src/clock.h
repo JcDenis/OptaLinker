@@ -26,6 +26,11 @@ class OptaLinkerBoard;
 class OptaLinkerConfig;
 class OptaLinkerNetwork;
 
+/**
+ * OptaLinker Library time module.
+ *
+ * Manage board time using NTP.
+ */
 class OptaLinkerClock : public OptaLinkerModule {
 
 private:

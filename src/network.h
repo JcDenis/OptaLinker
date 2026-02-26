@@ -23,6 +23,11 @@ class OptaLinkerMonitor;
 class OptaLinkerBoard;
 class OptaLinkerConfig;
 
+/**
+ * OptaLinker Library network module.
+ *
+ * Manage connection network through wifi or ethernet.
+ */
 class OptaLinkerNetwork : public OptaLinkerModule {
 
 private:
@@ -329,6 +334,8 @@ public:
 
 	/**
 	 * Get connection timeout.
+	 *
+	 * @return 	The network connection timeout setting
 	 */
 	uint32_t getTimeout() {
 

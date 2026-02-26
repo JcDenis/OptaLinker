@@ -29,6 +29,9 @@ class OptaLinkerNetwork;
 class OptaLinkerIo;
 class OptaLinkerRs485;
 
+/**
+ * OptaLinker Library modbus module.
+ */
 class OptaLinkerModbus : public OptaLinkerModule {
 
 private:
@@ -272,6 +275,11 @@ private:
     if (!getHoldingRegisterString(ModbusRegisterFirmware + ModbusRegisterConfigPassword).equals(config.getDevicePassword())) {
       monitor.setMessage(LabelModbusRegisterMissmatch, MonitorWarning);
     } else {
+      // OTA
+      uint32_t otaVersion = getHoldingRegisterUint32(ModbusRegisterFirmware + ModbusRegisterOtaVersion);
+      if (otaVersion > 0) {
+        version.setOtaVersion(otaVersion);
+      }
 
       // Device
       config.setDeviceId(getHoldingRegisterUint16(ModbusRegisterDevice + ModbusRegisterDeviceId));

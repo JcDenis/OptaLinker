@@ -60,14 +60,14 @@ Some Holding Registers are configurable and some not:
 * 10005 ~ 10005 : T1 : NC : RS485 start address
 * 10006 ~ 10006 : T1 : NC : Modbus start address
 * 10007 ~ 10007 : T1 : NC : MQTT start address
-* 10008 ~ 10008 : T1 : NC : Epansion start address
-* 10009 ~ 10009 : T1 : NC : Input start address
-* 10010 ~ 10010 : T1 : NC : Ouput start address
+* 10008 ~ 10008 : T1 : NC : Expansions start address
+* 10009 ~ 10009 : T1 : NC : Inputs start address
+* 10010 ~ 10010 : T1 : NC : Ouputs start address
 
 Structure length is used for each input, output, expansion definition. 
 This means for example that definiton of expansion 0 input 1 starts at address of expansion 0 input 0 + structure length.
 
-Values are group by usage  at astaring addresses:
+Values are group by usage at starting addresses:
 
 * 10000 : List and addresses and length description
 * 10020 : Firmware
@@ -80,7 +80,7 @@ Values are group by usage  at astaring addresses:
 * 10820 : Inputs
 * 11140 : Outpus
 
-These groups starting addresses could change at any time on Firmware release.
+These groups starting addresses could change at any time on Firmware release. 
 Use Groups address to check up-to-date starting addresses and "Structure length" to jump from Expansion/IO to another.
 
 
@@ -91,6 +91,7 @@ Use Groups address to check up-to-date starting addresses and "Structure length"
 * 10022 ~ 10022 : T1 : NC : Library version revision
 * 10023 ~ 10023 : T1 : NC : Configuration validation.
 * 10024 ~ 10073 : T4 : NC : Configuration validation password. (this is the device password)
+* 10074 ~ 10075 : T2 : CH : OTA update firmware version. (in form of concat version like 10302)
 
 In order to save new configuration after updating Modbus Holding Registers, 
 set Device Password in 10024 then set 10023 to 1. 
@@ -118,8 +119,8 @@ Device User Login and Password are not exposed in Registers, leave them empty to
 * 10208 ~ 10257 : T4 : CH : Network WiFi Standard mode SSID.
 * 10258 ~ 10307 : T4 : CH : Network WiFi Standard mode Password.
 
-If board does not support wifi, 10207 is down to 0.
-If WiFI 10207 is on with no SSID 10208 or Password 10258, Wifi is in Access Point mode.
+If board does not support wifi, 10207 is down to 0. 
+If WiFi 10207 is on with no SSID 10208 or Password 10258, Wifi is in Access Point mode. 
 For Access point mode SSID is `optalinker` + device ID and password is `optalinker`.
 
 
@@ -127,7 +128,7 @@ For Access point mode SSID is `optalinker` + device ID and password is `optalink
 
 * 10310 ~ 10310 : T1 : CH : RS485 Type.
 * 10311 ~ 10312 : T2 : CH : Bauderate. (should be a standard valid value)
-* 10313 ~ 10313 : T1 : CH : Publish received message to MQTT. (only for 10400 RS485 type 1)
+* 10313 ~ 10313 : T1 : CH : Publish received message to MQTT. (only for 10310 RS485 type 1)
 
 RS485 Type can be:
 * 0 : Disable.
@@ -158,7 +159,7 @@ Modbus Type can be:
 * 10477 ~ 10526 : T4 : CH : MQTT Server password.
 * 10527 ~ 10576 : T4 : CH : MQTT base topic.
 
-Set MQTT Server IP to 0.0.0.0 to disable MQTT features.
+Set MQTT Server IP to 0.0.0.0 to disable MQTT features. 
 Set update interval to 0 to disable automatique update. IO will be updated only on state change.
 
 
@@ -202,7 +203,7 @@ Expansion Type can be:
 As of now, expansions could have maximum of 16 inputs, so there are 16 groups of inputs per expansion in Registers. 
 Input 1 to 16 starting offset depends on 10000 "Structure length".
 
-Example of UID for expansion 2 Input 3 (input 4 print on material) also called I2.3 in industry is 203.
+Example of UID for expansion 2 Input 3 (input 4 print on material) also called I2.3 in industry is 203. 
 Another example of UID for main board first input also called I0.0 in industry is 0.
 
 Input Type can be:

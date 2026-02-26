@@ -15,6 +15,11 @@
 
 namespace optalinker {
 
+/**
+ * OptaLinker Library version module.
+ *
+ * Manage current firmware version and OTA update firmware version.
+ */
 class OptaLinkerVersion : public OptaLinkerModule {
 
 private:
@@ -40,11 +45,19 @@ private:
   uint32_t _ota = 0;
 
   /**
-   * Simple ongoing OTA marker.
+   * Ongoing OTA update marker.
    */
   uint8_t _ongoing = 0;
 
 public:
+
+  /**
+   * Constructor set Firmware version.
+   *
+   * @param   The library version major
+   * @param   The library version minor
+   * @param   The library version revision
+   */
 	OptaLinkerVersion(uint8_t major, uint8_t minor, uint8_t revision) {
     _major    = major;
     _minor    = minor;
@@ -57,6 +70,7 @@ public:
    * @return  The library version major
    */
   uint8_t getMajor() {
+
     return _major;
   }
 
@@ -66,6 +80,7 @@ public:
    * @return  The library version minor
    */
   uint8_t getMinor() {
+
     return _minor;
   }
 
@@ -75,6 +90,7 @@ public:
    * @return  The library version revision
    */
   uint8_t getRevision() {
+
     return _revision;
   }
 
@@ -109,18 +125,18 @@ public:
     _ota = version;
   }
 
-
   /**
    * Get OTA firmware version.
    *
    * @return  The numeric version of distant OTA firmware version available.
    */
   uint32_t getOtaVersion() {
+
     return _ota;
   }
 
   /**
-   * Get/Set ongoing OTA marker.
+   * Get/Set ongoing OTA update marker.
    *
    * Only used to print monitor message.
    */

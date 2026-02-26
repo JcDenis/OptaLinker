@@ -22,6 +22,11 @@ class OptaLinkerMonitor;
 class OptaLinkerBoard;
 class OptaLinkerConfig;
 
+/**
+ * OptaLinker Library inputs/outputs module.
+ *
+ * Manage board and expansions inputs and outputs.
+ */
 class OptaLinkerIo : public OptaLinkerModule {
 
 private:
@@ -449,9 +454,9 @@ public:
    * @return  1 on success, else 0
    */
   uint8_t writeToFile() {
-    String stored = writeToJson();
+    String str = writeToJson();
 
-    return store.write("io", stored.c_str());
+    return store.writeKey("io", str.c_str());
   }
 
   /**
@@ -460,9 +465,9 @@ public:
    * @return 1 on success, else 0
    */
   uint8_t readFromFile() {
-    String stored = store.read("io");
+    String str = store.readKey("io");
 
-    return readFromJson(stored.c_str(), stored.length());
+    return readFromJson(str.c_str(), str.length());
   }
 
   /**

@@ -12,7 +12,6 @@
 #define OPTALINKER_CONFIG_H
 
 #include <ArduinoJson.h>
-#include <kvstore_global_api.h>
 
 #include "OptaLinkerModule.h"
 
@@ -21,13 +20,18 @@ namespace optalinker {
 class OptaLinkerVersion;
 class OptaLinkerMonitor;
 class OptaLinkerBoard;
+class OptaLinkerStore;
 
+/**
+ * OptaLinker Library configuration module.
+ */
 class OptaLinkerConfig : public OptaLinkerModule {
 
 private:
   OptaLinkerVersion &version;
   OptaLinkerMonitor &monitor;
   OptaLinkerBoard &board;
+  OptaLinkerStore &store;
 
   uint8_t _deviceId = 0;
   String _deviceUser = "admin";
@@ -78,7 +82,7 @@ private:
 	}
 
 public:
-  OptaLinkerConfig(OptaLinkerVersion &_version, OptaLinkerMonitor &_monitor, OptaLinkerBoard &_board) : version(_version), monitor(_monitor), board(_board) {}
+  OptaLinkerConfig(OptaLinkerVersion &_version, OptaLinkerMonitor &_monitor, OptaLinkerBoard &_board, OptaLinkerStore &_store) : version(_version), monitor(_monitor), board(_board), store(_store) {}
 
   static const uint8_t MaxStringLength = 48; // Limit string length, usefull for modbus, must be even.
 
@@ -150,7 +154,7 @@ public:
 	void reset() {
 	  monitor.setMessage(LabelConfigReset, MonitorAction);
 
-	  kv_remove("config");
+	  store.eraseKey("config");
 	  delay(10);
 	  readFromDefault();
 	  delay(10);
@@ -395,8 +399,8 @@ public:
 	  String str = writeToJson(false);
 
 	  monitor.setMessage(LabelConfigFileWrite, MonitorInfo);
-	  
-	  return kv_set("config", str.c_str(), str.length(), 0) == MBED_SUCCESS ? 1 : 0;
+
+	  return store.writeKey("config", str.c_str());
 	}
 
 	/**
@@ -409,9 +413,8 @@ public:
 	uint8_t readFromFile() {
 	  monitor.setMessage(LabelConfigFileRead, MonitorInfo);
 
-	  char readBuffer[1024];
-	  kv_get("config", readBuffer, 1024, 0);
-	  if (readFromJson(readBuffer, 1024) < 1) {
+	  String str = store.readKey("config");
+	  if (readFromJson(str.c_str(), str.length()) < 1) {
 	    monitor.setMessage(LabelConfigFileFail, MonitorWarning);
 	    reset();
 

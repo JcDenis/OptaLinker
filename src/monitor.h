@@ -17,6 +17,11 @@ namespace optalinker {
 
 class OptaLinkerState;
 
+/**
+ * OptaLinker Library serial monitor module.
+ *
+ * Manage serial monitor messages. (in and out)
+ */
 class OptaLinkerMonitor : public OptaLinkerModule {
 
 private:
@@ -102,6 +107,9 @@ public:
     return 1;
   }
 
+  /**
+   * Print to serial monitor icons for test.
+   */
   void testIcons() {
   	Serial.println("🔗➡️✅❌⚠️⚙️⛔🔒🔍🚀📝➕➖🔶🛑🌐⚪️📶🔄");
   }
@@ -110,6 +118,7 @@ public:
    * Print a message.
    *
    * @param 	str 	The message.
+   * @param 	type 	The MonitorType (this prepend an icon to the message)
    */
 	void setMessage(String str, MonitorType type = MonitorNone) {
 	  setMessage(str.c_str(), type);
@@ -131,20 +140,23 @@ public:
 	void setProgress(uint32_t offset, uint32_t size, uint32_t threshold, uint8_t reset) {
 	  if (reset == 1) {
 	    _progress = 0;
-	    setMessage(String(_progress) + "%", MonitorNone);
+	    setMessage(String(_progress) + "%", MonitorReceive);
 	  } else {
 	    uint8_t percent_done_new = offset * 100 / size;
 	    if (percent_done_new >= _progress + threshold) {
 	      _progress = percent_done_new;
-	      setMessage(String(_progress) + "%", MonitorNone);
+	      setMessage(String(_progress) + "%", MonitorReceive);
 	    }
 	  }
 	}
 
 	/**
 	 * Check if a message arrives.
+	 *
+	 * @return 	1 if there is a incoming mesage, else 0
 	 */
 	uint8_t hasIncoming() {
+
 	  return _hasIncoming;
 	}
 
@@ -152,6 +164,8 @@ public:
 	 * Get the last received message.
 	 *
 	 * A received message is available only for the current loop and is reseted on each loop.
+	 *
+	 * @return 	The message
 	 */
 	String getIncoming() {
 	  String ret = String(_incoming);

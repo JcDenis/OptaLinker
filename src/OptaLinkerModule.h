@@ -28,7 +28,7 @@ class OptaLinkerModule {
 private:
 
   /**
-   * Memorized if this OptaLinker libreary module is enabled.
+   * Memorized if this OptaLinker library module is enabled.
    */
   uint8_t _isEnabled = 1;
 
