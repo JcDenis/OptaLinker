@@ -166,12 +166,12 @@ Modbus Type can be:
 
 Length: 157
 
-* 10420 ~ 10423 : T5 : CH : MQTT Server Ipv4.
-* 10424 ~ 10424 : T1 : CH : MQTT Server port.
-* 10425 ~ 10426 : T2 : CH : Update interval in ms.
-* 10427 ~ 10476 : T4 : CH : MQTT Server user.
-* 10477 ~ 10526 : T4 : CH : MQTT Server password.
-* 10527 ~ 10576 : T4 : CH : MQTT base topic.
+* 10330 ~ 10333 : T5 : CH : MQTT Server Ipv4.
+* 10334 ~ 10334 : T1 : CH : MQTT Server port.
+* 10335 ~ 10336 : T2 : CH : Update interval in ms.
+* 10337 ~ 10386 : T4 : CH : MQTT Server user.
+* 10387 ~ 10436 : T4 : CH : MQTT Server password.
+* 10437 ~ 10486 : T4 : CH : MQTT base topic.
 
 Set MQTT Server IP to 0.0.0.0 to disable MQTT features. 
 Set update interval to 0 to disable automatique update. IO will be updated only on state change.
@@ -181,12 +181,12 @@ Set update interval to 0 to disable automatique update. IO will be updated only 
 
 Length: 53 (one expansion)
 
-* 10620 ~ 10620 : T1 : NC : Expansion 0 exists.
-* 10621 ~ 10621 : T1 : NC : Expansion 0 Id. This is the expansion number of current expansion starting at 0 for main board.
-* 10622 ~ 10622 : T1 : NC : Expansion 0 Type.
-* 10623 ~ 10672 : T4 : NC : Expension 0 name.
+* 10490 ~ 10490 : T1 : NC : Expansion 0 exists.
+* 10491 ~ 10491 : T1 : NC : Expansion 0 Id. This is the expansion number of current expansion starting at 0 for main board.
+* 10492 ~ 10492 : T1 : NC : Expansion 0 Type.
+* 10493 ~ 10542 : T4 : NC : Expension 0 name.
 
-* 10620 + "10000 value" ~ 10620 + "10000 value" : T1 : NC : Expansion 1 exists
+* 10490 + "register 10000 value" ~ 10490 + "register 10000 value" : T1 : NC : Expansion 1 exists
 * ...
 
 As of now, Opta supports 5 expansions, so there are 6 groups of expansion in Registers with main board included. 
@@ -202,21 +202,21 @@ Expansion Type can be:
 
 Length: 19 (one input)
 
-* 12220 ~ 12220 : T1 : NC : Expansion 0 Input 0 exists
-* 12221 ~ 12221 : T1 : NC : Expansion 0 Input 0 uid. This is concatened "expansion num" + "input num"
-* 12222 ~ 12222 : T1 : NC : Expansion 0 Input 0 id. This is the input number of current expansion starting at 0.
-* 12223 ~ 12223 : T1 : NC : Expansion 0 Input 0 Type.
-* 12224 ~ 12224 : T1 : NC : Expansion 0 Input 0 state. 1 = High, 0 = Low.
-* 12225 ~ 12225 : T1 : NC : Expansion 0 Input 0 voltage in mV.
-* 12226 ~ 12227 : T2 : NC : Expansion 0 Input 0 last update time.
-* 12228 ~ 12229 : T2 : NC : Expansion 0 Input 0 last reset time.
-* 12230 ~ 12231 : T2 : NC : Expansion 0 Input 0 total pulse count.
-* 12232 ~ 12233 : T2 : NC : Expansion 0 Input 0 parial pulse count.
-* 12234 ~ 12235 : T2 : NC : Expansion 0 Input 0 total time of high level in ms.
-* 12236 ~ 12237 : T2 : NC : Expansion 0 Input 0 partial time of high level in ms.
-* 12238 ~ 12238 : T1 : CH : Expansion 0 Input 0 partial counter reset. Set it to 1 in Holding Registers to reset partial counters. (pulse and high)
+* 10820 ~ 10820 : T1 : NC : Expansion 0 Input 0 exists
+* 10821 ~ 10821 : T1 : NC : Expansion 0 Input 0 uid. This is concatened "expansion num" + "input num"
+* 10822 ~ 10822 : T1 : NC : Expansion 0 Input 0 id. This is the input number of current expansion starting at 0.
+* 10823 ~ 10823 : T1 : NC : Expansion 0 Input 0 Type.
+* 10824 ~ 10824 : T1 : NC : Expansion 0 Input 0 state. 1 = High, 0 = Low.
+* 10825 ~ 10825 : T1 : NC : Expansion 0 Input 0 voltage in mV.
+* 10826 ~ 10827 : T2 : NC : Expansion 0 Input 0 last update time.
+* 10828 ~ 10829 : T2 : NC : Expansion 0 Input 0 last reset time.
+* 10830 ~ 10831 : T2 : NC : Expansion 0 Input 0 total pulse count.
+* 10832 ~ 10833 : T2 : NC : Expansion 0 Input 0 parial pulse count.
+* 10834 ~ 10835 : T2 : NC : Expansion 0 Input 0 total time of high level in ms.
+* 10836 ~ 10837 : T2 : NC : Expansion 0 Input 0 partial time of high level in ms.
+* 10838 ~ 10838 : T1 : CH : Expansion 0 Input 0 partial counter reset. Set it to 1 in Holding Registers to reset partial counters. (pulse and high)
 
-* 12320 + "Expansion x * 10001 value" + "Input y * 10001 value" ~ ... : T1 : NC : Expension x Input y exists
+* 10820 + "Expansion x * register 10001 value" + "Input y * register 10001 value" ~ ... : T1 : NC : Expension x Input y exists
 * ...
 
 As of now, expansions could have maximum of 16 inputs, so there are 16 groups of inputs per expansion in Registers. 
@@ -235,23 +235,23 @@ Input Type can be:
 
 ### Outputs
 
-Same as input with starting address at 12820.
+Same as input with starting address at 11140.
 
 ## Example
 
 Here it is an example to configure device as Ethernet with a static IP of 10.1.5.132:
 
-* 10250 = 0x0a : First part of device static IP (10)
-* 10251 = 0x01 : Second part of device static IP (1)
-* 10252 = 0x05 : Third part of device static IP (5)
-* 10253 = 0x84 : Fourth part of device static IP (132)
-* 10266 = 0x00 : Set DHCP off (0)
-* 10267 = 0x00 : Set Wifi off (0)
-* 10014 = 0x05 : Set device password length (5)
-* 10015 = 0x61 : First char of device password (a)
-* 10016 = 0x64 : Second char of device password (d)
-* 10017 = 0x6d : Thrid char of device password (m)
-* 10018 = 0x69 : Fourth char of device password (i)
-* 10019 = 0x6e : Fifth char of device password (n)
-* 10013 = 0x01 : End of configuration (1)
+* 10190 = 0x0a : First part of device static IP (10)
+* 10191 = 0x01 : Second part of device static IP (1)
+* 10192 = 0x05 : Third part of device static IP (5)
+* 10193 = 0x84 : Fourth part of device static IP (132)
+* 10196 = 0x00 : Set DHCP off (0)
+* 10197 = 0x00 : Set Wifi off (0)
+* 10024 = 0x05 : Set device password length (5)
+* 10025 = 0x61 : First char of device password (a)
+* 10026 = 0x64 : Second char of device password (d)
+* 10027 = 0x6d : Thrid char of device password (m)
+* 10028 = 0x69 : Fourth char of device password (i)
+* 10029 = 0x6e : Fifth char of device password (n)
+* 10023 = 0x01 : End of configuration (1)
 
