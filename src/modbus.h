@@ -68,10 +68,10 @@ private:
   uint32_t _updateLast = 0;
 
   void prepareRS485() {
-     auto bitduration{ 1.f / config.getRs485Baudrate() };
-     auto preDelayBR{ bitduration * 9.6f * 3.5f * 1e6 };
-     auto postDelayBR{ bitduration * 9.6f * 3.5f * 1e6 };
-     RS485.setDelays(preDelayBR, postDelayBR);
+     float  bitduration = 1.0f / config.getRs485Baudrate();
+     uint32_t preDelay = bitduration * 10.0f * 1e6;
+     uint32_t postDelay = bitduration * 10.0f * 1e6;
+     RS485.setDelays(preDelay, postDelay);
   }
 
   /**
@@ -450,7 +450,7 @@ public:
   uint8_t setup() {
     monitor.setMessage(LabelModbusSetup, MonitorAction);
 
-    uint8_t ret = 1;
+    uint8_t ret = 0;
     uint8_t type = config.getModbusType();
     switch (type) {
 
@@ -464,6 +464,7 @@ public:
             monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
             ret = 0;
           } else {
+            ret = 1;
             configureServerRegisters();
             setServerRegisters();
           }
@@ -488,6 +489,7 @@ public:
         if (!_tcpServer.begin()) {
           monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
         } else {
+          ret = 1;
           configureServerRegisters();
           setServerRegisters();
         }
@@ -501,9 +503,11 @@ public:
           prepareRS485();
           if (!_rtuClient.begin(config.getRs485Baudrate(), SERIAL_8E1)) {
             monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
-            ret = 0;;
+            ret = 0;
+          } else {
+            ret = 1;
+            _rtuClient.setTimeout(1000);
           }
-          _rtuClient.setTimeout(1000);
         }
        break;
 
@@ -513,12 +517,14 @@ public:
         // Check distant server IP
         if (config.getModbusIp().toString().equals("0.0.0.0")) {
           ret = 0;
+        } else {
+          ret = 1;
         }
         // Do not connect on setup but when required
         break;
 
       default:
-        ret = 0;;
+        ret = 0;
     }
 
     board.pingTimeout();
@@ -526,6 +532,7 @@ public:
     if (ret == 0) {
       config.setModbusType(ModbusType::ModbusNone);
       monitor.setMessage(LabelModbusNone, MonitorWarning);
+      disable();
     }
 
     return 1;

@@ -52,6 +52,8 @@ Some Holding Registers are configurable and some not:
 
 ### Groups
 
+Length: 11
+
 * 10000 ~ 10000 : T1 : NC : One Expansion structure length
 * 10001 ~ 10001 : T1 : NC : One Input or Output structure length
 * 10002 ~ 10002 : T1 : NC : Firmware start address
@@ -86,6 +88,8 @@ Use Groups address to check up-to-date starting addresses and "Structure length"
 
 ### Firmware
 
+Length: 56
+
 * 10020 ~ 10020 : T1 : NC : Library version major
 * 10021 ~ 10021 : T1 : NC : Library version minor
 * 10022 ~ 10022 : T1 : NC : Library version revision
@@ -100,6 +104,8 @@ Modbus server update its configuration and reboot.
 
 ### Device
 
+Length: 103
+
 * 10080 ~ 10080 : T1 : CH : Device ID. Must be 0~254
 * 10081 ~ 10082 : T3 : CH : Time Offset. First reg is offset sign. Second reg is offset. Must be -24~24
 * 10083 ~ 10132 : T4 : CH : Device User Login.
@@ -109,6 +115,8 @@ Device User Login and Password are not exposed in Registers, leave them empty to
 
 
 ### Network
+
+Length: 118
 
 * 10190 ~ 10193 : T5 : CH : Network static IPv4 if DHCP is off.
 * 10194 ~ 10197 : T5 : CH : Network gateway IPv4 if DHCP is off.
@@ -126,6 +134,8 @@ For Access point mode SSID is `optalinker` + device ID and password is `optalink
 
 ### RS485
 
+Length: 4
+
 * 10310 ~ 10310 : T1 : CH : RS485 Type.
 * 10311 ~ 10312 : T2 : CH : Bauderate. (should be a standard valid value)
 * 10313 ~ 10313 : T1 : CH : Publish received message to MQTT. (only for 10310 RS485 type 1)
@@ -137,6 +147,8 @@ RS485 Type can be:
 
 
 ### Modbus
+
+Length: 6
 
 * 10320 ~ 10320 : T1 : CH : Modbus Type.
 * 10321 ~ 10324 : T5 : CH : Modbus distant TCP Server IPv4.
@@ -152,6 +164,8 @@ Modbus Type can be:
 
 ### MQTT
 
+Length: 157
+
 * 10420 ~ 10423 : T5 : CH : MQTT Server Ipv4.
 * 10424 ~ 10424 : T1 : CH : MQTT Server port.
 * 10425 ~ 10426 : T2 : CH : Update interval in ms.
@@ -165,9 +179,12 @@ Set update interval to 0 to disable automatique update. IO will be updated only 
 
 ### Expansion
 
+Length: 53 (one expansion)
+
 * 10620 ~ 10620 : T1 : NC : Expansion 0 exists.
 * 10621 ~ 10621 : T1 : NC : Expansion 0 Id. This is the expansion number of current expansion starting at 0 for main board.
 * 10622 ~ 10622 : T1 : NC : Expansion 0 Type.
+* 10623 ~ 10672 : T4 : NC : Expension 0 name.
 
 * 10620 + "10000 value" ~ 10620 + "10000 value" : T1 : NC : Expansion 1 exists
 * ...
@@ -182,6 +199,8 @@ Expansion Type can be:
 * 3 : Arduino Pro Opta Ext A06O2  - AFX00007
 
 ### Inputs
+
+Length: 19 (one input)
 
 * 12220 ~ 12220 : T1 : NC : Expansion 0 Input 0 exists
 * 12221 ~ 12221 : T1 : NC : Expansion 0 Input 0 uid. This is concatened "expansion num" + "input num"

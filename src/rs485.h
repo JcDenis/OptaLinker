@@ -40,12 +40,10 @@ private:
    * Prepare RS485 transmission.
    */
   void prepare() {
-    auto bitduration{ 1.f / config.getRs485Baudrate() };
-    auto wordlen{ 9.6f };  // required for modbus, OR 10.0f depending on the channel configuration for rs485
-    //auto wordlen{ 10.0f };  // required for modbus, OR 10.0f depending on the channel configuration for rs485
-    auto preDelayBR{ bitduration * wordlen * 3.5f * 1e6 };
-    auto postDelayBR{ bitduration * wordlen * 3.5f * 1e6 };
-    RS485.setDelays(preDelayBR, postDelayBR);
+     float  bitduration = 1.0f / config.getRs485Baudrate();
+     uint32_t preDelay = bitduration * 10.0f * 1e6;
+     uint32_t postDelay = bitduration * 10.0f * 1e6;
+     RS485.setDelays(preDelay, postDelay);
   }
 
 public:

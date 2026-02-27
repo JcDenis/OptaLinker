@@ -32,7 +32,7 @@ void setup() {
    * Force configuration for RS485 mode to "receiver".
    * Both sender and receiver must have same RS485 bauderate.
    */
-  linker.config->setRs485Type(Rs485Type::Rs485Receiver);
+  linker.config->setRs485Type(Rs485Receiver);
   linker.config->setRs485Baudrate(19200);
 
   /*
@@ -80,9 +80,8 @@ void loop() {
       * Read the message, erase it and allow opta to receive another message.
       */
       String message = linker.rs485->received();
-      Serial.println("RX: " + message);
+      linker.monitor->setMessage("RX: " + message, MonitorReceive);
     }
-
   }
 
   yield();

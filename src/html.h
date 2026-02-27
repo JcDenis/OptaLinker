@@ -394,6 +394,7 @@ const char web_device_html[] = R"rawliteral(
             <button type="button" data-input="rs485Type" data-value="2">Sender</button>
             <button type="button" class="selected" data-input="rs485Type" data-value="0">Disable</button>
         </div>
+        <p>RS485 must be disabled to use modbus RTU server or client.</p>
       </div>
 
       <div class="group rs485ToMqtt">
@@ -582,7 +583,7 @@ const char web_device_html[] = R"rawliteral(
 
       <div class="field">
         <label for="updateUrl">Firmware file URL:</label>
-        <input type="text" id="updateUrl" name="updateUrl" required>
+        <input type="text" id="updateUrl" name="updateUrl">
       </div>
 
     </div>

@@ -33,7 +33,7 @@ void setup() {
    * Force RS485 mode to "sender".
    * Both sender and receiver must have same RS485 bauderate.
    */
-  linker.config->setRs485Type(Rs485Type::Rs485Sender);
+  linker.config->setRs485Type(Rs485Sender);
   linker.config->setRs485Baudrate(19200);
 
   /*
@@ -76,8 +76,8 @@ void loop() {
 
     } else {
 
-      String message = String(countSend++);
-      Serial.println("TX: " + message);
+      String message = linker.board->getName() + ", test " + countSend++;
+      linker.monitor->setMessage("TX: " + message, MonitorReceive);
 
       /**
        * Try to send message till serial is avalable
@@ -88,13 +88,11 @@ void loop() {
          * Wait 2 second, then stop trying to send message
          */
         if (millis() - lastSend > 2000) {
-          Serial.println("Failed to send message");
+          linker.monitor->setMessage("Failed to send message", MonitorReceive);
           break;
         }
       }
-
     }
-
   }
 
   /**

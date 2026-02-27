@@ -36,7 +36,7 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 * Watchdog
 * Multithreading loop
 * Lots of simple methods to deal with inputs/outputs/storage...
-* Lite and fast loop to keep MQTT publishing of input change state under 50ms
+* Fast MQTT publishing of input change state
 * ...
 
 
@@ -91,8 +91,8 @@ These commands are not case sensitive.
 * `print config ` 	: Send to serial monitor the contents of device configuration backup file
 * `print io`		: Send to serial monitor the contents of io backup file
 * `print store`		: Send to serial monitor the list of flash memory stored file
-* `print boot` 		: Send tto serial the number of time device reboot
-* `print boot`    	: Send to serial monitor the number of loops per second
+* `print boot` 		: Send to serial the number of time device reboot
+* `print loop`    	: Send to serial monitor the number of loops per second
 * `print ip`      	: Send to serial monitor the device IPv4 address
 * `switch dhcp`    	: Switch ethernet DHCP mode in configuration
 * `switch wifi`    	: Switch Wifi/Ethernet mode in configuration
@@ -101,7 +101,7 @@ These commands are not case sensitive.
 * `flash memory`  	: Create/format partitions and reboot
 * `reset config` 	: Reset to default device configuration and reboot
 * `reset io`	 	: Rest IO values to default and reboot
-* `publish mqtt` 	: Publish to MQTT device inforamtions and IO states
+* `publish mqtt` 	: Publish to MQTT device informations and IO states
 * `reboot`  		: Reboot device
 
 You should do a `REBOOT` after `SWITCH DHCP`, `SWITCH WIFI` actions to take effect.
@@ -156,6 +156,8 @@ This library support one of these modbus types at a time:
 * Modbus RTU server (Rs485)
 * Modbus RTU client (Rs485)
 
+To use modbus RTU (client or server), RS485 must be disabled in configuration.
+
 See dedicated [Modbus document](https://github.com/JcDenis/OptaLinker/blob/master/docs/modbusserver.md)
 
 
@@ -166,7 +168,8 @@ This library OTA update feature is not written to work with ArduinoIotCould plat
 __OTA file__
 
 To learn more about OTA and on how to create `.ota` file, see official documentation at https://docs.arduino.cc/tutorials/portenta-h7/over-the-air-update/ 
-The OptaLinker library contains python tools to create OTA file. Available in "extra" directory. (There is also a compiled dll version for Windows 11)
+
+The OptaLinker library contains python tools to create OTA file. Available in "extra" directory. (There is also a compiled dll version for Windows 11) 
 There is also some .ota files from example .ino sketch to test OTA update. 
 
 __OTA workflow__
@@ -175,9 +178,12 @@ On web server device configuration page, there is a field named "Firmware file U
 OptaLinker library listen on MQTT topic `<base topic>/firmware/version` for latest available version. 
 It is also possible to announce new firmware through modbus Holding Registers. (see modbus documentation) 
 Every hour, device check if a newer firmware version are available and if so, launch OTA update process. 
-In background, the firmware is downloaded and uncompress, the bootloader is edited and if all is OK, device reboot and install new Firmware. 
+In background, the firmware is downloaded and uncompressed, the bootloader is edited and if all is OK, device reboot and install new Firmware. 
 
-The update is processed in bakcground and may take up to 10 minutes, during process the board is still active.
+__Important note__
+
+The update is processed in background and may take up to 10 minutes, during process the board is still active and works normally except the Web server is offline. 
+(as both Web server and OTA process use same HTTP client.)
 
 
 ### Web server
