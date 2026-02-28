@@ -96,7 +96,7 @@ public:
     ota();
 
     // Switch to RUN state
-    state->setType(StateType::StateRun);
+    state->setType(StateRun);
 
     // Display end of setup
     monitor->setMessage(LabelOptaLinkerLoop, MonitorSuccess);
@@ -135,7 +135,7 @@ public:
     // Move to main loop OTA state
     if (version->getOtaState() && (_otaLast == 0 || (state->getTime() - _otaLast > 10000))) { // 10s
       _otaLast = state->getTime();
-      monitor->setMessage("Processing OTA update, this may take a while...", MonitorLock);
+      monitor->setMessage(LabelOptaLinkerUpdate, MonitorLock);
     }
 
     uint8_t loopBenchmarkStart = 0;
