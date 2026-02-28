@@ -26,7 +26,7 @@ private:
   /**
    * Current state of the process.
    */
-  uint8_t _type = StateType::StateStop;
+  uint8_t _type = StateStop;
 
   /**
    * Current odd/even loop.
@@ -42,14 +42,14 @@ public:
   OptaLinkerState() {}
 
   uint8_t setup() {
-    _type = StateType::StateSetup;
+    _type = StateSetup;
     _time = millis();
 
     return 1;
   }
 
   uint8_t loop() {
-    _type = StateType::StateRun;
+    _type = StateRun;
     _odd = _odd == 1 ? 0 : 1;
     _time = millis();
 
@@ -80,11 +80,15 @@ public:
    * Set process state.
    *
    * @param   type   The process state type to set
+   *
+   * @return  The state type
    */
-  void setType(uint8_t type) {
+  uint8_t setType(uint8_t type) {
     if (type < 4) {
       _type = type;
     }
+
+    return _type;
   }
 
   /**
@@ -104,7 +108,7 @@ public:
    */
   uint8_t isStop() {
 
-    return _type == StateType::StateStop ? 1 : 0;
+    return _type == StateStop ? 1 : 0;
   }
 
   /**
@@ -114,7 +118,7 @@ public:
    */
   uint8_t isFreeze() {
 
-    return _type == StateType::StateFreeze ? 1 : 0;
+    return _type == StateFreeze ? 1 : 0;
   }
 
   /**
@@ -124,7 +128,7 @@ public:
    */
   uint8_t isRun() {
 
-    return _type == StateType::StateRun ? 1 : 0;
+    return _type == StateRun ? 1 : 0;
   }
 
   /**

@@ -129,8 +129,9 @@ public:
     }
 
     // Display board name
-    monitor.setMessage(LabelBoardName + getName(), _boardType == BoardNone ? MonitorFail : MonitorSuccess);
+    monitor.setMessage(LabelBoardName + getName(), isNone() ? MonitorFail : MonitorSuccess);
 
+    // Stop library process if board is unknown
     return isNone() ? 0 : 1;
   }
 
@@ -138,8 +139,16 @@ public:
     // Ping watchdog on each loop
     pingTimeout();
 
+    // Skip first heartbeat loop
+    if (_heartbeatLast == 0) {
+      _heartbeatLast = state.getTime();
+    }
+
     // Heartbeat using LEDs
-    if (state.getTime() - _heartbeatLast > 10000) {
+    static uint16_t heartbeatCycle = 10000;
+    static uint8_t heartbeatDelay = 50;
+    int32_t heartbeatCurrent = state.getTime() - _heartbeatLast - heartbeatCycle;
+    if (heartbeatCurrent > 0) {
 
       switch (_heartbeatStep) {
         case 0:
@@ -152,15 +161,16 @@ public:
           break;
 
         case 1:
-          if (state.getTime() - _heartbeatLast > 10150) {
+          if (heartbeatCurrent > (heartbeatDelay * 3)) {
             _heartbeatStep = 2;
             setGreen(1);
             setRed(1);
           }
+
           break;
 
         case 2:
-          if (state.getTime() - _heartbeatLast > 10200) {
+          if (heartbeatCurrent > (heartbeatDelay * 4)) {
             _heartbeatStep = 3;
             setGreen(0);
             setRed(0);
@@ -169,7 +179,7 @@ public:
           break;
 
         case 3:
-          if (state.getTime() - _heartbeatLast > 10350) {
+          if (heartbeatCurrent > (heartbeatDelay * 7)) {
             _heartbeatStep = 0;
             _heartbeatLast = state.getTime();
             setGreen(_previousLedGreen);
@@ -449,9 +459,7 @@ public:
     setBlue(0);
 
     // Change process state
-    state.setType(StateStop);
-
-    return state.getType();
+    return state.setType(StateStop);
   }
 
   /**

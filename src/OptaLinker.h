@@ -32,6 +32,13 @@
 
 namespace optalinker {
 
+/**
+ * Main OptaLinker library class.
+ *
+ * * Call OptaLinker::getInstance() to use it.
+ * * Library modules are share through threads.
+ * * Library modules are pointers, call them like instance->board()->getName();
+ */
 class OptaLinker {
 
 public:
@@ -95,14 +102,11 @@ public:
     // Start OTA updater
     ota();
 
-    // Switch to RUN state
-    state->setType(StateRun);
-
     // Display end of setup
     monitor->setMessage(LabelOptaLinkerLoop, MonitorSuccess);
 
-    // Return library state
-    return state->getType();
+    // Switch to RUN state
+    return state->setType(StateRun);
   }
 
   /**
@@ -329,7 +333,7 @@ private:
       otaThread.start([]() {
         uint32_t otaLast = 0;
         uint32_t otaDelay = 3600000; // 1h
-        auto ol = getInstance();
+        OptaLinker ol = getInstance();
 
         // Infinite loop
         while(1) {
