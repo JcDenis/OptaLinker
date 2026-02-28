@@ -365,7 +365,7 @@ private:
 
               } else {
                 // Bad way to check if we use ssl
-                bool ssl = strstr(otaUrl.c_str(), "ttps") > 0;
+                bool ssl = strstr(otaUrl.c_str(), "https") != NULL;
 
                 // Download
                 ol.monitor->setMessage(LabelUpdateDownload + otaUrl, MonitorInfo);
