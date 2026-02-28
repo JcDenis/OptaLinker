@@ -51,14 +51,13 @@ public:
 
   uint8_t setup() {
     // Disable RS485 feature
-    if (board.isLite() || board.isNone() || config.getRs485Type() == Rs485Type::Rs485None) {
+    if (board.isLite() || board.isNone() || config.getRs485Type() == Rs485None) {
       disable();
 
       return 1;
     }
 
-    monitor.setMessage(LabelRs485Setup, MonitorAction);
-    monitor.setMessage(LabelRs485Baudrate + String(config.getRs485Baudrate()), MonitorInfo);
+    monitor.setMessage(LabelRs485Setup + String(config.getRs485Baudrate()), MonitorAction);
 
     RS485.begin(config.getRs485Baudrate());
     prepare();
@@ -76,7 +75,7 @@ public:
    */
   uint8_t isReceiver() {
 
-    return isEnabled() && config.getRs485Type() == Rs485Type::Rs485Receiver ? 1 : 0;
+    return isEnabled() && config.getRs485Type() == Rs485Receiver ? 1 : 0;
   }
 
   /**
@@ -86,7 +85,7 @@ public:
    */
   uint8_t isSender() {
 
-    return isEnabled() && config.getRs485Type() == Rs485Type::Rs485Sender ? 1 : 0;
+    return isEnabled() && config.getRs485Type() == Rs485Sender ? 1 : 0;
   }
 
   /**

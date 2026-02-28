@@ -79,9 +79,6 @@ public:
 
     analogReadResolution(12);
 
-    // Display expansion setup message
-    monitor.setMessage(LabelIoExpansionSetup, MonitorInfo);
-
     // Start Opta controler (expansions)
     board.setFreeze();
     OptaController.begin();
@@ -90,7 +87,7 @@ public:
     _expansionsNum = OptaController.getExpansionNum() + 1;
 
     // Display number of expansions
-    monitor.setMessage(LabelIoExpansionNum + String(_expansionsNum -1), MonitorInfo);
+    monitor.setMessage(LabelIoExpansionNum + String(_expansionsNum -1), _expansionsNum > 1 ? MonitorSuccess : MonitorFail);
     board.unsetFreeze();
 
     // init then read values from storage
@@ -156,7 +153,7 @@ public:
       // read expansion
       for (uint8_t n = 0; n < OptaController.getExpansionNum(); n++) {
         uint8_t e = n + 1;
-        if (_expansion[e].exists && _expansion[e].type != ExpansionType::ExpansionAnalog) { // Analog expansion not yet implemented
+        if (_expansion[e].exists && _expansion[e].type != ExpansionAnalog) { // Analog expansion not yet implemented
 
           DigitalMechExpansion expDmec = OptaController.getExpansion(n); 
           DigitalStSolidExpansion expDsts = OptaController.getExpansion(n);
@@ -225,9 +222,10 @@ public:
 
     // write expansion values into file every minute
     if (state.getTime() - _storeLast > 60000) {
-      monitor.setMessage(LabelIoStore, MonitorInfo);
       _storeLast = state.getTime();
-      writeToFile();
+      uint8_t ret = writeToFile();
+
+      monitor.setMessage(LabelIoStore, ret ? MonitorSuccess : MonitorFail);
     }
 
     return 1;
@@ -263,10 +261,10 @@ public:
     for(uint8_t e = 0; e < OPTA_CONTROLLER_MAX_EXPANSION_NUM + 1; e++) {
       _expansion[e].exists = 0;
       for (uint8_t i = 0; i < getMaxInputNum(); i++) {
-        _expansion[e].input[i] = { 0, toPinId(e, i), i, IoType::IoNone, 0, 0, state.getTime(), 0, 0, 0, 0, 0 };
+        _expansion[e].input[i] = { 0, toPinId(e, i), i, IoNone, 0, 0, state.getTime(), 0, 0, 0, 0, 0 };
       }
       for (uint8_t i = 0; i < getMaxOutputNum(); i++) {
-        _expansion[e].output[i] = { 0, toPinId(e, i), i, IoType::IoNone, 0, 0, state.getTime(), 0, 0, 0, 0, 0 };
+        _expansion[e].output[i] = { 0, toPinId(e, i), i, IoNone, 0, 0, state.getTime(), 0, 0, 0, 0, 0 };
       }
     }
 
@@ -274,14 +272,14 @@ public:
     _expansion[0].exists = 1;
     _expansion[0].id = 0;
     _expansion[0].name = board.getName();
-    _expansion[0].type = ExpansionType::ExpansionNone;
+    _expansion[0].type = ExpansionNone;
     for (uint8_t i = 0; i < 8; i++) {
       _expansion[0].input[i].exists = 1;
-      _expansion[0].input[i].type = IoType::IoDigital;
+      _expansion[0].input[i].type = IoDigital;
     }
     for (uint8_t i = 0; i < 4; i++) {
       _expansion[0].output[i].exists = 1;
-      _expansion[0].input[i].type = IoType::IoRelay;
+      _expansion[0].input[i].type = IoRelay;
     }
 
     // initialize expansions io
@@ -293,46 +291,46 @@ public:
       uint8_t expType = OptaController.getExpansionType(n);
       switch (expType) {
         case EXPANSION_OPTA_DIGITAL_MEC:
-          _expansion[e].type = ExpansionType::ExpansionDmec;
+          _expansion[e].type = ExpansionDmec;
           for (uint8_t i = 0; i < OPTA_DIGITAL_IN_NUM; i++) {
             _expansion[e].input[i].exists = 1;
-            _expansion[e].input[i].type = IoType::IoDigital;
+            _expansion[e].input[i].type = IoDigital;
           }
           for (uint8_t i = 0; i < OPTA_DIGITAL_OUT_NUM; i++) {
             _expansion[e].output[i].exists = 1;
-            _expansion[e].input[i].type = IoType::IoRelay;
+            _expansion[e].input[i].type = IoRelay;
           }
           break;
 
         case EXPANSION_OPTA_DIGITAL_STS:
-          _expansion[e].type = ExpansionType::ExpansionDsts;
+          _expansion[e].type = ExpansionDsts;
           for (uint8_t i = 0; i < OPTA_DIGITAL_IN_NUM; i++) {
             _expansion[e].input[i].exists = 1;
-            _expansion[e].input[i].type = IoType::IoDigital;
+            _expansion[e].input[i].type = IoDigital;
           }
           for (uint8_t i = 0; i < OPTA_DIGITAL_OUT_NUM; i++) {
             _expansion[e].output[i].exists = 1;
-            _expansion[e].input[i].type = IoType::IoRelay;
+            _expansion[e].input[i].type = IoRelay;
           }
           break;
 
         case EXPANSION_OPTA_ANALOG:
-          _expansion[e].type = ExpansionType::ExpansionAnalog;
+          _expansion[e].type = ExpansionAnalog;
           for (uint8_t i = 0; i < OA_AN_CHANNELS_NUM; i++) {
             _expansion[e].input[i].exists = 1;
-            _expansion[e].input[i].type = IoType::IoAnalog;
+            _expansion[e].input[i].type = IoAnalog;
           }
           // output not implemented
           break;
 
         default:
           _expansion[e].exists = 0;
-          _expansion[e].type = ExpansionType::ExpansionNone;
+          _expansion[e].type = ExpansionNone;
       }
       _expansion[e].name = getName(e);
 
       // Display expansion name
-      monitor.setMessage(LabelIoExpansionName + String(e) + ": " + _expansion[e].name, MonitorInfo);
+      monitor.setMessage(LabelIoExpansionName + String(e) + ": " + _expansion[e].name, _expansion[e].type == ExpansionNone ? MonitorFail : MonitorSuccess);
     }
   }
 
@@ -511,43 +509,43 @@ public:
   int getIo(IoStruct ios, uint8_t query) {
     int rsp = -1;
     switch (query) {
-      case IoField::IoFieldExists:
+      case IoFieldExists:
         rsp = ios.exists;
         break;
 
-      case IoField::IoFieldType:
+      case IoFieldType:
         rsp = ios.type;
         break;
 
-      case IoField::IoFieldState:
+      case IoFieldState:
         rsp = ios.state;
         break;
 
-      case IoField::IoFieldVoltage:
+      case IoFieldVoltage:
         rsp = ios.voltage;
         break;
 
-      case IoField::IoFieldUpdate:
+      case IoFieldUpdate:
         rsp = ios.update;
         break;
 
-      case IoField::IoFieldReset:
+      case IoFieldReset:
         rsp = ios.reset;
         break;
 
-      case IoField::IoFieldPulse:
+      case IoFieldPulse:
         rsp = ios.pulse;
         break;
 
-      case IoField::IoFieldPartialPulse:
+      case IoFieldPartialPulse:
         rsp = ios.partialPulse;
         break;
 
-      case IoField::IoFieldHigh:
+      case IoFieldHigh:
         rsp = ios.high;
         break;
 
-      case IoField::IoFieldPartialHigh:
+      case IoFieldPartialHigh:
         rsp = ios.partialHigh;
         break;
     }
@@ -584,6 +582,7 @@ public:
    */
   int getInput(uint8_t expansion, uint8_t input, uint8_t query) {
     if (expansion < _expansionsNum && input < getMaxInputNum() && _expansion[expansion].exists && _expansion[expansion].input[input].exists) {
+
       return getIo(_expansion[expansion].input[input], query);
     }
 
@@ -601,6 +600,7 @@ public:
    */
   int getOutput(uint8_t expansion, uint8_t output, uint8_t query) {
     if (expansion < _expansionsNum && output < getMaxOutputNum() && _expansion[expansion].exists && _expansion[expansion].output[output].exists) {
+
       return getIo(_expansion[expansion].output[output], query);
     }
 
@@ -664,14 +664,14 @@ public:
           digitalWrite(BoardOutputs[output], value);
           digitalWrite(BoardOutputsLeds[output], value);
         // Digital mech expansion
-        } else if (_expansion[expansion].type == ExpansionType::ExpansionDmec) {
+        } else if (_expansion[expansion].type == ExpansionDmec) {
           DigitalMechExpansion expDmec = OptaController.getExpansion(expansion - 1);
           expDmec.digitalWrite(expansion - 1, value ? HIGH : LOW, true);
           expDmec.updateDigitalOutputs();
           //expDmec.switchLedOn(expansion - 1, value ? HIGH : LOW, true);
           //expDmec.updateLeds();
         // Digital sts expansion
-        } else if (_expansion[expansion].type == ExpansionType::ExpansionDmec) {
+        } else if (_expansion[expansion].type == ExpansionDmec) {
           DigitalStSolidExpansion expDsts = OptaController.getExpansion(expansion - 1);
           expDsts.digitalWrite(expansion - 1, value ? HIGH : LOW, true);
           expDsts.updateDigitalOutputs();
@@ -707,15 +707,15 @@ public:
       name = board.getName();
     } else {
       switch (_expansion[expansion].type) {
-        case ExpansionType::ExpansionDmec:
+        case ExpansionDmec:
           name = LabelIoExpansionDmec;
           break;
 
-        case ExpansionType::ExpansionDsts:
+        case ExpansionDsts:
           name = LabelIoExpansionDsts;
           break;
 
-        case ExpansionType::ExpansionAnalog:
+        case ExpansionAnalog:
           name = LabelIoExpansionAnalog;
           break;
 
@@ -733,8 +733,8 @@ public:
    * @param   delay  The io poll delay in ms
    */
   void setPollDelay(uint32_t delay) {
-    monitor.setMessage(LabelIoPoll + String(delay), MonitorInfo);
     _pollDelay = delay;
+    monitor.setMessage(LabelIoPoll + String(delay), MonitorSuccess);
   }
 
   /**

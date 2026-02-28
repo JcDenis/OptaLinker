@@ -39,7 +39,7 @@ private:
   /**
    * The board type.
    */
-  uint8_t _boardType = BoardType::BoardNone;
+  uint8_t _boardType = BoardNone;
 
   /**
    * Memorized previous green LED state.
@@ -114,22 +114,22 @@ public:
       _timeout = mbed::Watchdog::get_instance().get_max_timeout();
     }
     mbed::Watchdog::get_instance().start(_timeout);
-    monitor.setMessage(LabelBoardTimeout + String(_timeout), MonitorInfo);
+    monitor.setMessage(LabelBoardTimeout + String(_timeout), MonitorSuccess);
 
     // Retrieve board info
     OptaBoardInfo *info = boardInfo();
     if (info->magic == 0xB5) {
       if (info->_board_functionalities.wifi == 1) {
-        _boardType = BoardType::BoardWifi;
+        _boardType = BoardWifi;
       } else if (info->_board_functionalities.rs485 == 1) {
-        _boardType = BoardType::BoardRs485;
+        _boardType = BoardRs485;
       } else if (info->_board_functionalities.ethernet == 1) {
-        _boardType = BoardType::BoardLite;
+        _boardType = BoardLite;
       }
     }
 
     // Display board name
-    monitor.setMessage(LabelBoardName + getName(), MonitorInfo);
+    monitor.setMessage(LabelBoardName + getName(), _boardType == BoardNone ? MonitorFail : MonitorSuccess);
 
     return isNone() ? 0 : 1;
   }
@@ -220,7 +220,7 @@ public:
    */
   uint8_t isNone() {
 
-    return _boardType == BoardType::BoardNone ? 1 : 0;
+    return _boardType == BoardNone ? 1 : 0;
   }
 
   /**
@@ -232,7 +232,7 @@ public:
    */
   uint8_t isLite() {
 
-    return _boardType == BoardType::BoardLite ? 1 : 0;
+    return _boardType == BoardLite ? 1 : 0;
   }
 
   /**
@@ -244,7 +244,7 @@ public:
    */
   uint8_t isRs485() {
 
-    return _boardType == BoardType::BoardRs485 ? 1 : 0;
+    return _boardType == BoardRs485 ? 1 : 0;
   }
 
   /**
@@ -256,7 +256,7 @@ public:
    */
   uint8_t isWifi() {
 
-    return _boardType == BoardType::BoardWifi ? 1 : 0;
+    return _boardType == BoardWifi ? 1 : 0;
   }
 
   /**
@@ -267,13 +267,13 @@ public:
   String getName() {
     String name;
     switch(_boardType) {
-      case BoardType::BoardLite:
+      case BoardLite:
         name = LabelBoardNameLite;
         break;
-      case BoardType::BoardRs485:
+      case BoardRs485:
         name = LabelBoardNameRs485;
         break;
-      case BoardType::BoardWifi:
+      case BoardWifi:
         name = LabelBoardNameWifi;
         break;
       default:
@@ -404,7 +404,7 @@ public:
   void setFreeze() {
     // perform raise only if not already in long timeout
     if (_freezeLevel < 1) {
-      state.setType(StateType::StateFreeze);
+      state.setType(StateFreeze);
       setRed(1);
       setGreen(1);
 
@@ -424,7 +424,7 @@ public:
   void unsetFreeze() {
     // perform lower only if not already in short timeout
     if (_freezeLevel > 0) {
-      state.setType(StateType::StateRun);
+      state.setType(StateRun);
       setRed(0);
       setGreen(0);
 
@@ -449,7 +449,7 @@ public:
     setBlue(0);
 
     // Change process state
-    state.setType(StateType::StateStop);
+    state.setType(StateStop);
 
     return state.getType();
   }

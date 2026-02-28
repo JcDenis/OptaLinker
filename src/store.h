@@ -175,7 +175,7 @@ public:
 
     // init instance
     if (root->init() != BD_ERROR_OK) {
-      monitor.setMessage(LabelStoreInitFail, MonitorWarning);
+      monitor.setMessage(LabelStoreInitFail, MonitorFail);
 
       return 0;
     }
@@ -208,7 +208,7 @@ public:
 
       // Format wifi partition
       if (wifi_data_fs.reformat(&wifi_data)) {
-        monitor.setMessage(LabelStoreFormatFail + String("Wifi"), MonitorWarning);
+        monitor.setMessage(LabelStoreFormatFail + String("Wifi"), MonitorFail);
 
         return 0;
       }
@@ -226,7 +226,7 @@ public:
           chunk_size = wifi_firmware_file_size - byte_count;
         int ret = fwrite(&wifi_firmware_image_data[byte_count], chunk_size, 1, fp);
         if (ret != 1) {
-          monitor.setMessage(LabelStoreFirmwareFail, MonitorWarning);
+          monitor.setMessage(LabelStoreFirmwareFail, MonitorFail);
           break;
         }
         byte_count += chunk_size;
@@ -246,7 +246,7 @@ public:
           chunk_size = wifi_firmware_cacert_pem_len - byte_count;
         int ret = fwrite(&wifi_firmware_cacert_pem[byte_count], chunk_size, 1 ,fp);
         if (ret != 1) {
-          monitor.setMessage(LabelStoreCertificateFail, MonitorWarning);
+          monitor.setMessage(LabelStoreCertificateFail, MonitorFail);
           break;
         }
         byte_count += chunk_size;
@@ -266,7 +266,7 @@ public:
           chunk_size = wifi_firmware_file_size - byte_count;
         int ret = root->program(&wifi_firmware_image_data[byte_count], offset + byte_count, chunk_size);
         if (ret != 0) {
-          monitor.setMessage(LabelStoreMappedFail, MonitorWarning);
+          monitor.setMessage(LabelStoreMappedFail, MonitorFail);
           //break;
 
           return 0;
@@ -286,7 +286,7 @@ public:
     if (!ota_exists || force) {
       // Format OTA partition
       if (ota_data_fs.reformat(&ota_data)) {
-        monitor.setMessage(LabelStoreFormatFail + String("OTA"), MonitorWarning);
+        monitor.setMessage(LabelStoreFormatFail + String("OTA"), MonitorFail);
 
         return 0;
       }
@@ -306,7 +306,7 @@ public:
 
       // Format User partition
       if (user_data_fs->reformat(&user_data)) {
-        monitor.setMessage(LabelStoreFormatFail + String("User"), MonitorWarning);
+        monitor.setMessage(LabelStoreFormatFail + String("User"), MonitorFail);
 
         return 0;
       }

@@ -65,7 +65,7 @@ private:
       } else {
         const unsigned long epoch = timeClient.getEpochTime();
         set_time(epoch);
-        monitor.setMessage(LabelClockUpdateSuccess + timeClient.getFormattedTime(), MonitorInfo);
+        monitor.setMessage(LabelClockUpdateSuccess + timeClient.getFormattedTime(), MonitorSuccess);
         _isUpdated = 1;
       }
       board.unsetFreeze();
@@ -75,8 +75,6 @@ public:
   OptaLinkerClock(OptaLinkerState &_state, OptaLinkerMonitor &_monitor, OptaLinkerBoard &_board, OptaLinkerConfig &_config, OptaLinkerNetwork &_network) : state(_state), monitor(_monitor), board(_board), config(_config), network(_network) {}
 
   uint8_t setup() {
-    monitor.setMessage(LabelClockSetup, MonitorAction);
-
     synchronizeRtc();
 
     return 1;
@@ -97,8 +95,7 @@ public:
    */
   void synchronizeRtc() {
     if (isEnabled() && network.isConnected() && !network.isAccessPoint()) {
-      monitor.setMessage(LabelClockUpdate, MonitorAction);
-      monitor.setMessage(LabelClockServer + config.getTimeServer(), MonitorInfo);
+      monitor.setMessage(LabelClockUpdate + config.getTimeServer(), MonitorAction);
 
       if (network.isStandard()) {
         WiFiUDP wifiUdpClient;

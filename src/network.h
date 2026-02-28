@@ -39,7 +39,7 @@ private:
   /**
    * The network type
    */
-  uint8_t _networkType = NetworkType::NetworkNone;
+  uint8_t _networkType = NetworkNone;
 
   /**
    * Connection state.
@@ -90,23 +90,27 @@ private:
 	  int ret = 0;
 	  board.setFreeze();
 	  if (config.getNetworkDhcp()) {
-	    monitor.setMessage(LabelNetworkMode + String("DHCP"), MonitorInfo);
 	    ret = Ethernet.begin(nullptr, getTimeout(), 4000);
+	    if (ret) {
+	    	monitor.setMessage(LabelNetworkMode + String("DHCP"), MonitorSuccess);
+	    }
 	  } else {
-	    monitor.setMessage(LabelNetworkMode + String("Static IP"), MonitorInfo);
 	    ret = Ethernet.begin(nullptr, config.getNetworkIp(), config.getNetworkDns(), config.getNetworkGateway(), config.getNetworkSubnet(), getTimeout(), 4000);
+	    if (ret) {
+	    	monitor.setMessage(LabelNetworkMode + String("Static IP"), MonitorSuccess);
+	    }
 	  }
 	  board.unsetFreeze();
 
 	  if (ret == 0) {
 	    _isConnected = 0;
-	    monitor.setMessage(LabelNetworkEthernetFail, MonitorWarning);
+	    monitor.setMessage(LabelNetworkEthernetFail, MonitorFail);
 	    if (Ethernet.linkStatus() == LinkOFF) {
 	      monitor.setMessage(LabelNetworkEthernetDisconnect, MonitorWarning);
 	    }
 	  } else {
 	    _isConnected = 1;
-	    monitor.setMessage(LabelNetworkEthernetSuccess + getLocalIp().toString(), MonitorInfo);
+	    monitor.setMessage(LabelNetworkEthernetSuccess + getLocalIp().toString(), MonitorSuccess);
 	  }
 	}
 
@@ -137,10 +141,10 @@ private:
 	  board.unsetFreeze();
 
 	  if (ret != WL_CONNECTED) {
-	    monitor.setMessage(LabelNetworkStaFail, MonitorWarning);
+	    monitor.setMessage(LabelNetworkStaFail, MonitorFail);
 	    _isConnected = 0;
 	  } else {
-	    monitor.setMessage(LabelNetworkStaSuccess, MonitorInfo);
+	    monitor.setMessage(LabelNetworkStaSuccess, MonitorSuccess);
 	    _isConnected = 1;
 	  }
 	}
@@ -154,23 +158,22 @@ public:
 
 	  // Check configuration to use Wifi Standard
 	  if (board.isWifi() && config.getNetworkWifi() && config.getNetworkSsid() != "" && config.getNetworkPassword() != "") {
-	    monitor.setMessage(LabelNetworkMode + String("Wifi standard network"), MonitorInfo);
-	    _networkType = NetworkType::NetworkStandard;
+	    _networkType = NetworkStandard;
 
 	    if (WiFi.status() == WL_NO_MODULE) {
-				monitor.setMessage(LabelNetworkFail, MonitorWarning);
+				monitor.setMessage(LabelNetworkFail, MonitorFail);
 
 				return 0;
 	    }
 
+	    monitor.setMessage(LabelNetworkMode + String("Wifi standard network"), MonitorInfo);
 	    connectStandard();
 	  // Check configuration to use Wifi Access Point
 	  } else if (board.isWifi() && config.getNetworkWifi()) {
-	    monitor.setMessage(LabelNetworkMode + String("Wifi Access Point network"), MonitorInfo);
-	    _networkType = NetworkType::NetworkAccessPoint;
+	    _networkType = NetworkAccessPoint;
 
 	    if (WiFi.status() == WL_NO_MODULE) {
-				monitor.setMessage(LabelNetworkFail, MonitorWarning);
+				monitor.setMessage(LabelNetworkFail, MonitorFail);
 
 				return 0;
 	    }
@@ -192,17 +195,17 @@ public:
 	    board.unsetFreeze();
 
 	    if (ret != WL_AP_LISTENING) {
-				monitor.setMessage(LabelNetworkApFail, MonitorWarning);
+				monitor.setMessage(LabelNetworkApFail, MonitorFail);
 
 				return 0;
 	    } else {
-	      monitor.setMessage(LabelNetworkApSuccess, MonitorInfo);
+	    	monitor.setMessage(LabelNetworkMode + String("Wifi Access Point network"), MonitorSuccess);
+	      //monitor.setMessage(LabelNetworkApSuccess, MonitorSuccess);
 	      _isConnected = 1;
 	    }
 	  // At least, use Ethernet
 	  } else {
-	    monitor.setMessage(LabelNetworkMode + String("Ethernet network"), MonitorInfo);
-	    _networkType = NetworkType::NetworkEthernet;
+	    _networkType = NetworkEthernet;
 
 	    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
 				monitor.setMessage(LabelNetworkFail, MonitorWarning);
@@ -210,6 +213,7 @@ public:
 				return 0;
 	    }
 
+	    monitor.setMessage(LabelNetworkMode + String("Ethernet network"), MonitorSuccess);
 	    connectEthernet();
 	  }
 
@@ -327,7 +331,7 @@ public:
 	 */
 	void setTimeout(uint32_t timeout) {
 	  if (timeout > 0 && timeout < 120000) {
-	    monitor.setMessage(LabelNetworkTimeout + String(timeout), MonitorInfo);
+	    monitor.setMessage(LabelNetworkTimeout + String(timeout), MonitorSuccess);
 	    _timeoutDelay = timeout;
 	  }
 	}
@@ -359,7 +363,7 @@ public:
 	 */
 	uint8_t isAccessPoint() {
 
-	  return _networkType == NetworkType::NetworkAccessPoint ? 1 : 0;
+	  return _networkType == NetworkAccessPoint ? 1 : 0;
 	}
 
 	/**
@@ -369,7 +373,7 @@ public:
 	 */
 	uint8_t isStandard() {
 
-	  return _networkType == NetworkType::NetworkStandard ? 1 : 0;
+	  return _networkType == NetworkStandard ? 1 : 0;
 	}
 
 	/**
@@ -379,7 +383,7 @@ public:
 	 */
 	uint8_t isEthernet() {
 
-	  return _networkType == NetworkType::NetworkEthernet ? 1 : 0;
+	  return _networkType == NetworkEthernet ? 1 : 0;
 	}
 
 

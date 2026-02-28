@@ -283,7 +283,7 @@ constexpr char LabelOptaLinkerBenchmarkLine[]    = "Loops per second: ";
 constexpr char LabelOptaLinkerBenchmarkAverage[] = "Average of loops per second: ";
 
 // Monitor
-constexpr char LabelMonitorSetup[]     = "\n+—————————————————————————————————————+\n| Arduino Opta Industrial IoT gateway |\n+—————————————————————————————————————+\n\n";
+constexpr char LabelMonitorSetup[]     = "\n+—————————————————————————————————————+\n| Arduino Opta Industrial IoT gateway |\n+—————————————————————————————————————+\n";
 constexpr char LabelMonitorReceive[]   = "Receiving message from serial monitor: ";
 constexpr char LabelMonitorHeartbeat[] = "I'm alive";
 
@@ -357,7 +357,6 @@ constexpr char LabelConfigSetUpdateUrl[] = "Set OTA update URL: ";
 // Io
 constexpr char LabelIoSetup[] = "Configuring IO";
 constexpr char LabelIoPoll[] = "Set inputs poll delay to: ";
-constexpr char LabelIoExpansionSetup[] = "Configuring expansions";
 constexpr char LabelIoExpansionNum[] = "Number of expansions found: ";
 constexpr char LabelIoExpansionName[] = "Expansion ";
 constexpr char LabelIoExpansionNone[] = "Unknown expansion name ";
@@ -389,25 +388,23 @@ constexpr char LabelNetworkStaFail[] = "Failed to connect Wifi";
 constexpr char LabelNetworkStaSuccess[] = "Wifi connected";
 
 // Clock
-constexpr char LabelClockSetup[] = "Configuring time";
 constexpr char LabelClockServer[] = "Using NTP server: ";
-constexpr char LabelClockUpdate[] = "Updating local time";
+constexpr char LabelClockUpdate[] = "Configuring local time from NTP server: ";
 constexpr char LabelClockUpdateFail[] = "Failed to update local time";
 constexpr char LabelClockUpdateSuccess[] = "Time set to: ";
 
 
 // RS485
-constexpr char LabelRs485Setup[] = "Configuring RS485";
-constexpr char LabelRs485Baudrate[] = "Using baudrate: ";
+constexpr char LabelRs485Setup[] = "Configuring RS485 at baudrate: ";
 
 // Modbus
 constexpr char LabelModbusSetup[] = "Configuring Modbus";
 constexpr char LabelModbusNone[] = "Modbus is disabled";
-constexpr char LabelModbusTcpClient[] = "As TCP client";
-constexpr char LabelModbusTcpServer[] = "As TCP server";
+constexpr char LabelModbusTcpClient[] = "Modbus set as TCP client";
+constexpr char LabelModbusTcpServer[] = "Modbus set as TCP server";
 constexpr char LabelModbusClientFail[] = "Modbus TCP Client failed to connect";
-constexpr char LabelModbusRtuClient[] = "Using RTU client";
-constexpr char LabelModbusRtuServer[] = "As RTU server";
+constexpr char LabelModbusRtuClient[] = "Modbus set as RTU client";
+constexpr char LabelModbusRtuServer[] = "Modbus set as RTU server";
 constexpr char LabelModbusEthernetServer[] = "Creating Modbus Ethernet server";
 constexpr char LabelModbusWifiServer[] = "Creating Modbus Wifi server";
 constexpr char LabelModbusBeginFail[] = "Failed to start Modbus";
@@ -417,8 +414,7 @@ constexpr char LabelModbusClientConnect[] = "Modbus client connected for request
 constexpr char LabelModbusClientKick[] = "Modbus server kicks client";
 
 // MQTT
-constexpr char LabelMqttSetup[] = "Configuring MQTT client";
-constexpr char LabelMqttServer[] = "Using broker: ";
+constexpr char LabelMqttSetup[] = "Configuring MQTT client for server: ";
 constexpr char LabelMqttBroker[] = "Connecting to MQTT broker";
 constexpr char LabelMqttBrokerFail[] = "Failed to connect to MQTT broker";
 constexpr char LabelMqttBrokerSuccess[] = "MQTT broker found";

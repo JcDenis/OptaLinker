@@ -480,7 +480,7 @@ public:
 
   uint8_t stopServer() {
     if (_isStarted) {
-      monitor.setMessage(LabelWebStop, MonitorInfo);
+      monitor.setMessage(LabelWebStop, MonitorWarning);
       if (network.isEthernet()) {
         _ethernetServer.end();
         _isStarted = 0;

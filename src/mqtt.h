@@ -129,14 +129,14 @@ private:
     _genericClient.setUsernamePassword(config.getMqttUser(), config.getMqttPassword());
     _genericClient.setConnectionTimeout(network.getTimeout()); // This directive has no effect !
     if (!_genericClient.connect(config.getMqttIp(), config.getMqttPort())) {
-      monitor.setMessage(LabelMqttBrokerFail, MonitorWarning);
+      monitor.setMessage(LabelMqttBrokerFail, MonitorFail);
       board.unsetFreeze();
 
       return;
     }
     board.unsetFreeze();
 
-    monitor.setMessage(LabelMqttBrokerSuccess, MonitorInfo);
+    monitor.setMessage(LabelMqttBrokerSuccess, MonitorSuccess);
     _isConnected = 1;
 
     // subscribe to OTA update firmware version
@@ -169,7 +169,7 @@ private:
    * @param   payload   The MQTT payload
    */
   void receiveMessage(String &topic, String &payload) {
-    monitor.setMessage(LabelMqttReceive + topic + " = " + payload, MonitorAction);
+    monitor.setMessage(LabelMqttReceive + topic + " = " + payload, MonitorInfo);
 
     // Get OTA update version
     String matchVersion = config.getMqttBase() + "firmware/version";
@@ -192,7 +192,7 @@ private:
           if (expansion[e].input[i].exists) {
             // reset output state
             if (topic.equals(_baseTopic + "input/reset/" + String(expansion[e].input[i].id))) {
-              monitor.setMessage("Resetting from MQTT input " + String(expansion[e].input[i].id), MonitorInfo);
+              monitor.setMessage("Resetting from MQTT input " + String(expansion[e].input[i].id), MonitorSuccess);
 
               io.resetInput(e, i);
             }
@@ -201,14 +201,14 @@ private:
           if (expansion[e].output[i].exists) {
             // reset output state
             if (topic.equals(_baseTopic + "output/reset/" + String(expansion[e].output[i].id))) {
-              monitor.setMessage("Resetting from MQTT output " + String(expansion[e].output[i].id), MonitorInfo);
+              monitor.setMessage("Resetting from MQTT output " + String(expansion[e].output[i].id), MonitorSuccess);
 
               io.resetOutput(e, i);
             }
 
             // set output state
             if (topic.equals(_baseTopic + "output/set/" + String(expansion[e].output[i].id))) {
-              monitor.setMessage("Setting from MQTT output " + String(expansion[e].output[i].id) + " to " + payload, MonitorInfo);
+              monitor.setMessage("Setting from MQTT output " + String(expansion[e].output[i].id) + " to " + payload, MonitorSuccess);
 
               io.setOutput(e, i, payload.toInt());
             }
@@ -255,8 +255,7 @@ public:
       return 1;
     }
 
-    monitor.setMessage(LabelMqttSetup, MonitorAction);
-    monitor.setMessage(LabelMqttServer + config.getMqttIp().toString() + ":" + String(config.getMqttPort()), MonitorInfo);
+    monitor.setMessage(LabelMqttSetup + config.getMqttIp().toString() + ":" + String(config.getMqttPort()), MonitorAction);
 
     _baseTopic = config.getMqttBase() + config.getDeviceId() + "/";
 

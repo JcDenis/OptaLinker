@@ -90,7 +90,7 @@ private:
         board.setFreeze();
         _tcpEthernetClient.setTimeout(5000);
         if (!_tcpEthernetClient.begin(config.getModbusIp(), config.getModbusPort())) {
-          monitor.setMessage(LabelModbusClientFail, MonitorWarning);
+          monitor.setMessage(LabelModbusClientFail, MonitorFail);
         } else {
           ret = _tcpEthernetClient.connected() == 1 ? 1 : 0;
         }
@@ -101,7 +101,7 @@ private:
         board.setFreeze();
         _tcpWifiClient.setTimeout(5000);
         if (!_tcpWifiClient.begin(config.getModbusIp(), config.getModbusPort())) {
-          monitor.setMessage(LabelModbusClientFail, MonitorWarning);
+          monitor.setMessage(LabelModbusClientFail, MonitorFail);
         } else {
           ret = _tcpWifiClient.connected() == 1 ? 1 : 0;
         }
@@ -454,71 +454,71 @@ public:
     uint8_t type = config.getModbusType();
     switch (type) {
 
-      case ModbusType::ModbusRtuServer:
-        monitor.setMessage(LabelModbusRtuServer, MonitorInfo);
+      case ModbusRtuServer:
 
         // Check Modbus RTU capability
         if (!board.isLite() && !rs485.isEnabled()) {
           prepareRS485();
           if (!_rtuServer.begin(config.getDeviceId(), config.getRs485Baudrate(), SERIAL_8E1)) {
-            monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
+            monitor.setMessage(LabelModbusBeginFail, MonitorFail);
             ret = 0;
           } else {
             ret = 1;
+            monitor.setMessage(LabelModbusRtuServer, MonitorSuccess);
             configureServerRegisters();
             setServerRegisters();
           }
         }
         break;
 
-      case ModbusType::ModbusTcpServer:
-        monitor.setMessage(LabelModbusTcpServer, MonitorInfo);
+      case ModbusTcpServer:
 
         _ethernetServer = EthernetServer(config.getModbusPort());
         _wifiServer = WiFiServer(config.getModbusPort());
 
         if (network.isEthernet()) {
-          monitor.setMessage(LabelModbusEthernetServer, MonitorInfo);
+          //monitor.setMessage(LabelModbusEthernetServer, MonitorInfo);
           _ethernetServer.begin();
         } else {
-          monitor.setMessage(LabelModbusWifiServer, MonitorInfo);
+          //monitor.setMessage(LabelModbusWifiServer, MonitorInfo);
           _wifiServer.begin();
         }
         board.pingTimeout();
 
         if (!_tcpServer.begin()) {
-          monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
+          monitor.setMessage(LabelModbusBeginFail, MonitorFail);
         } else {
           ret = 1;
+          monitor.setMessage(LabelModbusTcpServer, MonitorSuccess);
           configureServerRegisters();
           setServerRegisters();
         }
         break;
 
-      case ModbusType::ModbusRtuClient:
-        monitor.setMessage(LabelModbusRtuClient, MonitorInfo);
+      case ModbusRtuClient:
 
         // Check Modbus RTU capability
         if (!board.isLite() && !rs485.isEnabled()) {
           prepareRS485();
           if (!_rtuClient.begin(config.getRs485Baudrate(), SERIAL_8E1)) {
-            monitor.setMessage(LabelModbusBeginFail, MonitorWarning);
+            monitor.setMessage(LabelModbusBeginFail, MonitorFail);
             ret = 0;
           } else {
             ret = 1;
+            monitor.setMessage(LabelModbusRtuClient, MonitorSuccess);
             _rtuClient.setTimeout(1000);
           }
         }
        break;
 
-      case ModbusType::ModbusTcpClient:
-        monitor.setMessage(LabelModbusTcpClient, MonitorInfo);
+      case ModbusTcpClient:
 
         // Check distant server IP
         if (config.getModbusIp().toString().equals("0.0.0.0")) {
           ret = 0;
         } else {
           ret = 1;
+          monitor.setMessage(LabelModbusTcpClient, MonitorSuccess);
         }
         // Do not connect on setup but when required
         break;
@@ -530,7 +530,7 @@ public:
     board.pingTimeout();
 
     if (ret == 0) {
-      config.setModbusType(ModbusType::ModbusNone);
+      config.setModbusType(ModbusNone);
       monitor.setMessage(LabelModbusNone, MonitorWarning);
       disable();
     }
@@ -658,19 +658,23 @@ public:
   }
 
   uint8_t isRtuClient() {
-    return config.getModbusType() == ModbusType::ModbusRtuClient ? 1 : 0;
+
+    return config.getModbusType() == ModbusRtuClient ? 1 : 0;
   }
 
   uint8_t isTcpClient() {
-    return config.getModbusType() == ModbusType::ModbusTcpClient ? 1 : 0;
+
+    return config.getModbusType() == ModbusTcpClient ? 1 : 0;
   }
 
   uint8_t isRtuServer() {
-    return config.getModbusType() == ModbusType::ModbusRtuServer ? 1 : 0;
+
+    return config.getModbusType() == ModbusRtuServer ? 1 : 0;
   }
 
   uint8_t isTcpServer() {
-    return config.getModbusType() == ModbusType::ModbusTcpServer ? 1 : 0;
+
+    return config.getModbusType() == ModbusTcpServer ? 1 : 0;
   }
 
   uint8_t setServer(uint8_t server) {
@@ -829,10 +833,12 @@ public:
   }
 
   uint8_t getInputRegisters(int *response, uint16_t start, uint16_t length) {
+
     return getRegisters(response, INPUT_REGISTERS, start, length);
   }
 
   uint8_t getHoldingRegisters(int *response, uint16_t start, uint16_t length) {
+
     return getRegisters(response, HOLDING_REGISTERS, start, length);
   }
 
@@ -842,11 +848,13 @@ public:
 
   uint16_t getInputRegisterUint16(uint16_t start) {
     int response[1];
+
     return getRegisters(response, INPUT_REGISTERS, start, 1) == 0 ? 0 : (uint16_t)response[0];
   }
 
   uint16_t getHoldingRegisterUint16(uint16_t start) {
     int response[1];
+
     return getRegisters(response, HOLDING_REGISTERS, start, 1) == 0 ? 0 : (uint16_t)response[0];
   }
 
@@ -859,11 +867,13 @@ public:
 
   int16_t getInputRegisterInt16(uint16_t start) {
     int response[2];
+
     return getRegisters(response, INPUT_REGISTERS, start, 2) == 0 ? 0 : toInt16(response, 0);
   }
 
   int16_t getHoldingRegisterInt16(uint16_t start) {
     int response[2];
+
     return getRegisters(response, HOLDING_REGISTERS, start, 2) == 0 ? 0 : toInt16(response, 0);
   }
 
@@ -878,11 +888,13 @@ public:
 
   uint32_t getInputRegisterUint32(uint16_t start) {
     int response[2];
+
     return getRegisters(response, INPUT_REGISTERS, start, 2) == 0 ? 0 : toUint32(response, 0);
   }
 
   uint32_t getHoldingRegisterUint32(uint16_t start) {
     int response[2];
+
     return getRegisters(response, HOLDING_REGISTERS, start, 2) == 0 ? 0 : toUint32(response, 0);
   }
 
@@ -900,11 +912,13 @@ public:
 
   String getInputRegisterString(uint16_t start) {
     int response[config.MaxStringLength + 1];
+
     return getRegisters(response, INPUT_REGISTERS, start, config.MaxStringLength + 1) == 0 ? String("") : toString(response, 0);
   }
 
   String getHoldingRegisterString(uint16_t start) {
     int response[config.MaxStringLength + 1];
+
     return getRegisters(response, HOLDING_REGISTERS, start, config.MaxStringLength + 1) == 0 ? String("") : toString(response, 0);
   }
 
@@ -925,11 +939,13 @@ public:
 
   IPAddress getInputRegisterIp(uint16_t start) {
     int response[4];
+
     return getRegisters(response, INPUT_REGISTERS, start, 4) == 0 ? IPAddress(0, 0, 0, 0) : toIp(response, 0);
   }
 
   IPAddress getHoldingRegisterIp(uint16_t start) {
     int response[4];
+
     return getRegisters(response, HOLDING_REGISTERS, start, 4) == 0 ? IPAddress(0, 0, 0, 0) : toIp(response, 0);
   }
 
@@ -943,10 +959,12 @@ public:
   }
 
   int16_t toInt16(int *response, uint16_t start) {
+
     return response[start] == 0 ? 0 - response[start + 1] : response[start + 1];
   }
 
   uint32_t toUint32(int *response, uint16_t start) {
+
     return (uint32_t)(response[start] << 16 | response[start + 1]);
   }
 
@@ -961,6 +979,7 @@ public:
   }
 
   IPAddress toIp(int *response, uint16_t start) {
+
     return IPAddress(response[start], response[start + 1], response[start + 2 ], response[start + 3 ]);
   }
 
