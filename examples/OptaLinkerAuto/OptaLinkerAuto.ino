@@ -7,31 +7,28 @@
  * see README.md file
  */
 
+// Include OptaLinker library
 #include <OptaLinker.h>
 
+// Use OptaLinker namspace
 using namespace optalinker;
 
+// Get OptaLinker instance
 OptaLinker linker = OptaLinker::getInstance();
 
 void setup() {
 
-  /**
-   * Setup library.
-   */
+  // Setup library.
   if (linker.setup()) {
 
-    /**
-     * Start library loop in a dedicated thread.
-     */
+    // Start library loop in a dedicated thread.
     linker.thread();
   }
 }
 
 void loop() {
 
-  /**
-   * Check if library is not stopped.
-   */
+  // Check if library is not stopped.
   if (linker.state->isStop()) {
 
     Serial.println("");
@@ -49,7 +46,7 @@ void loop() {
       if (expansion[e].exists) {
         for (uint8_t i = 0; i < linker.io->getMaxInputNum(); i++) {
           if (expansion[e].input[i].exists) {
-            linker.io->setOutput(e, i, linker.io->getInput(e, i, IoField::IoFieldState));
+            linker.io->setOutput(e, i, linker.io->getInput(e, i, IoFieldState));
           }
         }
       }

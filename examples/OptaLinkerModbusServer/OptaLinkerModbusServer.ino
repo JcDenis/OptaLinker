@@ -7,33 +7,30 @@
  * see README.md file
  */
 
+// Include OptaLinker library
 #include <OptaLinker.h>
 
+// Use namspace OptaLinker
 using namespace optalinker;
 
+// Get OptaLinker insatnce
 OptaLinker linker = OptaLinker::getInstance();
 
 uint32_t lastPoll = 0;
 
 void setup() {
 
-  /**
-   * Setup library.
-   */
+  // Setup library.
   if (linker.setup()) {
 
-    /**
-     * Start library loop in a dedicated thread.
-     */
+    // Start library loop in a dedicated thread.
     linker.thread();
   }
 }
 
 void loop() {
 
-  /**
-   * Check if library is not stopped.
-   */
+  // Check if library is not stopped.
   if (linker.state->isStop()) {
     Serial.println("\nLibrary is stopped !\n");
 
@@ -53,7 +50,7 @@ void loop() {
      * Note: If Modbus RTU is used, RS485 baudrate of client and server must be the same.
      */
 
-    // Poll itself every 30000
+    // Poll itself every 25s
     if (millis() - lastPoll > 25000) {
       uint16_t addr = 0;
       lastPoll = millis();
