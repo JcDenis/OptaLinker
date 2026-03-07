@@ -229,14 +229,21 @@ private:
       String idTopic = String(ios.id);
 
       if (force || ios.update > _lastPublish) {
+        // Always publish state
         publishMessage(topic + "state/" + idTopic, String(ios.state));
         publishMessage(topic + "voltage/" + idTopic, String(ios.voltage));
-        publishMessage(topic + "pulse/" + idTopic, String(ios.pulse));
-        publishMessage(topic + "partialPulse/" + idTopic, String(ios.partialPulse));
-        publishMessage(topic + "high/" + idTopic, String(ios.high));
-        publishMessage(topic + "partialHigh/" + idTopic, String(ios.partialHigh));
+        if (ios.state) {
+          // Publish pulse only on high state
+          publishMessage(topic + "pulse/" + idTopic, String(ios.pulse));
+          publishMessage(topic + "partialPulse/" + idTopic, String(ios.partialPulse));
+        } else {
+          // Publish timer only on low state
+          publishMessage(topic + "high/" + idTopic, String(ios.high));
+          publishMessage(topic + "partialHigh/" + idTopic, String(ios.partialHigh));
+        }
 
       } else if (state.getTime() - _lastStatistic > 60000) {
+        // Refresh timer every minutes
         publishMessage(topic + "high/" + idTopic, String(ios.high));
         publishMessage(topic + "partialHigh/" + idTopic, String(ios.partialHigh));
       }
@@ -379,7 +386,7 @@ public:
    */
   uint8_t publishMessage(String topic, String message) {
     if(isConnected()) {
-      _genericClient.beginMessage(topic);
+      _genericClient.beginMessage(topic, true, 1);
       _genericClient.print(message);
       _genericClient.endMessage();
 
