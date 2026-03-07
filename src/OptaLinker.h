@@ -345,7 +345,7 @@ private:
             if (!ol.network->isConnected() || !otaUrl.length() || !ol.version->getOtaVersion()) {
               // Requirements missing
             } else if (ol.version->getOtaVersion() <= ol.version->toInt()) {
-              ol.monitor->setMessage(LabelUpdateNone, MonitorInfo);
+              ol.monitor->setMessage(LabelUpdateNone, MonitorSuccess);
             } else {
               ol.monitor->setMessage(LabelUpdateCheck, MonitorAction);
 

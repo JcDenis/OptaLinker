@@ -67,6 +67,16 @@ public:
   }
 
   /**
+   * Get duration since current loop start time.
+   *
+   * @return  The duration
+   */
+  uint32_t getDuration() {
+
+    return millis() - _time;
+  }
+
+  /**
    * Check loop even/odd state.
    *
    * @return  1 if odd loop, 0 is even loop
@@ -129,16 +139,6 @@ public:
   uint8_t isRun() {
 
     return _type == StateRun ? 1 : 0;
-  }
-
-  /**
-   * Get duration since current loop start time.
-   *
-   * @return  The duration
-   */
-  uint32_t getDuration() {
-
-    return millis() - _time;
   }
 
 }; // class OptaLinkerState

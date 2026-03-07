@@ -138,7 +138,7 @@ Publishing device informations topics:
 Command output state and device counters and device information topics:
 * `<base_topic>/<device_id>/input/x/reset` To reset partial counters for an input (value doesn't matter)
 * `<base_topic>/<device_id>/output/x/reset` To reset partial counters for an ouput (value doesn't matter)
-* `<base_topic>/<device_id>/output/x/set` To set state of an output with `0` = OFF, `1` = ON
+* `<base_topic>/<device_id>/output/set/x` To set state of an output with `0` = OFF, `1` = ON
 * `<base_topic>/<device_id>/device/get` to force device information publishing (value doesn't matter)
 * `<base_topic>/firmware/version` To alert board about a firmware update version
 
