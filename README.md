@@ -53,8 +53,9 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 ### Notes
 
 As this library is for industrial usage, expansion numbering and input numbering and output numbering start at 0, 
-not 1 as printed on Opta device. This means that the first input of the opta board is named as I0.0 in industry.
+not 1 as printed on Opta device. This means that the first input of the opta board is named as I0.0 
 
+To monitor your Opta devices data, you can use [OptaEquipments](https://github.com/JcDenis/OptaEquipments) project.
 
 ### Expansion
 
