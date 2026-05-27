@@ -422,7 +422,9 @@ constexpr char LabelMqttBrokerSuccess[] = "MQTT broker found";
 constexpr char LabelMqttSubscribe[]     = "Subcribed to MQTT topic: ";
 constexpr char LabelMqttReceive[]       = "Receiving MQTT command: ";
 constexpr char LabelMqttPublishDevice[] = "Publishing device informations to MQTT";
-constexpr char LabelMqttPublishInput[]  = "Publishing inputs informations to MQTT";
+constexpr char LabelMqttPublishInputs[]  = "Publishing inputs informations to MQTT";
+constexpr char LabelMqttPublishInput[]  = "Publishing an input informations to MQTT";
+constexpr char LabelMqttPublishOutput[]  = "Publishing an output informations to MQTT";
 
 // Web server
 constexpr char LabelWebSetup[]            = "Configuring web server";

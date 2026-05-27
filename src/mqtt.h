@@ -151,13 +151,21 @@ private:
     _genericClient.subscribe(_baseTopic + "output/set/#");
     monitor.setMessage(LabelMqttSubscribe + _baseTopic + "output/set/#", MonitorInfo);
 
+    // subscribe to commands for outputs get (update) value
+    _genericClient.subscribe(_baseTopic + "output/get");
+    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "output/get", MonitorInfo);
+
     // subscribe to commands for outputs reset high
-    _genericClient.subscribe(_baseTopic + "output/reset/#");
-    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "output/reset/#", MonitorInfo);
+    _genericClient.subscribe(_baseTopic + "output/reset");
+    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "output/reset", MonitorInfo);
+
+    // subscribe to commands for inputs get (update) value
+    _genericClient.subscribe(_baseTopic + "input/get");
+    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "input/get", MonitorInfo);
 
     // subscribe to commands for inputs reset high
-    _genericClient.subscribe(_baseTopic + "input/reset/#");
-    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "input/reset/#", MonitorInfo);
+    _genericClient.subscribe(_baseTopic + "input/reset");
+    monitor.setMessage(LabelMqttSubscribe + _baseTopic + "input/reset", MonitorInfo);
 
     publishDevice();
   }
@@ -190,20 +198,32 @@ private:
         for (uint8_t i = 0; i < 16; i++) {
 
           if (expansion[e].input[i].exists) {
-            // reset output state
-            if (topic.equals(_baseTopic + "input/reset/" + String(expansion[e].input[i].id))) {
+            // reset input state
+            if (topic.equals(_baseTopic + "input/reset") && payload.equals(String(expansion[e].input[i].id))) {
               monitor.setMessage("Resetting from MQTT input " + String(expansion[e].input[i].id), MonitorSuccess);
 
               io.resetInput(e, i);
+            }
+            // get input state
+            if (topic.equals(_baseTopic + "input/get") && payload.equals(String(expansion[e].input[i].id))) {
+              monitor.setMessage("Updating MQTT input " + String(expansion[e].input[i].id), MonitorSuccess);
+
+              publishInput(e, i);
             }
           }
 
           if (expansion[e].output[i].exists) {
             // reset output state
-            if (topic.equals(_baseTopic + "output/reset/" + String(expansion[e].output[i].id))) {
+            if (topic.equals(_baseTopic + "output/reset") && payload.equals(String(expansion[e].output[i].id))) {
               monitor.setMessage("Resetting from MQTT output " + String(expansion[e].output[i].id), MonitorSuccess);
 
               io.resetOutput(e, i);
+            }
+            // get output state
+            if (topic.equals(_baseTopic + "output/get") && payload.equals(String(expansion[e].output[i].id))) {
+              monitor.setMessage("Updating MQTT output " + String(expansion[e].output[i].id), MonitorSuccess);
+
+              publishOutput(e, i);
             }
 
             // set output state
@@ -237,7 +257,7 @@ private:
           publishMessage(topic + "pulse/" + idTopic, String(ios.pulse));
           publishMessage(topic + "partialPulse/" + idTopic, String(ios.partialPulse));
         } else {
-          // Publish timer only on low state
+          // Pubish timer only on low state
           publishMessage(topic + "high/" + idTopic, String(ios.high));
           publishMessage(topic + "partialHigh/" + idTopic, String(ios.partialHigh));
         }
@@ -410,11 +430,41 @@ public:
   }
 
   /**
+   * Publish one input on demand.
+   * 
+   * @param   e   The expension number
+   * @param   i   The input number
+   */
+  void publishInput(uint8_t e, uint8_t i) {
+      monitor.setMessage(LabelMqttPublishInput, MonitorAction);
+
+      ExpansionStruct *expansion = io.getExpansions();
+      if (expansion[e].exists) {
+        publishIo(_baseTopic + "input/", expansion[e].input[i], true);
+      }
+  }
+
+  /**
+   * Publish one output on demand.
+   * 
+   * @param   e   The expension number
+   * @param   i   The input number
+   */
+  void publishOutput(uint8_t e, uint8_t i) {
+      monitor.setMessage(LabelMqttPublishOutput, MonitorAction);
+
+      ExpansionStruct *expansion = io.getExpansions();
+      if (expansion[e].exists) {
+        publishIo(_baseTopic + "output/", expansion[e].input[i], true);
+      }
+  }
+
+  /**
    * Publish all inputs values.
    */
   void publishInputs() {
     if (network.isConnected() && isConnected()) {
-      monitor.setMessage(LabelMqttPublishInput, MonitorAction);
+      monitor.setMessage(LabelMqttPublishInputs, MonitorAction);
 
       ExpansionStruct *expansion = io.getExpansions();
       for (uint8_t e = 0; e < io.getExpansionsNum(); e++) {

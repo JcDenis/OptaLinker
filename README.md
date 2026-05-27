@@ -53,9 +53,8 @@ The goal of this library is to implement an easy to use MQTT/Modbus gateway and 
 ### Notes
 
 As this library is for industrial usage, expansion numbering and input numbering and output numbering start at 0, 
-not 1 as printed on Opta device. This means that the first input of the opta board is named as I0.0 
+not 1 as printed on Opta device. This means that the first input of the opta board is named as I0.0 in industry.
 
-To monitor your Opta devices data, you can use [OptaEquipments](https://github.com/JcDenis/OptaEquipments) project.
 
 ### Expansion
 
@@ -137,9 +136,11 @@ Publishing device informations topics:
 * `<base_topic>/<device_id>/rs485` The RS485 received values
 
 Command output state and device counters and device information topics:
-* `<base_topic>/<device_id>/input/x/reset` To reset partial counters for an input (value doesn't matter)
-* `<base_topic>/<device_id>/output/x/reset` To reset partial counters for an ouput (value doesn't matter)
-* `<base_topic>/<device_id>/output/set/x` To set state of an output with `0` = OFF, `1` = ON
+* `<base_topic>/<device_id>/input/get = x` To update MQTT value for an input
+* `<base_topic>/<device_id>/input/reset = x` To reset partial counters for an input
+* `<base_topic>/<device_id>/output/get = x` To update MQTT value for an output
+* `<base_topic>/<device_id>/output/reset = x` To reset partial counters for an ouput
+* `<base_topic>/<device_id>/output/set/x` To set state of an output with value `0` = OFF, `1` = ON
 * `<base_topic>/<device_id>/device/get` to force device information publishing (value doesn't matter)
 * `<base_topic>/firmware/version` To alert board about a firmware update version
 
