@@ -134,6 +134,7 @@ Publishing device informations topics:
 * `<base_topic>/<device_id>/device/ip` The device IPv4 address
 * `<base_topic>/<device_id>/device/revision` The device OptaLinker library version
 * `<base_topic>/<device_id>/rs485` The RS485 received values
+* `<base_topic>/<device_id>/watchdog` The device watchdog send a timestamp every minute
 
 Command output state and device counters and device information topics:
 * `<base_topic>/<device_id>/input/get = x` To update MQTT value for an input
@@ -141,8 +142,10 @@ Command output state and device counters and device information topics:
 * `<base_topic>/<device_id>/output/get = x` To update MQTT value for an output
 * `<base_topic>/<device_id>/output/reset = x` To reset partial counters for an ouput
 * `<base_topic>/<device_id>/output/set/x` To set state of an output with value `0` = OFF, `1` = ON
-* `<base_topic>/<device_id>/device/get` to force device information publishing (value doesn't matter)
-* `<base_topic>/firmware/version` To alert board about a firmware update version
+* `<base_topic>/<device_id>/device/get` To force device information publishing (value doesn't matter)
+* `<base_topic>/firmware/version` Deprecated see below
+* `<base_topic>/distant/ota/version` To alert board about a firmware update version
+* `<base_topic>/distant/watchdog` To alert board about distant server is alive
 
 In notation, x mean Input or Output uniq ID, it is made of "Expansion number" and "Input Number" starting at 0 for main board. 
 For example to set the output O1.3 of the device 98 (device 98, expansion 1, Output 3, the ouput print as 4 on the device) to 1 : `opta/98/output/103/set = 1`.

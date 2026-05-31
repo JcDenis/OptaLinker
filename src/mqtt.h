@@ -99,6 +99,11 @@ private:
   uint8_t _ledState = 0;
 
   /**
+   * Distant server last received message.
+   */
+  uint32_t _watchdogLast = 0;
+
+  /**
    * Connect to MQTT server.
    */
   void connect() {
@@ -140,8 +145,13 @@ private:
     _isConnected = 1;
 
     // subscribe to OTA update firmware version
-    _genericClient.subscribe(config.getMqttBase() + "firmware/version");
-    monitor.setMessage(LabelMqttSubscribe + config.getMqttBase() + "firmware/version", MonitorInfo);
+    _genericClient.subscribe(config.getMqttBase() + "firmware/version"); // deprecated
+    _genericClient.subscribe(config.getMqttBase() + "distant/ota/version");
+    monitor.setMessage(LabelMqttSubscribe + config.getMqttBase() + "distant/ota/version", MonitorInfo);
+
+    // subscribe to distant server watchdog
+    _genericClient.subscribe(config.getMqttBase() + "distant/watchdog");
+    monitor.setMessage(LabelMqttSubscribe + config.getMqttBase() + "distant/watchdog", MonitorInfo);
 
     // subscribe to command for device information
     _genericClient.subscribe(_baseTopic + "device/get");
@@ -180,9 +190,16 @@ private:
     monitor.setMessage(LabelMqttReceive + topic + " = " + payload, MonitorInfo);
 
     // Get OTA update version
-    String matchVersion = config.getMqttBase() + "firmware/version";
-    if (topic == matchVersion) {
+    String matchDeprecated = config.getMqttBase() + "firmware/version"; // deprecated
+    String matchVersion = config.getMqttBase() + "distant/ota/version";
+    if (topic == matchVersion || topic == matchDeprecated) {
       version.setOtaVersion((uint32_t)payload.toInt());
+    }
+
+    // Get distant server watchdog ping
+    String matchWatchdog = config.getMqttBase() + "distant/watchdog";
+    if (topic == matchWatchdog) {
+      _watchdogLast = state.getTime();
     }
 
     // Get order to publish device info
@@ -329,6 +346,9 @@ public:
         // every minute publish "high" stats
         if (state.getTime() - _lastStatistic > 60000) {
           _lastStatistic = state.getTime();
+
+          // publish watchdog time
+          publishMessage(config.getMqttBase() + "distant/watchdog", _lastStatistic);
         }
       }
 
@@ -478,6 +498,21 @@ public:
         }
       }
     }
+  }
+
+  /**
+   * Check if distant server is alive.
+   *
+   * @return  true if distant server is alive, else false
+   */
+  bool isWatched() {
+    // Return true of there are no distant watchdog
+    if (_watchdogLast == 0) {
+      return true;
+    }
+
+    // Check if last received message is more than 120 seconds
+    return _watchdogLast > (state.getTime() - 120000) ? false : true;
   }
 
 }; // class OptaLinkerMqtt
