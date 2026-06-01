@@ -145,7 +145,6 @@ private:
     _isConnected = 1;
 
     // subscribe to OTA update firmware version
-    _genericClient.subscribe(config.getMqttBase() + "firmware/version"); // deprecated
     _genericClient.subscribe(config.getMqttBase() + "distant/ota/version");
     monitor.setMessage(LabelMqttSubscribe + config.getMqttBase() + "distant/ota/version", MonitorInfo);
 
@@ -190,9 +189,8 @@ private:
     monitor.setMessage(LabelMqttReceive + topic + " = " + payload, MonitorInfo);
 
     // Get OTA update version
-    String matchDeprecated = config.getMqttBase() + "firmware/version"; // deprecated
     String matchVersion = config.getMqttBase() + "distant/ota/version";
-    if (topic == matchVersion || topic == matchDeprecated) {
+    if (topic == matchVersion) {
       version.setOtaVersion((uint32_t)payload.toInt());
     }
 
@@ -348,7 +346,7 @@ public:
           _lastStatistic = state.getTime();
 
           // publish watchdog time
-          publishMessage(config.getMqttBase() + "distant/watchdog", _lastStatistic);
+          publishMessage(_baseTopic + "watchdog", String(_lastStatistic));
         }
       }
 
@@ -503,16 +501,16 @@ public:
   /**
    * Check if distant server is alive.
    *
-   * @return  true if distant server is alive, else false
+   * @return  1 if distant server is alive, else 0
    */
-  bool isWatched() {
-    // Return true of there are no distant watchdog
+  uint8_t isWatched() {
+    // Return true if there are no distant watchdog
     if (_watchdogLast == 0) {
-      return true;
+      return 1;
     }
 
-    // Check if last received message is more than 120 seconds
-    return _watchdogLast > (state.getTime() - 120000) ? false : true;
+    // Check if last received message is more than 5 minutes
+    return (state.getTime() - _watchdogLast) < 300000 ? 1 : 0;
   }
 
 }; // class OptaLinkerMqtt
