@@ -1,3 +1,9 @@
+OptaLinker 1.2.0 - 2026.06.01
+=============================
+* Add MQTT bidirectional watchdog
+* Change OTA firmware topic (BC)
+* Update OTA exemples to 1.2.0
+
 OptaLinker 1.1.3 - 2026.05.27
 =============================
 * Add MQTT topic to update one io MQTT topic
