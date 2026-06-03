@@ -214,14 +214,14 @@ private:
 
           if (expansion[e].input[i].exists) {
             // reset input state
-            if (topic.equals(_baseTopic + "input/reset") && payload.equals(String(expansion[e].input[i].id))) {
-              monitor.setMessage("Resetting from MQTT input " + String(expansion[e].input[i].id), MonitorSuccess);
+            if (topic.equals(_baseTopic + "input/reset") && payload.equals(String(expansion[e].input[i].uid))) {
+              monitor.setMessage("Resetting from MQTT input " + String(expansion[e].input[i].uid), MonitorSuccess);
 
               io.resetInput(e, i);
             }
             // get input state
-            if (topic.equals(_baseTopic + "input/get") && payload.equals(String(expansion[e].input[i].id))) {
-              monitor.setMessage("Updating MQTT input " + String(expansion[e].input[i].id), MonitorSuccess);
+            if (topic.equals(_baseTopic + "input/get") && payload.equals(String(expansion[e].input[i].uid))) {
+              monitor.setMessage("Updating MQTT input " + String(expansion[e].input[i].uid), MonitorSuccess);
 
               publishInput(e, i);
             }
@@ -229,21 +229,21 @@ private:
 
           if (expansion[e].output[i].exists) {
             // reset output state
-            if (topic.equals(_baseTopic + "output/reset") && payload.equals(String(expansion[e].output[i].id))) {
-              monitor.setMessage("Resetting from MQTT output " + String(expansion[e].output[i].id), MonitorSuccess);
+            if (topic.equals(_baseTopic + "output/reset") && payload.equals(String(expansion[e].output[i].uid))) {
+              monitor.setMessage("Resetting from MQTT output " + String(expansion[e].output[i].uid), MonitorSuccess);
 
               io.resetOutput(e, i);
             }
             // get output state
-            if (topic.equals(_baseTopic + "output/get") && payload.equals(String(expansion[e].output[i].id))) {
-              monitor.setMessage("Updating MQTT output " + String(expansion[e].output[i].id), MonitorSuccess);
+            if (topic.equals(_baseTopic + "output/get") && payload.equals(String(expansion[e].output[i].uid))) {
+              monitor.setMessage("Updating MQTT output " + String(expansion[e].output[i].uid), MonitorSuccess);
 
               publishOutput(e, i);
             }
 
             // set output state
-            if (topic.equals(_baseTopic + "output/set/" + String(expansion[e].output[i].id))) {
-              monitor.setMessage("Setting from MQTT output " + String(expansion[e].output[i].id) + " to " + payload, MonitorSuccess);
+            if (topic.equals(_baseTopic + "output/set/" + String(expansion[e].output[i].uid))) {
+              monitor.setMessage("Setting from MQTT output " + String(expansion[e].output[i].uid) + " to " + payload, MonitorSuccess);
 
               io.setOutput(e, i, payload.toInt());
             }
@@ -261,7 +261,7 @@ private:
    */
   void publishIo(String topic, IoStruct ios, uint8_t force = false) {
     if (ios.exists) {
-      String idTopic = String(ios.id);
+      String idTopic = String(ios.uid);
 
       if (force || ios.update > _lastPublish) {
         // Always publish state
