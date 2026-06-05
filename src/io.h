@@ -404,8 +404,8 @@ public:
       ios.reset        = doc["reset"].isNull() ? 0 : doc["reset"].as<int>();
       ios.pulse        = doc["pulse"].isNull() ? 0 : doc["pulse"].as<int>();
       ios.partialPulse = doc["partialPulse"].isNull() ? 0 : doc["partialPulse"].as<int>();
-      ios.high         = doc["high"].isNull() ? 0 : doc["high"].as<int>();
-      ios.partialHigh  = doc["partialHigh"].isNull() ? 0 : doc["partialHigh"].as<int>();
+      ios.high         = doc["high"].isNull() ? 0 : doc["high"].as<signed long long>();
+      ios.partialHigh  = doc["partialHigh"].isNull() ? 0 : doc["partialHigh"].as<signed long long>();
     }
   }
 

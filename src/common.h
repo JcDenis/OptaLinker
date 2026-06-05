@@ -130,8 +130,8 @@ struct IoStruct {
   uint32_t reset;
   uint32_t pulse;
   uint32_t partialPulse;
-  uint32_t high;
-  uint32_t partialHigh;
+  uint64_t high;
+  uint64_t partialHigh;
 };
 
 /**
