@@ -33,13 +33,13 @@ jobs:
 
       - name: Get repository name
         id: repository
-        uses: MariachiBear/get-repo-name-action@v1.1.0
+        uses: MariachiBear/get-repo-name-action@v1.3.0
         with:
           with-owner: 'false'
 
       - name: Import GPG key
         id: import-gpg
-        uses: crazy-max/ghaction-import-gpg@v6
+        uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.BOT_GPG_KEY }}
           passphrase: ${{ secrets.BOT_GPG_PASS }}
@@ -65,7 +65,7 @@ jobs:
     
       - name: Create release with archive
         id: writerelease
-        uses: ncipollo/release-action@v1.14.0
+        uses: ncipollo/release-action@v1.21.0
         with:
           artifacts: '../${{ steps.repository.outputs.repository-name }}.zip'
           token: ${{ secrets.GITHUB_TOKEN }}
