@@ -270,14 +270,10 @@ For Arduino Finder Opta on its M7 core.
 
 From Arduino IDE menu: _Tools > Boards > Boards Manager_, you must install: 
 
-* `Arduino Mbed OS Opta Boards` by Arduino
+* `Arduino Mbed OS Opta Boards` __4.5.0__ by Arduino (this is not the latest but 4.6.0 break OTA update thread)
 
 
 ### Library manager
-
-From Arduino IDE menu: _Tools > Board > Boards Manager libraries_, you must install:
-
-* Arduino Mbed OS Opta Boards 4.5.0 (this is not the lastest but 4.60 break OTA update thread)
 
 From Arduino IDE menu: _Tools > Manage libraries_, you must install: 
 
