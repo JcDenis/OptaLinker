@@ -275,6 +275,10 @@ From Arduino IDE menu: _Tools > Boards > Boards Manager_, you must install:
 
 ### Library manager
 
+From Arduino IDE menu: _Tools > Board > Boards Manager libraries_, you must install:
+
+* Arduino Mbed OS Opta Boards 4.5.0 (this is not the lastest but 4.60 break OTA update thread)
+
 From Arduino IDE menu: _Tools > Manage libraries_, you must install: 
 
 * `ArduinoHttpClient` by Arduino at https://github.com/arduino-libraries/ArduinoHttpClient
