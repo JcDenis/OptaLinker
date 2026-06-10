@@ -1,3 +1,9 @@
+OptaLinker 1.2.2 - 2026.06.10
+=============================
+* Require bord manager Arduino Mbed OS Board 4.5.0 (not 4.6.0 that break OTA)
+* Change unit of timers partial high and high from lilliseconds to seconds
+* Fix io ID to UID in MQTT (take care of expansions)
+
 OptaLinker 1.2.0 - 2026.06.01
 =============================
 * Add MQTT bidirectional watchdog

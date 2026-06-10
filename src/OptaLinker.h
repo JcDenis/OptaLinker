@@ -280,7 +280,7 @@ private:
    * Construct OptaLinker instance and construct library modules.
    */
   OptaLinker() {
-    version  = new OptaLinkerVersion(1, 2, 1);
+    version  = new OptaLinkerVersion(1, 2, 2);
     state    = new OptaLinkerState();
     monitor  = new OptaLinkerMonitor(*state);
     board    = new OptaLinkerBoard(*state, *monitor);
@@ -318,6 +318,7 @@ private:
    * Download and uncompress large OTA file take lots of time.
    * Using OTA Watchdog callback has no effect on socket download.
    * So we use dedicated thread not to freeze main thread and loop.
+   * This works with Arduino Mbed OS Board 4.5.0 but breaks with 4.6.0 !!!
    *
    * TODO: Best way to resolve this is to provide custom socket->download function with internal watchdog kicker...
    * 
