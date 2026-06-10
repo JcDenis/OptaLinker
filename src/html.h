@@ -301,7 +301,7 @@ const char web_home_html[] = R"rawliteral(
             led.className = data.expansion[exp].input[inp].state ? 'led high' : 'led low';
             iLi.appendChild(led);
             const iSt = data.expansion[exp].input[inp].state ? "ON" : "OFF";
-            const iTm = data.expansion[exp].input[inp].partialHigh / 3600000; // ms to hour
+            const iTm = data.expansion[exp].input[inp].partialHigh / 3600; // s to hour
             iLi.appendChild(document.createTextNode(`[I${data.expansion[exp].id}.${data.expansion[exp].input[inp].id}] : ${iSt} : ${data.expansion[exp].input[inp].voltage.toFixed(0)}mV : ${data.expansion[exp].input[inp].partialPulse} pulse : ${iTm.toFixed(1)} Hours`));
             iUl.appendChild(iLi);
           }
@@ -320,7 +320,7 @@ const char web_home_html[] = R"rawliteral(
             led.className = data.expansion[exp].output[out].state ? 'led high' : 'led low';
             oLi.appendChild(led);
             const oSt = data.expansion[exp].output[out].state ? "ON" : "OFF";
-            const oTm = data.expansion[exp].output[out].partialHigh / 3600000; // ms to hour
+            const oTm = data.expansion[exp].output[out].partialHigh / 3600; // s to hour
             oLi.appendChild(document.createTextNode(`[O${data.expansion[exp].id}.${data.expansion[exp].output[out].id}] : ${oSt} : ${data.expansion[exp].output[out].partialPulse} pulses : ${oTm.toFixed(1)} Hours`));
             oUl.appendChild(oLi);
           }

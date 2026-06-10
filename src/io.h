@@ -121,8 +121,13 @@ public:
 
           // high
           if (dr && _expansion[0].input[i].state) {
-            _expansion[0].input[i].high += _pollDelay;
-            _expansion[0].input[i].partialHigh += _pollDelay;
+            _expansion[0].input[i].tickHigh += 1;
+            // Convert poll delay in second
+            if (_expansion[0].input[i].tickHigh > (1000 / _pollDelay)) {
+              _expansion[0].input[i].tickHigh = 0;
+              _expansion[0].input[i].high += 1;
+              _expansion[0].input[i].partialHigh += 1;
+            }
           }
 
           // pulse
@@ -145,8 +150,13 @@ public:
       for (uint8_t i = 0; i < 4; i++) {
         // allways increment "high" on output
         if (_expansion[0].output[i].exists && _expansion[0].output[i].state) {
-          _expansion[0].output[i].high += _pollDelay;
-          _expansion[0].output[i].partialHigh += _pollDelay;
+            _expansion[0].output[i].tickHigh += 1;
+            // Convert poll delay in second
+            if (_expansion[0].output[i].tickHigh > (1000 / _pollDelay)) {
+              _expansion[0].output[i].tickHigh = 0;
+              _expansion[0].output[i].high += 1;
+              _expansion[0].output[i].partialHigh += 1;
+            }
         }
       }
 
@@ -183,8 +193,13 @@ public:
 
               // high
               if (dr && _expansion[e].input[i].state) {
-                _expansion[e].input[i].high += _pollDelay;
-                _expansion[e].input[i].partialHigh += _pollDelay;
+                _expansion[e].input[i].tickHigh += 1;
+                // Convert poll delay in second
+                if (_expansion[e].input[i].tickHigh > (1000 / _pollDelay)) {
+                  _expansion[e].input[i].tickHigh = 0;
+                  _expansion[e].input[i].high += 1;
+                  _expansion[e].input[i].partialHigh += 1;
+                }
               }
 
               // pulse
@@ -207,8 +222,13 @@ public:
           for (uint8_t i = 0; i < OPTA_DIGITAL_OUT_NUM; i++) {
             // allways increment "high" on output
             if (_expansion[e].output[i].exists && _expansion[e].output[i].state) {
-              _expansion[e].output[i].high += _pollDelay;
-              _expansion[e].output[i].partialHigh += _pollDelay;
+               _expansion[e].output[i].tickHigh += 1;
+              // Convert poll delay in second
+              if (_expansion[e].output[i].tickHigh > (1000 / _pollDelay)) {
+                _expansion[e].output[i].tickHigh = 0;
+                _expansion[e].output[i].high += 1;
+                _expansion[e].output[i].partialHigh += 1;
+              }
             }
           }
         }
@@ -404,8 +424,8 @@ public:
       ios.reset        = doc["reset"].isNull() ? 0 : doc["reset"].as<int>();
       ios.pulse        = doc["pulse"].isNull() ? 0 : doc["pulse"].as<int>();
       ios.partialPulse = doc["partialPulse"].isNull() ? 0 : doc["partialPulse"].as<int>();
-      ios.high         = doc["high"].isNull() ? 0 : doc["high"].as<signed long long>();
-      ios.partialHigh  = doc["partialHigh"].isNull() ? 0 : doc["partialHigh"].as<signed long long>();
+      ios.high         = doc["high"].isNull() ? 0 : doc["high"].as<int>();
+      ios.partialHigh  = doc["partialHigh"].isNull() ? 0 : doc["partialHigh"].as<int>();
     }
   }
 
@@ -548,6 +568,10 @@ public:
       case IoFieldPartialHigh:
         rsp = ios.partialHigh;
         break;
+
+      case IoFieldTickHigh:
+        rsp = ios.tickHigh;
+        break;
     }
 
     return rsp;
@@ -616,6 +640,7 @@ public:
     if (ios.exists) {
       ios.partialPulse = 0;
       ios.partialHigh = 0;
+      ios.tickHigh = 0;
       ios.reset = state.getTime();
       ios.update = state.getTime();
     }
