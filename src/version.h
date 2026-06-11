@@ -49,11 +49,6 @@ private:
    */
   OtaType _state = OtaNone;
 
-  /**
-   * OTA check request.
-   */
-  uint8_t _request = 0;
-
 public:
 
   /**
@@ -143,10 +138,12 @@ public:
   /**
    * Set ongoing OTA update marker.
    *
-   * Only used to print monitor message.
+   * @param   The OTA update process OtaSate.
    */
   void setOtaState(OtaType state = OtaNone) {
-    _state = state;
+    if (state != OtaRequest || _state < OtaOngoing) {
+      _state = state;
+    }
   }
 
   /**
@@ -157,25 +154,6 @@ public:
   uint8_t getOtaState() {
 
     return _state;
-  }
-
-  /**
-   * Set OTA check request state.
-   *
-   * @param   1 to set OTA check request, else 0.
-   */
-  void setOtaRequest(uint8_t request = 1) {
-    _request = request;
-  }
-
-  /**
-   * Get OTA check request state.
-   *
-   * @return  The OTA request status, 1 for request, else 0.
-   */
-  uint8_t getOtaRequest() {
-
-    return _request;
   }
 
 }; // class OptaLinkerVersion

@@ -103,7 +103,7 @@ public:
     ota();
 
     // Display end of setup
-    monitor->setMessage(LabelOptaLinkerLoop, MonitorSuccess);
+    monitor->setMessage(LabelOptaLinkerLoop + version->toString(), MonitorSuccess);
 
     // Switch to RUN state
     return state->setType(StateRun);
@@ -137,7 +137,7 @@ public:
     }
 
     // Move to main loop OTA state
-    if (version->getOtaState() == 3 && (_otaLast == 0 || (state->getTime() - _otaLast > 10000))) { // 10s
+    if (version->getOtaState() == OtaOngoing && (_otaLast == 0 || (state->getTime() - _otaLast > 10000))) { // 10s
       _otaLast = state->getTime();
       monitor->setMessage(LabelOptaLinkerUpdate, MonitorLock);
     }
@@ -219,7 +219,7 @@ public:
         monitor->setMessage(LabelUpdateState + String(version->getOtaState()), MonitorInfo);
 
         if (version->getOtaState() != OtaFail) {
-          version->setOtaRequest(1);
+          version->setOtaState(OtaRequest);
         }
       }
 
@@ -348,13 +348,13 @@ private:
         // Infinite loop
         while(1) {
           // Check every hour
-          if (ol.version->getOtaState() < OtaOngoing && (ol.version->getOtaRequest() == 1 || (ol.state->getTime() - otaLast > otaDelay))) {
-            ol.version->setOtaRequest(0);
+          if (ol.version->getOtaState() < OtaOngoing && (ol.version->getOtaState() == OtaRequest || (ol.state->getTime() - otaLast > otaDelay))) {
             otaLast = ol.state->getTime();
             String otaUrl = ol.config->getUpdateUrl();
 
             if (!ol.network->isConnected() || !otaUrl.length() || !ol.version->getOtaVersion()) {
               // Requirements missing
+              ol.version->setOtaState(OtaNone);
             } else if (ol.version->getOtaVersion() <= ol.version->toInt()) {
               // No new version
               ol.monitor->setMessage(LabelUpdateNone, MonitorSuccess);

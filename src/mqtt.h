@@ -192,6 +192,7 @@ private:
     String matchVersion = config.getMqttBase() + "distant/ota/version";
     if (topic == matchVersion) {
       version.setOtaVersion((uint32_t)payload.toInt());
+      version.setOtaState(OtaRequest);
     }
 
     // Get distant server watchdog ping
@@ -444,6 +445,7 @@ public:
       publishMessage(_baseTopic + "device/type", board.getName());
       publishMessage(_baseTopic + "device/ip", network.getLocalIp().toString());
       publishMessage(_baseTopic + "device/revision", String(version.toInt()));
+      publishMessage(_baseTopic + "device/ota", String(version.getOtaState()));
     }
   }
 

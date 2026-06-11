@@ -94,8 +94,9 @@ enum StateType {
  */
 enum OtaType {
   OtaNone = 0,  // never done
+  OtaRequest,   // update requested
   OtaSkip,      // up to date
-  OtaSuccess,   // updated successufully
+  OtaSuccess,   // updated successfully
   OtaOngoing,   // ongping update
   OtaFail       // update failed
 };
@@ -288,7 +289,7 @@ constexpr uint16_t ModbusRegisterIoPartialReset = 18; // T1, value 0~1, for hold
  */
 
 // Main class
-constexpr char LabelOptaLinkerLoop[]             = "Setup completed";
+constexpr char LabelOptaLinkerLoop[]             = "Setup completed for firmware ";
 constexpr char LabelOptaLinkerThread[]           = "Starting threaded loop";
 constexpr char LabelOptaLinkerApply[]            = "You must reboot device";
 constexpr char LabelOptaLinkerUpdate[]           = "Processing OTA update, this may take a while...";
