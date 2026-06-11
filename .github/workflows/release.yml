@@ -19,7 +19,7 @@ jobs:
 
       - name: Check repository releases
         id: repository
-        uses: insightsengineering/release-existence-action@v1.0.0
+        uses: insightsengineering/release-existence-action@v1.0.1
         with:
           release-tag: 'v${{ needs.check_release.outputs.version }}'
 
