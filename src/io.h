@@ -70,6 +70,23 @@ private:
    */
   ExpansionStruct _expansion[OPTA_CONTROLLER_MAX_EXPANSION_NUM + 1];
 
+  /**
+   * Update an io timer in second.
+   *
+   * @param   IoStruct The expansion io
+   */
+  void tick(IoStruct &ios) {
+    if (ios.exists) {
+      ios.tickHigh += 1;
+      // Convert poll delay in second
+      if (ios.tickHigh > (1000 / _pollDelay)) {
+        ios.tickHigh = 0;
+        ios.high += 1;
+        ios.partialHigh += 1;
+      }
+    }
+  }
+
 public:
   OptaLinkerIo(OptaLinkerState &_state, OptaLinkerMonitor &_monitor, OptaLinkerBoard &_board, OptaLinkerStore &_store, OptaLinkerConfig &_config) : state(_state), monitor(_monitor), board(_board), store(_store), config(_config) {}
 
@@ -121,13 +138,7 @@ public:
 
           // high
           if (dr && _expansion[0].input[i].state) {
-            _expansion[0].input[i].tickHigh += 1;
-            // Convert poll delay in second
-            if (_expansion[0].input[i].tickHigh > (1000 / _pollDelay)) {
-              _expansion[0].input[i].tickHigh = 0;
-              _expansion[0].input[i].high += 1;
-              _expansion[0].input[i].partialHigh += 1;
-            }
+            tick(_expansion[0].input[i]);
           }
 
           // pulse
@@ -150,13 +161,7 @@ public:
       for (uint8_t i = 0; i < 4; i++) {
         // allways increment "high" on output
         if (_expansion[0].output[i].exists && _expansion[0].output[i].state) {
-            _expansion[0].output[i].tickHigh += 1;
-            // Convert poll delay in second
-            if (_expansion[0].output[i].tickHigh > (1000 / _pollDelay)) {
-              _expansion[0].output[i].tickHigh = 0;
-              _expansion[0].output[i].high += 1;
-              _expansion[0].output[i].partialHigh += 1;
-            }
+            tick(_expansion[0].output[i]);
         }
       }
 
@@ -193,13 +198,7 @@ public:
 
               // high
               if (dr && _expansion[e].input[i].state) {
-                _expansion[e].input[i].tickHigh += 1;
-                // Convert poll delay in second
-                if (_expansion[e].input[i].tickHigh > (1000 / _pollDelay)) {
-                  _expansion[e].input[i].tickHigh = 0;
-                  _expansion[e].input[i].high += 1;
-                  _expansion[e].input[i].partialHigh += 1;
-                }
+                tick(_expansion[e].input[i]);
               }
 
               // pulse
@@ -222,13 +221,7 @@ public:
           for (uint8_t i = 0; i < OPTA_DIGITAL_OUT_NUM; i++) {
             // allways increment "high" on output
             if (_expansion[e].output[i].exists && _expansion[e].output[i].state) {
-               _expansion[e].output[i].tickHigh += 1;
-              // Convert poll delay in second
-              if (_expansion[e].output[i].tickHigh > (1000 / _pollDelay)) {
-                _expansion[e].output[i].tickHigh = 0;
-                _expansion[e].output[i].high += 1;
-                _expansion[e].output[i].partialHigh += 1;
-              }
+              tick(_expansion[e].output[i]);
             }
           }
         }
