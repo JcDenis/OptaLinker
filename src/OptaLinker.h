@@ -137,7 +137,7 @@ public:
     }
 
     // Move to main loop OTA state
-    if (version->getOtaState() && (_otaLast == 0 || (state->getTime() - _otaLast > 10000))) { // 10s
+    if (version->getOtaState() == 3 && (_otaLast == 0 || (state->getTime() - _otaLast > 10000))) { // 10s
       _otaLast = state->getTime();
       monitor->setMessage(LabelOptaLinkerUpdate, MonitorLock);
     }
@@ -211,6 +211,15 @@ public:
         io->initializeIo();
         if (io->writeToFile()) {
           board->reboot();
+        }
+      }
+
+      if (message.equals("check ota")) {
+        monitor->setMessage(LabelUpdateRevision + String(version->getOtaVersion()), MonitorInfo);
+        monitor->setMessage(LabelUpdateState + String(version->getOtaState()), MonitorInfo);
+
+        if (version->getOtaState() != OtaFail) {
+          version->setOtaRequest(1);
         }
       }
 
@@ -339,19 +348,21 @@ private:
         // Infinite loop
         while(1) {
           // Check every hour
-          if (ol.state->getTime() - otaLast > otaDelay) {
+          if (ol.version->getOtaState() < OtaOngoing && (ol.version->getOtaRequest() == 1 || (ol.state->getTime() - otaLast > otaDelay))) {
+            ol.version->setOtaRequest(0);
             otaLast = ol.state->getTime();
             String otaUrl = ol.config->getUpdateUrl();
 
             if (!ol.network->isConnected() || !otaUrl.length() || !ol.version->getOtaVersion()) {
               // Requirements missing
             } else if (ol.version->getOtaVersion() <= ol.version->toInt()) {
+              // No new version
               ol.monitor->setMessage(LabelUpdateNone, MonitorSuccess);
+              ol.version->setOtaState(OtaSkip);
             } else {
+              // processing update
               ol.monitor->setMessage(LabelUpdateCheck, MonitorAction);
-
-              // Announce to main loop we are processing ota update
-              ol.version->getOtaState(1);
+              ol.version->setOtaState(OtaOngoing);
 
               // Stop web server as OTA download fails if web server is running!
               ol.web->stopServer();
@@ -363,10 +374,12 @@ private:
               // Check board
               if (!aota.isOtaCapable()) {
                 ol.monitor->setMessage(LabelUpdateUpgrade, MonitorWarning);
+                ol.version->setOtaState(OtaFail);
 
               // Begin OTA
               } else if ((otaError = aota.begin()) != Arduino_Portenta_OTA::Error::None) {
                 ol.monitor->setMessage(LabelUpdateBeginFail + String((int)otaError), MonitorWarning);
+                ol.version->setOtaState(OtaFail);
 
               } else {
                 // Bad way to check if we use ssl
@@ -377,6 +390,7 @@ private:
                 int const ota_download = aota.download(otaUrl.c_str(), ssl /* is_https */);
                 if (ota_download <= 0) {
                   ol.monitor->setMessage(LabelUpdateDownloadFail + String(ota_download), MonitorWarning);
+                  ol.version->setOtaState(OtaFail);
 
                 } else {
                   ol.monitor->setMessage(String(ota_download) + " bytes stored.", MonitorInfo);
@@ -386,6 +400,7 @@ private:
                   int const ota_decompress = aota.decompress();
                   if (ota_decompress < 0) {
                     ol.monitor->setMessage(LabelUpdateUncompressFail + String(ota_decompress), MonitorWarning);
+                    ol.version->setOtaState(OtaFail);
                   } else {
                     ol.monitor->setMessage(String(ota_decompress) + " bytes decompressed.", MonitorInfo);
 
@@ -393,8 +408,10 @@ private:
                     ol.monitor->setMessage(LabelUpdateBootloader, MonitorInfo);
                     if ((otaError = aota.update()) != Arduino_Portenta_OTA::Error::None) {
                       ol.monitor->setMessage(LabelUpdateBootloaderFail + String((int)otaError), MonitorWarning);
+                      ol.version->setOtaState(OtaFail);
                     } else {
                       ol.monitor->setMessage(LabelUpdateSuccess, MonitorStop);
+                      ol.version->setOtaState(OtaSuccess);
 
                       // Reboot
                       aota.reset();
@@ -403,7 +420,6 @@ private:
                 }
               }
               ol.web->startServer();
-              ol.version->getOtaState(0);
             }
           }
           yield();

@@ -229,7 +229,8 @@ const char web_home_html[] = R"rawliteral(
 <div class="part hidden">
   <h2>Informations</h2>
   <ul>
-    <li>Device time is <span id="optaTime" class="datetime">unknown</span></li>
+    <li><span class="led high"></span>Device time:&nbsp;<span id="optaTime" class="datetime">unknown</span></li>
+    <li><span id="otaStatus" class="led low"></span>OTA firmware:&nbsp;<span id="otaVersion" class="datetime">unknown</span> (Status:&nbsp;<span id="otaState">unknown</span>)</li>
     <li><span id="mqttStatus" class="led low"></span><span id="mqttText">MQTT disconnected</span> <button type="button" id="mqttPublish" class="hidden">Publish to MQTT</button></li>
   </ul>
 </div>
@@ -273,6 +274,9 @@ const char web_home_html[] = R"rawliteral(
       document.getElementById('mqttStatus').className = data.mqttConnected ? 'led high' : 'led low';
       document.getElementById('mqttText').innerText = data.mqttConnected ? 'MQTT connected' : 'MQTT disconnected';
       document.getElementById('mqttPublish').className = data.mqttConnected ? '' : 'hidden';
+      document.getElementById('otaVersion').innerText = data.otaVersion;
+      document.getElementById('otaState').innerText = data.otaState;
+      document.getElementById('otaStatus').className = data.otaState < 3 ? 'led high' : 'led low';
 
       const expansions = document.getElementById('expansions');
       expansions.innerHTML = "";

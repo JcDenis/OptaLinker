@@ -90,6 +90,17 @@ enum StateType {
 };
 
 /**
+ * OTA firmware update status.
+ */
+enum OtaType {
+  OtaNone = 0,  // never done
+  OtaSkip,      // up to date
+  OtaSuccess,   // updated successufully
+  OtaOngoing,   // ongping update
+  OtaFail       // update failed
+};
+
+/**
  * Input/Output type.
  */
 enum IoType {
@@ -451,6 +462,8 @@ constexpr char LabelUpdateUncompressFail[] = "Failed to uncompress OTA firmware 
 constexpr char LabelUpdateBootloader[]     = "Storing parameters for firmware update in bootloader";
 constexpr char LabelUpdateBootloaderFail[] = "Failed to set up bootlader ";
 constexpr char LabelUpdateSuccess[]        = "Performing a reset after which the bootloader will update the firmware";
+constexpr char LabelUpdateRevision[]       = "OTA firmware revision: ";
+constexpr char LabelUpdateState[]          = "OTA firwmare update status: ";
 
 } // namespace optalinker
 

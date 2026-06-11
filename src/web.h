@@ -316,6 +316,8 @@ private:
     doc["mqttConnected"] = mqtt.isConnected();
     doc["time"] = clock.toString();
     doc["gmt"] = config.getTimeOffset();
+    doc["otaState"] = String(version.getOtaState());
+    doc["otaVersion"] = String(version.getOtaVersion());
 
     // io
     JsonDocument exp;
