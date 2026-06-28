@@ -48,7 +48,7 @@ private:
   /**
    * io poll delay.
    */
-  uint32_t _pollDelay = 50;
+  uint32_t _pollDelay = 25;
 
   /**
    * Last poll time.

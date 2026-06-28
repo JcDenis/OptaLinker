@@ -94,6 +94,7 @@ These commands are not case sensitive.
 * `print boot` 		: Send to serial the number of time device reboot
 * `print loop`    	: Send to serial monitor the number of loops per second
 * `print ip`      	: Send to serial monitor the device IPv4 address
+* `print boot`    	: Send to serial monitor the number of boot of the device
 * `switch dhcp`    	: Switch ethernet DHCP mode in configuration
 * `switch wifi`    	: Switch Wifi/Ethernet mode in configuration
 * `print time`		: Send to serial monitor the device time
@@ -278,13 +279,13 @@ From Arduino IDE menu: _Tools > Boards > Boards Manager_, you must install:
 From Arduino IDE menu: _Tools > Manage libraries_, you must install: 
 
 * `ArduinoHttpClient` by Arduino at https://github.com/arduino-libraries/ArduinoHttpClient
-* `ArduinoMqttClient` by Arduino at https://github.com/arduino-libraries/ArduinoMqttClient
 * `Arduinojson` by Benoit Blanchon at https://github.com/bblanchon/ArduinoJson.git
 * `ArduinoRS485` by Arduino at https://github.com/arduino-libraries/ArduinoRS485
 * `ArduinoModbus` by Arduino at https://docs.arduino.cc/libraries/arduinomodbus/
 * `Arduino_KVStore` by arduino at https://github.com/arduino-libraries/Arduino_KVStore
 * `Arduino_Opta_Blueprint` by Daniele Aimo at https://github.com/arduino-libraries/Arduino_Opta_Blueprint
 * `Arduino_Portenta_OTA` by Arduino at https://github.com/arduino-libraries/Arduino_Portenta_OTA
+* `MQTT` by Joel Gaehwiler at https://github.com/256dpi/arduino-mqtt
 * `NTPClient` by Fabrice Weinberg at https://github.com/arduino-libraries/NTPClient
 
 

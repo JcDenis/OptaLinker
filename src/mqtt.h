@@ -11,13 +11,18 @@
 #ifndef OPTALINKER_MQTT_H
 #define OPTALINKER_MQTT_H
 
-#include <ArduinoMqttClient.h>
+#include <MQTTClient.h>
 #include <Ethernet.h>
 #include <WiFi.h>
 
+#include "OptaLinker.h"
 #include "OptaLinkerModule.h"
 
 namespace optalinker {
+
+/**
+ * Forward declarations.
+ */
 
 class OptaLinkerVersion;
 class OptaLinkerState;
@@ -27,6 +32,9 @@ class OptaLinkerConfig;
 class OptaLinkerIo;
 class OptaLinkerNetwork;
 class OptaLinkerRs485;
+
+class OptaLinkerMqtt;
+static OptaLinkerMqtt* instance = nullptr;
 
 /**
  * OptaLinker Library MQTT module.
@@ -64,9 +72,21 @@ private:
   uint32_t _lastPublish = 0;
 
   /**
-   * last statictics topics update time.
+   * Last statictics topics update time.
    */
   uint32_t _lastStatistic = 0;
+
+  /**
+   * MQTT poll delay.
+   *
+   * Used to adjust stability.
+   */
+  uint32_t _pollDelay = 10;
+
+  /**
+   * Last MQTT poll time.
+   */
+  uint32_t _pollLast = 0;
 
   /**
    * MQTT connection status.
@@ -86,7 +106,7 @@ private:
   /**
    * Generic client for MQTT.
    */
-  MqttClient _genericClient = nullptr;
+  MQTTClient _genericClient = MQTTClient();
 
   /**
    * Last LED change time.
@@ -130,10 +150,7 @@ private:
     monitor.setMessage(LabelMqttBroker, MonitorAction);
 
     board.setFreeze();
-    _genericClient.setId(String("opta" + config.getDeviceId()).c_str());
-    _genericClient.setUsernamePassword(config.getMqttUser(), config.getMqttPassword());
-    _genericClient.setConnectionTimeout(network.getTimeout()); // This directive has no effect !
-    if (!_genericClient.connect(config.getMqttIp(), config.getMqttPort())) {
+    if (!_genericClient.connect(String("opta" + config.getDeviceId()).c_str(), config.getMqttUser().c_str(), config.getMqttPassword().c_str())) {
       monitor.setMessage(LabelMqttBrokerFail, MonitorFail);
       board.unsetFreeze();
 
@@ -180,12 +197,26 @@ private:
   }
 
   /**
+   * Static callback for received message.
+   *
+   * MQTT library required a static method for callback.
+   *
+   * @param   topic     The MQTT topic
+   * @param   payload   The MQTT payload
+   */
+  static void staticReceiveMessage(String &topic, String &payload) {
+    if (instance) {
+      instance->receiveMessage(topic, payload);
+    }
+  }
+
+  /**
    * Parse received message.
    *
    * @param   topic     The MQTT topic
    * @param   payload   The MQTT payload
    */
-  void receiveMessage(String &topic, String &payload) {
+  void receiveMessage(String topic, String payload) {
     monitor.setMessage(LabelMqttReceive + topic + " = " + payload, MonitorInfo);
 
     // Get OTA update version
@@ -288,7 +319,10 @@ private:
 
 
 public:
-  OptaLinkerMqtt(OptaLinkerVersion &_version, OptaLinkerState &_state, OptaLinkerMonitor &_monitor, OptaLinkerBoard &_board, OptaLinkerConfig &_config, OptaLinkerIo &_io, OptaLinkerNetwork &_network, OptaLinkerRs485 &_rs485) : version(_version), state(_state), monitor(_monitor), board(_board), config(_config), io(_io), network(_network), rs485(_rs485) {}
+  OptaLinkerMqtt(OptaLinkerVersion &_version, OptaLinkerState &_state, OptaLinkerMonitor &_monitor, OptaLinkerBoard &_board, OptaLinkerConfig &_config, OptaLinkerIo &_io, OptaLinkerNetwork &_network, OptaLinkerRs485 &_rs485) : version(_version), state(_state), monitor(_monitor), board(_board), config(_config), io(_io), network(_network), rs485(_rs485) {
+    // Required for static callback.
+    instance = this;
+  }
 
   uint8_t setup() {
     // Disable MQTT feature
@@ -304,12 +338,11 @@ public:
 
     board.setFreeze();
     if (network.isEthernet()) {
-      MqttClient tempMqttClient(_ethernetClient);
-      _genericClient = tempMqttClient;
+      _genericClient.begin(config.getMqttIp().toString().c_str(), config.getMqttPort(), _ethernetClient);
     } else {
-      MqttClient tempMqttClient(_wifiClient);
-      _genericClient = tempMqttClient;
+      _genericClient.begin(config.getMqttIp().toString().c_str(), config.getMqttPort(), _wifiClient);
     }
+    _genericClient.onMessage(staticReceiveMessage);
     board.unsetFreeze();
 
     connect();
@@ -352,15 +385,9 @@ public:
       }
 
       // Read output command from MQTT
-      int rspSize = _genericClient.parseMessage();
-      if (rspSize) {
-        String rspTopic = _genericClient.messageTopic();
-        String rspPayload = "";
-        for (int index = 0; index < rspSize; index++) {
-          rspPayload += (char)_genericClient.read();
-        }
-
-        receiveMessage(rspTopic, rspPayload);
+      if (state.getTime() - _pollLast > _pollDelay) { // try to fix stability
+        _pollLast = state.getTime();
+        _genericClient.loop();
       }
 
       // Write rs485 incoming message to MQTT
@@ -425,9 +452,7 @@ public:
    */
   uint8_t publishMessage(String topic, String message) {
     if(isConnected()) {
-      _genericClient.beginMessage(topic, true, 1);
-      _genericClient.print(message);
-      _genericClient.endMessage();
+      _genericClient.publish(topic.c_str(), message.c_str(), true, 1);
 
       return 1;
     }
