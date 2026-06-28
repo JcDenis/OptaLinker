@@ -81,7 +81,7 @@ private:
    *
    * Used to adjust stability.
    */
-  uint32_t _pollDelay = 10;
+  uint32_t _pollDelay = 20;
 
   /**
    * Last MQTT poll time.
