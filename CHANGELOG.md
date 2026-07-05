@@ -1,5 +1,16 @@
 Important note: OptaLinker requires board manager Arduino Mbed OS Board 4.5.0, NOT 4.6.0 that break OTA.
 
+TODO
+====
+* Add io values stack (when offline)
+* Add full MQTT OTA update (missing binary)
+* Add full HTTP PTA update (missing version)
+
+OptaLinker 1.3.0 - 2026.07.05
+=============================
+* Change MQTT library from ArduinoMQTTClient to MQTT (at https://github.com/256dpi/arduino-mqtt )
+* Update OT exemple
+
 OptaLinker 1.2.3 - 2026.06.11
 =============================
 * Add OTA helpers

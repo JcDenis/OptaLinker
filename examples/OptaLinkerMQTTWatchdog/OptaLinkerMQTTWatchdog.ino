@@ -64,7 +64,10 @@ void loop() {
   // Check every 60000
   if ((_now - _lastPoll) > 60000) {
     _lastPoll = _now;
-    // Check MQTT distant server watchdog
+    /**
+     * Check MQTT distant server watchdog.
+     * OptaLinker watch if a message is coming from MQTT topic opta/distant/watchdog.
+     */
     if (linker.mqtt->isWatched() == 0) {
       linker.monitor->setMessage("> Server is dead !", MonitorFail);
       _countDead = _countDead + 1;

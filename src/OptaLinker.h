@@ -289,7 +289,7 @@ private:
    * Construct OptaLinker instance and construct library modules.
    */
   OptaLinker() {
-    version  = new OptaLinkerVersion(1, 2, 3);
+    version  = new OptaLinkerVersion(1, 3, 0);
     state    = new OptaLinkerState();
     monitor  = new OptaLinkerMonitor(*state);
     board    = new OptaLinkerBoard(*state, *monitor);

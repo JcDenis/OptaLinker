@@ -97,7 +97,7 @@ enum OtaType {
   OtaRequest,   // update requested
   OtaSkip,      // up to date
   OtaSuccess,   // updated successfully
-  OtaOngoing,   // ongping update
+  OtaOngoing,   // ongoing update
   OtaFail       // update failed
 };
 
