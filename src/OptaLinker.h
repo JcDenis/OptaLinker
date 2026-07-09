@@ -209,9 +209,7 @@ public:
 
       if (message.equals("reset io")) {
         io->initializeIo();
-        if (io->writeToFile()) {
-          board->reboot();
-        }
+        io->clearIo();
       }
 
       if (message.equals("check ota")) {

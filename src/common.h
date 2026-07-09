@@ -378,6 +378,7 @@ constexpr char LabelIoExpansionNone[]   = "Unknown expansion name ";
 constexpr char LabelIoExpansionDmec[]   = "Arduino Pro Opta Ext D16O8E - AFX00005 ";
 constexpr char LabelIoExpansionDsts[]   = "Arduino Pro Opta Ext D16O8S - AFX00006";
 constexpr char LabelIoExpansionAnalog[] = "Arduino Pro Opta Ext A06O2 - AFX00007 ";
+constexpr char LabelIoClear[]           = "Resetting all IO counters";
 constexpr char LabelIoStore[]           = "Storing inputs and outputs values to flash memory";
 
 // Network

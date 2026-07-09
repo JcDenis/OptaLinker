@@ -593,6 +593,16 @@ const char web_device_html[] = R"rawliteral(
     </div>
 
     <div class="part">
+      <h2>Misc.</h2>
+
+      <div class="clearIo">
+        <input type="checkbox" id="clearIo" name="clearIo" value="1">
+        <label for="clearIo">Reset all IO counters</label>
+      </div>
+
+    </div>
+
+    <div class="part">
       <h2>Save</h2>
 
       <div class="field">
@@ -798,6 +808,11 @@ const char web_device_html[] = R"rawliteral(
       const wifiButton = document.querySelector('.networkWifi button.selected');
       if (wifiButton) {
         config.networkWifi = wifiButton.getAttribute('data-value') === '1' ? 1 : 0;
+      }
+
+      const clearIoButton = document.querySelector('.clearIo input');
+      if (clearIoButton) {
+        config.clearIo = clearIoButton.checked ? 1 : 0;
       }
 
       try {

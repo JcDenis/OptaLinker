@@ -387,7 +387,10 @@ private:
         monitor.setMessage(LabelWebConfigKeepMqtt, MonitorInfo);
         config.setMqttPassword(oldMqttPassword);
       }
-
+      if (config.getClearIo() > 0) {
+        io.clearIo();
+        config.setClearIo(0);
+      }
     }
     board.pingTimeout();
 

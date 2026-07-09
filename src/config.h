@@ -65,6 +65,7 @@ private:
   uint32_t _mqttInterval = 0;
 
   String _updateUrl = "";
+  uint8_t _clearIo = 0;
 
   /**
    * Convert IP addresse from string 0.0.0.0 to IPAddress object.
@@ -298,6 +299,10 @@ public:
 
 	  if (!doc["updateUrl"].isNull()) {
 	    setUpdateUrl(doc["updateUrl"].as<String>());
+	  }
+
+	  if (!doc["clearIo"].isNull() && doc["clearIo"].as<int>() > 0) {
+	  	setClearIo(1);
 	  }
 
 	  return 1;
@@ -738,6 +743,16 @@ public:
 		  monitor.setMessage(LabelConfigSetUpdateUrl + String(value), MonitorSuccess);
 		  _updateUrl = value;
 		}
+	}
+
+	uint8_t getClearIo() const {
+
+		return _clearIo;
+	}
+
+	void setClearIo(uint8_t clear) {
+
+		_clearIo = clear;
 	}
 
 }; // class OptaLinkerConfig

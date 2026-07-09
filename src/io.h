@@ -625,12 +625,46 @@ public:
   }
 
   /**
-   * Reset an io.
+   * Reset all IO counters (partial and total).
+   */
+  void clearIo() {
+    monitor.setMessage(LabelIoClear, MonitorInfo);
+    // main board inputs
+    for (uint8_t i = 0; i < getMaxInputNum(); i++) {
+      resetIo(_expansion[0].input[i], 1);
+    }
+    // main board outputs
+    for (uint8_t i = 0; i < getMaxOutputNum(); i++) {
+      resetIo(_expansion[0].output[i], 1);
+    }
+    // expansions
+    for (uint8_t n = 0; n < OptaController.getExpansionNum(); n++) {
+      uint8_t e = n + 1;
+      if (_expansion[e].exists && _expansion[e].type != ExpansionAnalog) { // Analog expansion not yet implemented
+        // expansion inputs
+        for (uint8_t i = 0; i < OPTA_DIGITAL_IN_NUM; i++) {
+          resetIo(_expansion[i].input[i], 1);
+        }
+        // expansion ouputs
+        for (uint8_t i = 0; i < OPTA_DIGITAL_OUT_NUM; i++) {
+          resetIo(_expansion[i].output[i], 1);
+        }
+      }
+    }
+    writeToFile();
+  }
+
+  /**
+   * Reset an io partial or full counters.
    *
    * @param   ios   An io instance
    */
-  void resetIo(IoStruct &ios) {
+  void resetIo(IoStruct &ios, uint8_t full = 0) {
     if (ios.exists) {
+      if (full > 0) {
+        ios.pulse = 0;
+        ios.high = 0;
+      }
       ios.partialPulse = 0;
       ios.partialHigh = 0;
       ios.tickHigh = 0;
@@ -640,7 +674,7 @@ public:
   }
 
   /**
-   * Reset an input.
+   * Reset an input partial counters.
    *
    * @param   expansion   The expansion um
    * @param   input       The input num
@@ -652,7 +686,7 @@ public:
   }
 
   /**
-   * Reset an output.
+   * Reset an output partial counters.
    *
    * @param   expansion   The expansion um
    * @param   output      The output num
