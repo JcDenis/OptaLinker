@@ -73,16 +73,27 @@ private:
   /**
    * Update an io timer in second.
    *
-   * @param   IoStruct The expansion io
+   * @param   IoStruct  The expansion io
+   * @param   uint8_t   Work on low timer
    */
-  void tick(IoStruct &ios) {
+  void tick(IoStruct &ios, uint8_t low = 0) {
     if (ios.exists) {
-      ios.tickHigh += 1;
-      // Convert poll delay in second
-      if (ios.tickHigh > (1000 / _pollDelay)) {
-        ios.tickHigh = 0;
-        ios.high += 1;
-        ios.partialHigh += 1;
+      if (low > 0) {
+        ios.tickLow += 1;
+        // Convert poll delay in second
+        if (ios.tickLow > (1000 / _pollDelay)) {
+          ios.tickLow = 0;
+          ios.low += 1;
+          ios.partialLow += 1;
+        }
+      } else {
+        ios.tickHigh += 1;
+        // Convert poll delay in second
+        if (ios.tickHigh > (1000 / _pollDelay)) {
+          ios.tickHigh = 0;
+          ios.high += 1;
+          ios.partialHigh += 1;
+        }
       }
     }
   }
@@ -141,6 +152,11 @@ public:
             tick(_expansion[0].input[i]);
           }
 
+          // low
+          if (!dr && !_expansion[0].input[i].state) {
+            tick(_expansion[0].input[i], 1);
+          }
+
           // pulse
           if (dr && !_expansion[0].input[i].state) {
             _expansion[0].input[i].pulse++;
@@ -160,8 +176,8 @@ public:
       // read board ouput
       for (uint8_t i = 0; i < 4; i++) {
         // allways increment "high" on output
-        if (_expansion[0].output[i].exists && _expansion[0].output[i].state) {
-            tick(_expansion[0].output[i]);
+        if (_expansion[0].output[i].exists) {
+            tick(_expansion[0].output[i], _expansion[0].output[i].state ? 0 : 1);
         }
       }
 
@@ -201,6 +217,11 @@ public:
                 tick(_expansion[e].input[i]);
               }
 
+              // low
+              if (!dr && !_expansion[e].input[i].state) {
+                tick(_expansion[e].input[i], 1);
+              }
+
               // pulse
               if (dr && !_expansion[e].input[i].state) {
                 _expansion[e].input[i].pulse++;
@@ -220,8 +241,8 @@ public:
           // read ouput
           for (uint8_t i = 0; i < OPTA_DIGITAL_OUT_NUM; i++) {
             // allways increment "high" on output
-            if (_expansion[e].output[i].exists && _expansion[e].output[i].state) {
-              tick(_expansion[e].output[i]);
+            if (_expansion[e].output[i].exists) {
+              tick(_expansion[e].output[i], _expansion[e].output[i].state ? 0 : 1);
             }
           }
         }
@@ -370,6 +391,8 @@ public:
       doc["partialPulse"] = ios.partialPulse;
       doc["high"]         = ios.high;
       doc["partialHigh"]  = ios.partialHigh;
+      doc["low"]          = ios.low;
+      doc["partialLow"]   = ios.partialLow;
     } else {
       doc["exists"] = 0;
     }
@@ -419,6 +442,8 @@ public:
       ios.partialPulse = doc["partialPulse"].isNull() ? 0 : doc["partialPulse"].as<int>();
       ios.high         = doc["high"].isNull() ? 0 : doc["high"].as<int>();
       ios.partialHigh  = doc["partialHigh"].isNull() ? 0 : doc["partialHigh"].as<int>();
+      ios.low          = doc["low"].isNull() ? 0 : doc["low"].as<int>();
+      ios.partialLow   = doc["partialLow"].isNull() ? 0 : doc["partialLow"].as<int>();
     }
   }
 
@@ -565,6 +590,18 @@ public:
       case IoFieldTickHigh:
         rsp = ios.tickHigh;
         break;
+
+      case IoFieldLow:
+        rsp = ios.low;
+        break;
+
+      case IoFieldPartialLow:
+        rsp = ios.partialLow;
+        break;
+
+      case IoFieldTickLow:
+        rsp = ios.tickLow;
+        break;
     }
 
     return rsp;
@@ -664,10 +701,13 @@ public:
       if (full > 0) {
         ios.pulse = 0;
         ios.high = 0;
+        ios.low = 0;
       }
       ios.partialPulse = 0;
       ios.partialHigh = 0;
       ios.tickHigh = 0;
+      ios.partialLow = 0;
+      ios.tickLow = 0;
       ios.reset = state.getTime();
       ios.update = state.getTime();
     }

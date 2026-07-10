@@ -126,7 +126,10 @@ enum IoField {
   IoFieldPartialPulse,
   IoFieldHigh,
   IoFieldPartialHigh,
-  IoFieldTickHigh
+  IoFieldTickHigh,
+  IoFieldLow,
+  IoFieldPartialLow,
+  IoFieldTickLow
 };
 
 /**
@@ -146,6 +149,9 @@ struct IoStruct {
   uint32_t high;
   uint32_t partialHigh;
   uint8_t tickHigh;
+  uint32_t low;
+  uint32_t partialLow;
+  uint8_t tickLow;
 };
 
 /**

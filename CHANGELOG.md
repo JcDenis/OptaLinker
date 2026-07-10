@@ -9,6 +9,7 @@ TODO
 OptaLinker 1.3.1 - Incoming
 ===========================
 * Add button to web interface to reset ALL IO counters
+* Add low level timers
 
 OptaLinker 1.3.0 - 2026.07.05
 =============================

@@ -307,12 +307,16 @@ private:
           // Pubish timer only on low state
           publishMessage(topic + "high/" + idTopic, String(ios.high));
           publishMessage(topic + "partialHigh/" + idTopic, String(ios.partialHigh));
+          publishMessage(topic + "low/" + idTopic, String(ios.low));
+          publishMessage(topic + "partialLow/" + idTopic, String(ios.partialLow));
         }
 
       } else if (state.getTime() - _lastStatistic > 60000) {
         // Refresh timer every minutes
         publishMessage(topic + "high/" + idTopic, String(ios.high));
         publishMessage(topic + "partialHigh/" + idTopic, String(ios.partialHigh));
+        publishMessage(topic + "low/" + idTopic, String(ios.low));
+        publishMessage(topic + "partialLow/" + idTopic, String(ios.partialLow));
       }
     }
   }
