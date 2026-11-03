@@ -320,14 +320,30 @@ private:
   uint32_t _otaLast   = 0;
 
   /**
+   * Feed board watchdog during OTA download and decompress.
+   *
+   * Called by MbedSocketClass on each received chunk and by Arduino_Portenta_OTA
+   * during decompress. As it is only called while data flows, a stalled
+   * download still lets the watchdog reset the board.
+   */
+  static void otaFeedWatchdog() {
+    getInstance().board->pingTimeout();
+  }
+
+  /**
    * Execute OTA updater process in a dedicated thread.
    * 
    * Download and uncompress large OTA file take lots of time.
-   * Using OTA Watchdog callback has no effect on socket download.
    * So we use dedicated thread not to freeze main thread and loop.
-   * This works with Arduino Mbed OS Board 4.5.0 but breaks with 4.6.0 !!!
    *
-   * TODO: Best way to resolve this is to provide custom socket->download function with internal watchdog kicker...
+   * Since Arduino Mbed OS Opta Boards 4.6.0, WiFi.getNetwork() returns nullptr
+   * on Opta boards without WiFi module (Lite, RS485). Arduino_Portenta_OTA::download()
+   * uses WiFi socket by default, so download dereferenced a null interface,
+   * the board hard faulted (no auto reboot) and the watchdog reset it 30s later.
+   * We now pass the socket of the network really in use (Ethernet or WiFi).
+   *
+   * The OTA thread has its own large stack: HTTP(S) download (mbedTLS) and
+   * decompress overflow the default 4KB rtos thread stack.
    * 
    * TODO: Manage fatal error on ota class because we can not do ota.begin() twice
    * see https://github.com/arduino-libraries/Arduino_Portenta_OTA/issues/55
@@ -337,11 +353,12 @@ private:
     if (!_otaStarted) {
       _otaStarted = 1;
 
-      static rtos::Thread otaThread;
+      // OTA download (TLS) and decompress need more than default 4KB stack
+      static rtos::Thread otaThread(osPriorityNormal, 16 * 1024, nullptr, "ota");
       otaThread.start([]() {
         uint32_t otaLast = 0;
         uint32_t otaDelay = 3600000; // 1h
-        OptaLinker ol = getInstance();
+        OptaLinker &ol = getInstance(); // reference, not a copy of the singleton
 
         // Infinite loop
         while(1) {
@@ -369,6 +386,13 @@ private:
               Arduino_Portenta_OTA_QSPI aota(QSPI_FLASH_FATFS_MBR, 2);
               Arduino_Portenta_OTA::Error otaError = Arduino_Portenta_OTA::Error::None;
 
+              // Use socket of the network in use (default OTA socket is WiFi, which is null on non WiFi Opta since core 4.6.0)
+              MbedSocketClass *otaSocket = ol.network->isEthernet() ? static_cast<MbedSocketClass*>(&Ethernet) : static_cast<MbedSocketClass*>(&WiFi);
+
+              // Feed watchdog while downloading and decompressing
+              otaSocket->setFeedWatchdogFunc(otaFeedWatchdog);
+              aota.setFeedWatchdogFunc(otaFeedWatchdog);
+
               // Check board
               if (!aota.isOtaCapable()) {
                 ol.monitor->setMessage(LabelUpdateUpgrade, MonitorWarning);
@@ -385,7 +409,7 @@ private:
 
                 // Download
                 ol.monitor->setMessage(LabelUpdateDownload + otaUrl, MonitorInfo);
-                int const ota_download = aota.download(otaUrl.c_str(), ssl /* is_https */);
+                int const ota_download = aota.download(otaUrl.c_str(), ssl /* is_https */, otaSocket);
                 if (ota_download <= 0) {
                   ol.monitor->setMessage(LabelUpdateDownloadFail + String(ota_download), MonitorWarning);
                   ol.version->setOtaState(OtaFail);
@@ -420,7 +444,8 @@ private:
               ol.web->startServer();
             }
           }
-          yield();
+          // No need to spin: check state every 100ms and let other threads run
+          delay(100);
         }
       });
     }
