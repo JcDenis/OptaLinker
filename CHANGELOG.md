@@ -1,5 +1,3 @@
-Important note: OptaLinker requires board manager Arduino Mbed OS Board 4.5.0, NOT 4.6.0 that break OTA.
-
 TODO
 ====
 * Add io values stack (when offline)
