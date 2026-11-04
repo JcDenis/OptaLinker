@@ -4,8 +4,8 @@ TODO
 * Add full MQTT OTA update (missing binary)
 * Add full HTTP OTA update (missing version)
 
-OptaLinker 1.3.1 - Incoming
-===========================
+OptaLinker 1.4.0 - 2026.11.04
+=============================
 * Add button to web interface to reset ALL IO counters
 * Add low level timers
 * Fix OTA update with Arduino Mbed OS Opta Boards 4.6.0 (use network socket in use, feed watchdog, larger OTA thread stack)
