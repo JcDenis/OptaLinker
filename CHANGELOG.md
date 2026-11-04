@@ -10,6 +10,8 @@ OptaLinker 1.3.1 - Incoming
 ===========================
 * Add button to web interface to reset ALL IO counters
 * Add low level timers
+* Fix OTA update with Arduino Mbed OS Opta Boards 4.6.0 (use network socket in use, feed watchdog, larger OTA thread stack)
+* Add OTA download progress on monitor and reboot if OTA download stalls for 60s
 
 OptaLinker 1.3.0 - 2026.07.05
 =============================

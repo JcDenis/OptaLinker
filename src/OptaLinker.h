@@ -142,6 +142,13 @@ public:
       monitor->setMessage(LabelOptaLinkerUpdate, MonitorLock);
     }
 
+    // OTA download stalled: main loop still feeds watchdog, so blocking socket would wait forever
+    if (_otaDownloading && (millis() - _otaProgressTime > 60000)) { // 60s without data
+      _otaDownloading = 0;
+      monitor->setMessage(LabelUpdateStalled, MonitorFail);
+      board->reboot();
+    }
+
     uint8_t loopBenchmarkStart = 0;
 
     // Check if a known serial message arrives
@@ -320,14 +327,92 @@ private:
   uint32_t _otaLast   = 0;
 
   /**
+   * OTA download progress.
+   *
+   * Written by OTA thread, read by main loop for stall detection.
+   */
+  FILE *_otaFile                       = nullptr;
+  uint32_t _otaBytes                   = 0;
+  uint32_t _otaTotal                   = 0;
+  uint32_t _otaStartTime               = 0;
+  uint32_t _otaReportTime              = 0;
+  volatile uint32_t _otaProgressTime   = 0;
+  volatile uint8_t _otaDownloading     = 0;
+
+  /**
+   * Feed board watchdog during OTA download and decompress.
+   */
+  static void otaFeedWatchdog() {
+    getInstance().board->pingTimeout();
+  }
+
+  /**
+   * OTA download body callback.
+   *
+   * Replace MbedSocketClass default callback to write file AND report progress.
+   * File path is the one used by Arduino_Portenta_OTA::decompress() (UPDATE_FILE_NAME_LZSS).
+   * Total size comes from OTA header: first 4 bytes are payload length (without len and crc32 fields).
+   */
+  static void otaDownloadChunk(const char *data, uint32_t length) {
+    OptaLinker &ol = getInstance();
+
+    otaFeedWatchdog();
+    ol._otaProgressTime = millis();
+
+    if (ol._otaFile) {
+      fwrite(data, 1, length, ol._otaFile);
+    }
+
+    // Read total size from OTA header
+    if (ol._otaBytes < 4) {
+      for (uint32_t i = 0; i < length && ol._otaBytes + i < 4; i++) {
+        ol._otaTotal |= ((uint32_t)(uint8_t)data[i]) << (8 * (ol._otaBytes + i));
+      }
+      if (ol._otaBytes + length >= 4) {
+        ol._otaTotal += 8; // + len + crc32 fields
+      }
+    }
+    ol._otaBytes += length;
+
+    // Report every 5s
+    if (millis() - ol._otaReportTime > 5000) {
+      ol._otaReportTime = millis();
+      ol.otaReport();
+    }
+  }
+
+  /**
+   * Display OTA download progress on monitor.
+   */
+  void otaReport() {
+    uint32_t elapsed = (millis() - _otaStartTime) / 1000;
+    String msg = String(LabelUpdateProgress) + String(_otaBytes);
+    if (_otaTotal > 8) {
+      msg += " / " + String(_otaTotal) + " bytes (" + String((uint32_t)((uint64_t)_otaBytes * 100 / _otaTotal)) + "%)";
+    } else {
+      msg += " bytes";
+    }
+    msg += " in " + String(elapsed) + "s";
+    if (elapsed > 0) {
+      msg += " (" + String(_otaBytes / 1024 / elapsed) + " KB/s)";
+    }
+    monitor->setMessage(msg, MonitorInfo);
+  }
+
+  /**
    * Execute OTA updater process in a dedicated thread.
    * 
    * Download and uncompress large OTA file take lots of time.
-   * Using OTA Watchdog callback has no effect on socket download.
    * So we use dedicated thread not to freeze main thread and loop.
-   * This works with Arduino Mbed OS Board 4.5.0 but breaks with 4.6.0 !!!
    *
-   * TODO: Best way to resolve this is to provide custom socket->download function with internal watchdog kicker...
+   * Since Arduino Mbed OS Opta Boards 4.6.0, WiFi.getNetwork() returns nullptr
+   * on Opta boards without WiFi module (Lite, RS485). Arduino_Portenta_OTA::download()
+   * uses WiFi socket by default, so download dereferenced a null interface,
+   * the board hard faulted (no auto reboot) and the watchdog reset it 30s later.
+   * We now pass the socket of the network really in use (Ethernet or WiFi).
+   *
+   * The OTA thread has its own large stack: HTTP(S) download (mbedTLS) and
+   * decompress overflow the default 4KB rtos thread stack.
    * 
    * TODO: Manage fatal error on ota class because we can not do ota.begin() twice
    * see https://github.com/arduino-libraries/Arduino_Portenta_OTA/issues/55
@@ -337,11 +422,12 @@ private:
     if (!_otaStarted) {
       _otaStarted = 1;
 
-      static rtos::Thread otaThread;
+      // OTA download (TLS) and decompress need more than default 4KB stack
+      static rtos::Thread otaThread(osPriorityNormal, 16 * 1024, nullptr, "ota");
       otaThread.start([]() {
         uint32_t otaLast = 0;
         uint32_t otaDelay = 3600000; // 1h
-        OptaLinker ol = getInstance();
+        OptaLinker &ol = getInstance(); // reference, not a copy of the singleton
 
         // Infinite loop
         while(1) {
@@ -369,6 +455,12 @@ private:
               Arduino_Portenta_OTA_QSPI aota(QSPI_FLASH_FATFS_MBR, 2);
               Arduino_Portenta_OTA::Error otaError = Arduino_Portenta_OTA::Error::None;
 
+              // Use socket of the network in use (default OTA socket is WiFi, which is null on non WiFi Opta since core 4.6.0)
+              MbedSocketClass *otaSocket = ol.network->isEthernet() ? static_cast<MbedSocketClass*>(&Ethernet) : static_cast<MbedSocketClass*>(&WiFi);
+
+              // Feed watchdog while decompressing (download feeds it through otaDownloadChunk)
+              aota.setFeedWatchdogFunc(otaFeedWatchdog);
+
               // Check board
               if (!aota.isOtaCapable()) {
                 ol.monitor->setMessage(LabelUpdateUpgrade, MonitorWarning);
@@ -385,7 +477,21 @@ private:
 
                 // Download
                 ol.monitor->setMessage(LabelUpdateDownload + otaUrl, MonitorInfo);
-                int const ota_download = aota.download(otaUrl.c_str(), ssl /* is_https */);
+                // Custom download (instead of aota.download()) to display progress
+                ol._otaBytes = ol._otaTotal = 0;
+                ol._otaStartTime = ol._otaReportTime = ol._otaProgressTime = millis();
+                ol._otaFile = fopen("/fs/UPDATE.BIN.LZSS", "wb");
+                int ota_download = 0;
+                if (!ol._otaFile) {
+                  ota_download = -1;
+                } else {
+                  ol._otaDownloading = 1;
+                  ota_download = otaSocket->download(otaUrl.c_str(), ssl, mbed::callback(otaDownloadChunk));
+                  ol._otaDownloading = 0;
+                  fclose(ol._otaFile);
+                  ol._otaFile = nullptr;
+                  ol.otaReport();
+                }
                 if (ota_download <= 0) {
                   ol.monitor->setMessage(LabelUpdateDownloadFail + String(ota_download), MonitorWarning);
                   ol.version->setOtaState(OtaFail);
@@ -420,7 +526,8 @@ private:
               ol.web->startServer();
             }
           }
-          yield();
+          // No need to spin: check state every 100ms and let other threads run
+          delay(100);
         }
       });
     }
